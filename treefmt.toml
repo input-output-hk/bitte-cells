@@ -1,0 +1,27 @@
+# One CLI to format the code tree - https://github.com/numtide/treefmt
+
+[formatter.nix]
+command = "alejandra"
+includes = ["*.nix"]
+
+[formatter.prettier]
+command = "prettier"
+options = ["--write"]
+includes = [
+    "*.md",
+    "*.yaml",
+    "*.toml",
+]
+options = ["--plugin", "prettier-plugin-toml", "--write"]
+
+[formatter.shell]
+command = "shfmt"
+options = [
+    "-i",
+    "2",  # indent 2
+    "-s",  # simplify the code
+    "-w",  # write back to the file
+]
+includes = ["*.sh"]
+
+

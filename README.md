@@ -36,10 +36,11 @@ You'll find further information about this nomenclature in the
     }];
     cellsFrom = ./cells;
     organelles = [ "<...>" ];
-              
-  } 
-  (inputs.std.distill "cardano" inputs.cardano-cell)
-  (inputs.std.distill "patroni" inputs.patroni-cell)
+  }
+
+  # soil
+  (inputs.std.harvest "cardano" inputs.cardano-cell)
+  (inputs.std.harvest "patroni" inputs.patroni-cell)
   ;
 }
 ```

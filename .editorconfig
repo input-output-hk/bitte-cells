@@ -20,6 +20,10 @@ indent_size = unset
 max_line_length = off
 trim_trailing_whitespace = false
 
+[*.py]
+indent_size = 4
+indent_style = tab
+
 # Ignore paths
 [*.xcf]
 charset = unset

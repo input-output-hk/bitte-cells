@@ -7,8 +7,10 @@
   inputs.alejandra.inputs.treefmt.url = "github:divnix/blank";
   inputs.std.url = "github:divnix/std";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.bitte-cells.url = "path:../.";
   outputs = inputs: inputs.flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (
     system: let
+      bcProfiles = inputs.bitte-cells.devshellProfiles.${system};
       stdProfiles = inputs.std.devshellProfiles.${system};
       devshell = inputs.devshell.legacyPackages.${system};
       nixpkgs = inputs.nixpkgs.legacyPackages.${system};
@@ -25,6 +27,7 @@
             nixpkgs.shfmt
             nixpkgs.nodePackages.prettier
             nixpkgs.nodePackages.prettier-plugin-toml
+            nixpkgs.python3Packages.black
           ];
           devshell.startup.nodejs-setuphook = nixpkgs.lib.stringsWithDeps.noDepEntry ''
             export NODE_PATH=${nixpkgs.nodePackages.prettier-plugin-toml}/lib/node_modules:$NODE_PATH

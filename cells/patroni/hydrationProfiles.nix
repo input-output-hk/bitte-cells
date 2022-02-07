@@ -22,6 +22,7 @@ in
     s = "sudo";
     acc = nixpkgs.lib.foldl nixpkgs.lib.recursiveUpdate { };
     perNamespace = f: acc (builtins.map (n: f n) namespaces);
+    perNamespaceList = f: builtins.map (n: f n) namespaces;
   in
     {
       # ------------------------------------------------------------------------------------------
@@ -30,6 +31,19 @@ in
       cluster.iam.roles.client.policies = perNamespace (
         namespace: allowS3ForBucket "postgres-backups-${namespace}" "backups/${namespace}" [ "walg" ]
       );
+      # ------------------------------------------------------------------------------------------
+      # CAVE: these are genuine nomad client configuration and currently require a client redeploy
+      # ------------------------------------------------------------------------------------------
+      services.nomad.client = {
+        host_volume = perNamespaceList (
+          namespace: {
+            "${namespace}-database" = {
+              path = "/var/lib/nomad-volumes/${namespace}-database";
+              read_only = false;
+            };
+          }
+        );
+      };
       # ------------------------
       # hydrate-cluster
       # ------------------------

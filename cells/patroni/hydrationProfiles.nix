@@ -23,7 +23,7 @@ in
     s = "sudo";
     acc = nixpkgs.lib.foldl nixpkgs.lib.recursiveUpdate { };
     perNamespaceList = f: builtins.map (n: f n) namespaces;
-    perNamespace = f: acc perNamespaceList f;
+    perNamespace = f: acc (perNamespaceList f);
   in
     {
       # ------------------------

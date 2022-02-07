@@ -1,10 +1,7 @@
 { ... }:
 {
   routing =
-    { lib
-    , pkgs
-    , config
-    , pkiFiles
+    { pkiFiles
     , ...
     }:
     {

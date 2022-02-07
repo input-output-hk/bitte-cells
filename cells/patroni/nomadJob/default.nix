@@ -130,7 +130,7 @@ in
                   };
                   volume_mount = [
                     {
-                      destination = "/persist-db";
+                      destination = volumeMount;
                       propagation_mode = "private";
                       volume = "persistDb";
                     }
@@ -141,7 +141,15 @@ in
               # ----------
               patroni =
                 (
-                  import ./env-patroni.nix { inherit secretsPath consulPath patroniYaml namespace; }
+                  import ./env-patroni.nix {
+                    inherit
+                      secretsPath
+                      consulPath
+                      volumeMount
+                      patroniYaml
+                      namespace
+                      ;
+                  }
                 )
                 // (import ./env-pki-patroni.nix { inherit pkiPath; })
                 // {

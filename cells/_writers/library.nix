@@ -67,52 +67,54 @@ let
           meta.mainProgram = name;
         }
       );
-  writePython3Application = { name
-  , text
-  , runtimeInputs ? [ ]
-  , libraries ? [ ]
-  , checkPhase ? null
-  }:
-  writeTextFile {
-    inherit name;
-    executable = true;
-    destination = "/bin/${name}";
-    text = ''
-      #!${
-      if libraries == [ ]
-      then "${nixpkgs.python3}/bin/python"
-      else "${nixpkgs.python3.withPackages (ps: libraries)}/bin/python"
-    }
-      # fmt: off
-      import os; os.environ["PATH"] += os.pathsep + os.pathsep.join("${
-      lib.makeBinPath runtimeInputs
-    }".split(":"))
-      # fmt: on
+  writePython3Application =
+    { name
+    , text
+    , runtimeInputs ? [ ]
+    , libraries ? [ ]
+    , checkPhase ? null
+    }:
+    writeTextFile {
+      inherit name;
+      executable = true;
+      destination = "/bin/${name}";
+      text = ''
+        #!${
+        if libraries == [ ]
+        then "${nixpkgs.python3}/bin/python"
+        else "${nixpkgs.python3.withPackages (ps: libraries)}/bin/python"
+      }
+        # fmt: off
+        import os; os.environ["PATH"] += os.pathsep + os.pathsep.join("${
+        lib.makeBinPath runtimeInputs
+      }".split(":"))
+        # fmt: on
 
-      ${text}
-    '';
-    checkPhase =
-      if checkPhase == null
-      then
-        ''
-          runHook preCheck
-          ${nixpkgs.python3Packages.black}/bin/black --check $out/bin/${name}
-          runHook postCheck
-        ''
-      else checkPhase;
-    meta.mainProgram = name;
-  };
+        ${text}
+      '';
+      checkPhase =
+        if checkPhase == null
+        then
+          ''
+            runHook preCheck
+            ${nixpkgs.python3Packages.black}/bin/black --check $out/bin/${name}
+            runHook postCheck
+          ''
+        else checkPhase;
+      meta.mainProgram = name;
+    };
 in
 {
   inherit writePython3Application;
-  writeShellApplication = { ... } @ args:
-  writeShellApplication' (
-    args
-    // {
-      text = ''
-        export LOCALE_ARCHIVE=${glibcLocales}/lib/locale/locale-archive
-        ${args.text}
-      '';
-    }
-  );
+  writeShellApplication =
+    { ... } @ args:
+    writeShellApplication' (
+      args
+      // {
+        text = ''
+          export LOCALE_ARCHIVE=${glibcLocales}/lib/locale/locale-archive
+          ${args.text}
+        '';
+      }
+    );
 }

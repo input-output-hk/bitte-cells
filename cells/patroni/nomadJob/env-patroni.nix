@@ -1,4 +1,9 @@
-{ namespace }:
+{ secretsPath
+, consulPath
+, patroniYaml
+, volumeMount
+, namespace
+}:
 let
   patroniBootstrapMethod = "initdb";
   patroniBootstrapMethodWalgPitrTimeline = 1;
@@ -8,114 +13,18 @@ in
 {
   env = {
     PATH = "/bin";
-    PGDATA = "/persist-db/postgres/patroni";
+    PGDATA = "${volumeMount}/postgres/patroni";
     DB = "SPECIFIED-IN-FLAKE";
     WALG_S3_PREFIX = "SPECIFIED-IN-FLAKE";
   };
   template = [
     {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "pki/issue/postgres" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.certificate }}
-        {{ end }}
-        {{ end }}
-      '';
-      destination = "secrets/cert-postgres.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
-      splay = "5s";
-    }
-    {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "pki/issue/postgres" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.private_key }}
-        {{ end }}
-        {{ end }}
-      '';
-      destination = "secrets/cert-key-postgres.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
-      splay = "5s";
-    }
-    {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "pki/issue/postgres" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.issuing_ca }}
-        {{ end }}
-        {{ end }}
-      '';
-      destination = "secrets/cert-ca-postgres.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
-      splay = "5s";
-    }
-    {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "pki/issue/postgres" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.certificate }}
-        {{ end }}
-        {{ end }}
-      '';
-      destination = "secrets/cert-patroni.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
-      splay = "5s";
-    }
-    {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "pki/issue/postgres" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.private_key }}
-        {{ end }}
-        {{ end }}
-      '';
-      destination = "secrets/cert-key-patroni.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
-      splay = "5s";
-    }
-    {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "pki/issue/postgres" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.issuing_ca }}
-        {{ end }}
-        {{ end }}
-      '';
-      destination = "secrets/cert-ca-patroni.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
-      splay = "5s";
-    }
-    {
       change_mode = "restart";
       data = ''
-        {{ with secret "consul/creds/patroni" }}
+        {{ with secret "${consulPath}" }}
         CONSUL_HTTP_TOKEN="{{ .Data.token }}"
         PATRONI_CONSUL_TOKEN="{{ .Data.token }}"
-        PATRONICTL_CONFIG_FILE="/secrets/patroni.yml"
+        PATRONICTL_CONFIG_FILE="${patroniYaml}"
         {{ end }}
 
         CONSUL_HTTP_ADDR="127.0.0.1:8500"
@@ -135,7 +44,7 @@ in
       change_mode = "signal";
       change_signal = "SIGHUP";
       data = ''
-        {{with secret "kv/nomad-cluster/${namespace}/database"}}
+        {{with secret "${secretsPath}"}}
         ---
         scope: ${namespace}-database
         name: pg-{{ env "NOMAD_ALLOC_INDEX" }}
@@ -144,9 +53,9 @@ in
           authentication:
             username: {{ .Data.data.patroniApi }}
             password: {{ .Data.data.patroniApiPass }}
-          cafile: '/persist-db/postgres/cert-ca-patroni.pem'
-          certfile: '/persist-db/postgres/cert-patroni.pem'
-          keyfile: '/persist-db/postgres/cert-key-patroni.pem'
+          cafile: '${volumeMount}/postgres/cert-ca-patroni.pem'
+          certfile: '${volumeMount}/postgres/cert-patroni.pem'
+          keyfile: '${volumeMount}/postgres/cert-key-patroni.pem'
           connect_address: {{ env "NOMAD_IP_patroni" }}:{{ env "NOMAD_PORT_patroni" }}
           http_extra_headers:
             'X-Frame-Options': 'SAMEORIGIN'
@@ -283,7 +192,7 @@ in
             - wal_g
             - basebackup
           connect_address: "{{ env "NOMAD_IP_psql" }}:{{ env "NOMAD_PORT_psql" }}"
-          data_dir: '/persist-db/postgres/patroni'
+          data_dir: '${volumeMount}/postgres/patroni'
           listen: "0.0.0.0:{{ env "NOMAD_PORT_psql" }}"
           parameters:
             archive_mode: on
@@ -297,9 +206,9 @@ in
             log_statement: mod
             password_encryption: scram-sha-256
             ssl: on
-            ssl_ca_file: '/persist-db/postgres/cert-ca-postgres.pem'
-            ssl_cert_file: '/persist-db/postgres/cert-postgres.pem'
-            ssl_key_file: '/persist-db/postgres/cert-key-postgres.pem'
+            ssl_ca_file: '${volumeMount}/postgres/cert-ca-postgres.pem'
+            ssl_cert_file: '${volumeMount}/postgres/cert-postgres.pem'
+            ssl_key_file: '${volumeMount}/postgres/cert-key-postgres.pem'
             unix_socket_directories: '/alloc'
           recovery_conf:
             restore_command: restore-command "%f" "%p"
@@ -320,7 +229,7 @@ in
           safety_margin: -1
         {{end}}
       '';
-      destination = "secrets/patroni.yml";
+      destination = patroniYaml;
       left_delimiter = "{{";
       perms = "0644";
       right_delimiter = "}}";

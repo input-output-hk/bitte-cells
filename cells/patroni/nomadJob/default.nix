@@ -3,13 +3,13 @@
 }:
 let
   rev = inputs.sourceInfo.rev or "NOREV";
+  entrypoints = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${system.host.system}";
 in
 {
   "" =
     { namespace
     , datacenters ? [ "eu-central-1" "eu-west-1" "us-east-2" ]
     , domain
-    , selfRev
     , nodeClass
     , scaling
     }:
@@ -18,6 +18,11 @@ in
       type = "service";
       priority = 50;
       subdomain = "patroni.${domain}";
+      consulPath = "consul/creds/patroni";
+      secretsPath = "kv/nomad-cluster/${namespace}/database";
+      pkiPath = "pki/issue/postgres";
+      patroniYaml = "secrets/patroni.yaml";
+      volumeMount = "/persist-db";
     in
       {
         job.database = {
@@ -97,7 +102,9 @@ in
               # Backup wal-g
               # ----------
               backup-walg =
-                (import ./env-backup-walg.nix { inherit namespace; })
+                (
+                  import ./env-backup-walg.nix { inherit secretsPath volumeMount; }
+                )
                 // {
                   resources = {
                     cpu = 500;
@@ -107,9 +114,7 @@ in
                   config = {
                     args = [ ];
                     command = "/bin/entrypoint-walg";
-                    flake = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${
-                      system.host.system
-                    }.patroni-backup-sidecar-entrypoint";
+                    flake = "${entrypoints}.patroni-backup-sidecar-entrypoint";
                     flake_deps = [ ];
                   };
                   kill_signal = "SIGINT";
@@ -135,7 +140,10 @@ in
               # Patroni
               # ----------
               patroni =
-                (import ./env-patroni.nix { inherit namespace; })
+                (
+                  import ./env-patroni.nix { inherit secretsPath consulPath patroniYaml namespace; }
+                )
+                // (import ./env-pki-patroni.nix { inherit pkiPath; })
                 // {
                   resources = {
                     cpu = 2000;
@@ -143,11 +151,9 @@ in
                   };
                   driver = "exec";
                   config = {
-                    args = [ "/secrets/patroni.yml" ];
+                    flake = "${entrypoints}.patroni-entrypoint";
                     command = "/bin/entrypoint";
-                    flake = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${
-                      system.host.system
-                    }.patroni-entrypoint";
+                    args = [ patroniYaml ];
                     flake_deps = [ ];
                   };
                   kill_signal = "SIGINT";
@@ -165,7 +171,7 @@ in
                   };
                   volume_mount = [
                     {
-                      destination = "/persist-db";
+                      destination = volumeMount;
                       propagation_mode = "private";
                       volume = "persistDb";
                     }

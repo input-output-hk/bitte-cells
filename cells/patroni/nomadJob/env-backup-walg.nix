@@ -1,4 +1,6 @@
-{ namespace }:
+{ secretsPath
+, volumeMount
+}:
 let
   walgBackupFromReplica = false;
   walgDaysToRetain = 7;
@@ -6,7 +8,7 @@ in
 {
   env = {
     PATH = "/bin";
-    PGDATA = "/persist-db/postgres/patroni";
+    PGDATA = "${volumeMount}/postgres/patroni";
     PGHOST = "/alloc";
     SLEEP_COUNTER = "4320";
     SLEEP_PERIOD = "10";
@@ -22,7 +24,7 @@ in
     {
       change_mode = "restart";
       data = ''
-        {{with secret "kv/nomad-cluster/${namespace}/database"}}
+        {{with secret "${secretsPath}"}}
         INIT_USER="{{.Data.data.patroniSuper}}"
         {{end}}
       '';

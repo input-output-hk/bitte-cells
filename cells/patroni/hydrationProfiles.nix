@@ -3,7 +3,7 @@
 }:
 let
   nixpkgs = inputs.nixpkgs;
-  nixosProfiles = inputs.nixosProfiles.${system.host.system};
+  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
 in
 {
   hydrate-cluster = namespaces: { terralib

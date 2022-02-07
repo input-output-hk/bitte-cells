@@ -3,6 +3,7 @@
 }:
 let
   nixpkgs = inputs.nixpkgs;
+  nixosProfiles = inputs.nixosProfiles.${system.host.system};
 in
 {
   hydrate-cluster = namespaces: { terralib
@@ -21,29 +22,30 @@ in
     l = "list";
     s = "sudo";
     acc = nixpkgs.lib.foldl nixpkgs.lib.recursiveUpdate { };
-    perNamespace = f: acc (builtins.map (n: f n) namespaces);
     perNamespaceList = f: builtins.map (n: f n) namespaces;
+    perNamespace = f: acc perNamespaceList f;
   in
     {
+      # ------------------------
+      # CAVE: this is a genuine aws config for routing and requires reapply of `tf.core`
+      # CAVE: modules are nixosProfiles and require a redeploy of routing
+      # ------------------------
+      cluster.instances.routing = {
+        modules = [ nixosProfiles.patroni-routing ];
+        securityGroupRules = {
+          psql = {
+            port = 5432;
+            protocols = [ "tcp" ];
+            cidrs = [ "0.0.0.0/0" ];
+          };
+        };
+      };
       # ------------------------------------------------------------------------------------------
       # CAVE: these are genuine aws client instance roles and currently require a `tf.clients` apply
       # ------------------------------------------------------------------------------------------
       cluster.iam.roles.client.policies = perNamespace (
         namespace: allowS3ForBucket "postgres-backups-${namespace}" "backups/${namespace}" [ "walg" ]
       );
-      # ------------------------------------------------------------------------------------------
-      # CAVE: these are genuine nomad client configuration and currently require a client redeploy
-      # ------------------------------------------------------------------------------------------
-      services.nomad.client = {
-        host_volume = perNamespaceList (
-          namespace: {
-            "${namespace}-database" = {
-              path = "/var/lib/nomad-volumes/${namespace}-database";
-              read_only = false;
-            };
-          }
-        );
-      };
       # ------------------------
       # hydrate-cluster
       # ------------------------
@@ -57,14 +59,14 @@ in
           consul.patroni = {
             key_prefix = perNamespace (
               namespace: {
-                "service/testnet-${namespace}".policy = "write";
-                "service/testnet-${namespace}".intentions = "deny";
+                "service/${namespace}-database".policy = "write";
+                "service/${namespace}-database".intentions = "deny";
               }
             );
             service_prefix = perNamespace (
               namespace: {
-                "testnet-${namespace}".policy = "write";
-                "testnet-${namespace}".intentions = "deny";
+                "${namespace}-database".policy = "write";
+                "${namespace}-database".intentions = "deny";
               }
             );
             session_prefix = {

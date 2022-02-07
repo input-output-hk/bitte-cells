@@ -13,7 +13,7 @@ in
     name = "patroni-entrypoint";
     text = (fileContents ./entrypoint.sh);
     runtimeInputs = [
-      inputs.nixpkgs.postgresql_12
+      nixpkgs.postgresql_12
       packages.patroni
       packages.patroni-clone-with-walg
       packages.patroni-callback
@@ -24,6 +24,6 @@ in
   backup-sidecar-entrypoint = writeShellApplication {
     name = "patroni-backup-sidecar-entrypoint";
     text = (fileContents ./backup-sidecar-entrypoint.sh);
-    runtimeInputs = [ inputs.nixpkgs.postgresql_12 inputs.nixpkgs.wal-g ];
+    runtimeInputs = [ nixpkgs.postgresql_12 nixpkgs.wal-g ];
   };
 }

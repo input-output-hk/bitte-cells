@@ -50,19 +50,25 @@ in
           consul.rabbit = {
             key_prefix = perNamespace (
               namespace: {
-                "rabbitmq/${namespace}-rabbit".policy = "write";
-                "rabbitmq/${namespace}-rabbit".intentions = "deny";
+                "rabbitmq/${namespace}-rabbit" = {
+                  policy = "write";
+                  intentions = "deny";
+                };
               }
             );
             service_prefix = perNamespace (
               namespace: {
-                "${namespace}-rabbit".policy = "write";
-                "${namespace}-rabbit".intentions = "deny";
+                "${namespace}-rabbit" = {
+                  policy = "write";
+                  intentions = "deny";
+                };
               }
             );
             session_prefix = {
-              "".policy = "write";
-              "".intentions = "deny";
+              "" = {
+                policy = "write";
+                intentions = "deny";
+              };
             };
           };
         };

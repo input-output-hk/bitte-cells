@@ -59,19 +59,25 @@ in
           consul.patroni = {
             key_prefix = perNamespace (
               namespace: {
-                "service/${namespace}-database".policy = "write";
-                "service/${namespace}-database".intentions = "deny";
+                "service/${namespace}-database" = {
+                  policy = "write";
+                  intentions = "deny";
+                };
               }
             );
             service_prefix = perNamespace (
               namespace: {
-                "${namespace}-database".policy = "write";
-                "${namespace}-database".intentions = "deny";
+                "${namespace}-database" = {
+                  policy = "write";
+                  intentions = "deny";
+                };
               }
             );
             session_prefix = {
-              "".policy = "write";
-              "".intentions = "deny";
+              "" = {
+                policy = "write";
+                intentions = "deny";
+              };
             };
           };
         };

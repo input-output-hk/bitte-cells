@@ -1,6 +1,12 @@
 {
   description = "Bitte Cells";
   inputs.std.url = "github:divnix/std";
+  # Third Party Inputs
+  inputs = {
+    cardano-node.url = "github:input-output-hk/cardano-node/1.33.0";
+    cardano-db-sync.url = "github:input-output-hk/cardano-db-sync";
+    cardano-wallet.url = "github:input-output-hk/cardano-wallet";
+  };
   outputs = inputs: inputs.std.grow {
     inherit inputs;
     as-nix-cli-epiphyte = false;

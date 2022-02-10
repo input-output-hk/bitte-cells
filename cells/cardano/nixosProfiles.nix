@@ -46,7 +46,7 @@ in
     {
       services.cardano-node = {
         # find options definitons in `cardano-node/nix/nixos/cardano-node-service.nix`
-        package = packages.cardano-node;
+        package = packages.node;
         kesKey = null;
         vrfKey = null;
         operationalCertificate = null;

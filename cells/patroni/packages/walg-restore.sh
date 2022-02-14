@@ -40,17 +40,17 @@ done
 ATTEMPT=0
 server_version="-1"
 while true; do
-  [[ -z $wal_segment_backup_start ]] && wal_segment_backup_start=$(wal-g backup-list 2>/dev/null |
+  [[ -z ${wal_segment_backup_start-} ]] && wal_segment_backup_start=$(wal-g backup-list 2>/dev/null |
     sed '0,/^name\s*last_modified\s*/d' | sort -bk2 | tail -n1 | awk '{print $3;}' | sed 's/_.*$//')
 
   [[ -n $CONNSTR && $server_version == "-1" ]] && server_version=$(psql -d "$CONNSTR" -tAc 'show server_version_num' 2>/dev/null || echo "-1")
 
-  [[ -n $wal_segment_backup_start && (-z $CONNSTR || $server_version != "-1") ]] && break
+  [[ -n ${wal_segment_backup_start-} && (-z $CONNSTR || $server_version != "-1") ]] && break
   [[ $((ATTEMPT++)) -ge $RETRIES ]] && break
   sleep 1
 done
 
-[[ -z $wal_segment_backup_start ]] && echo "Aborting walg-restore -- Can't find any backups" && exit 1
+[[ -z ${wal_segment_backup_start-} ]] && echo "Aborting walg-restore -- Can't find any backups" && exit 1
 
 [[ -z $NO_MASTER && $server_version == "-1" ]] && echo "Aborting walg-restore -- Failed to reach master" && exit 1
 

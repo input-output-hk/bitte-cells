@@ -2,6 +2,7 @@
 [formatter.nix]
 command = "alejandra"
 includes = ["*.nix"]
+excludes = ["./cells/cardano/packages/materialized/*"]
 
 [formatter.prettier]
 command = "prettier"

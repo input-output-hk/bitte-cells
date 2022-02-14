@@ -30,46 +30,51 @@ let
    *    '';
    * }
    */
-  writeShellApplication' =
-    inputs.nixpkgs.writeShellApplication or (
-        { name
-        , text
-        , runtimeInputs ? [ ]
-        , checkPhase ? null
-        }:
-        lib.info ''
-          using polyfill for writeShellApplication, consider updating nixpkgs to a newer version
-        ''
-        writeTextFile {
-          inherit name;
-          executable = true;
-          destination = "/bin/${name}";
-          text = ''
-            #!${runtimeShell}
-            set -o errexit
-            set -o nounset
-            set -o pipefail
+  writeShellApplication =
+    { name
+    , text
+    , env ? { }
+    , runtimeInputs ? [ ]
+    , checkPhase ? null
+    }:
+    writeTextFile {
+      inherit name;
+      executable = true;
+      destination = "/bin/${name}";
+      text = ''
+        #!${runtimeShell}
+        set -o errexit
+        set -o nounset
+        set -o pipefail
 
-            export PATH="${lib.makeBinPath runtimeInputs}:$PATH"
+        export PATH="${lib.makeBinPath runtimeInputs}:$PATH"
 
-            ${text}
-          '';
-          checkPhase =
-            if checkPhase == null
-            then
-              ''
-                runHook preCheck
-                ${stdenv.shell} -n $out/bin/${name}
-                ${shellcheck}/bin/shellcheck $out/bin/${name}
-                runHook postCheck
-              ''
-            else checkPhase;
-          meta.mainProgram = name;
-        }
-      );
+        # TODO: cleanup after https://github.com/divnix/std/issues/27
+        ${
+        builtins.concatStringsSep "\n" (
+          lib.attrsets.mapAttrsToList (n: v: "declare ${n}=${''"$''}{${n}:-${toString v}}${''"''}")
+          env
+        )
+      }
+
+        ${text}
+      '';
+      checkPhase =
+        if checkPhase == null
+        then
+          ''
+            runHook preCheck
+            ${stdenv.shell} -n $out/bin/${name}
+            ${shellcheck}/bin/shellcheck $out/bin/${name}
+            runHook postCheck
+          ''
+        else checkPhase;
+      meta.mainProgram = name;
+    };
   writePython3Application =
     { name
     , text
+    , env ? { }
     , runtimeInputs ? [ ]
     , libraries ? [ ]
     , checkPhase ? null
@@ -88,6 +93,12 @@ let
         import os; os.environ["PATH"] += os.pathsep + os.pathsep.join("${
         lib.makeBinPath runtimeInputs
       }".split(":"))
+        ${
+        builtins.concatStringsSep "\n" (
+          lib.attrsets.mapAttrsToList (n: v: "os.environ['${n}'] = os.environ.get('${n}', '${v}')")
+          env
+        )
+      }
         # fmt: on
 
         ${text}
@@ -108,7 +119,7 @@ in
   inherit writePython3Application;
   writeShellApplication =
     { ... } @ args:
-    writeShellApplication' (
+    writeShellApplication (
       args
       // {
         text = ''

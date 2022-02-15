@@ -30,6 +30,11 @@ in
         cardanoWalletInitName = ".Data.data.cardanoWalletInitName";
         cardanoWalletInitPass = ".Data.data.cardanoWalletInitPass";
       };
+      dbSyncSecrets = {
+        __toString = _: "kv/nomad-cluster/${namespace}/db-sync";
+        pgUser = ".Data.data.pgUser";
+        pgPass = ".Data.data.pgPass";
+      };
     in
       {
         job.cardano = {
@@ -312,7 +317,30 @@ in
                 cpu = 5000;
                 memory = 12288;
               };
-              env = { CARDANO_NODE_SYNCED_SERVICE = "${namespace}-node-synced"; };
+              env = {
+                CARDANO_NODE_SYNCED_SERVICE = "${namespace}-node-synced";
+                PGPASSFILE = "/secrets/pgpass";
+              };
+              template = [
+                {
+                  change_mode = "restart";
+                  data = ''
+                    {{ with secret "${dbSyncSecrets}" }}
+                    master.${namespace}-database.service.consul:5432:dbsync:{{ ${
+                    dbSyncSecrets.pgUser
+                  } }}:{{ ${
+                    dbSyncSecrets.pgPass
+                  } }}
+                    {{ end }}
+                  '';
+                  destination = "secrets/pgpass";
+                  env = true;
+                  left_delimiter = "{{";
+                  perms = "0644";
+                  right_delimiter = "}}";
+                  splay = "5s";
+                }
+              ];
             };
             # ----------
             # Task: Socat

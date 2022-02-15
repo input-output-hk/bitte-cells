@@ -22,6 +22,7 @@ in
     let
       id = "cardano";
       type = "service";
+      dbName = "dbsync";
       priority = 50;
       socatPort = library.cardano-socatPort;
       walletSecrets = {
@@ -326,7 +327,7 @@ in
                   change_mode = "restart";
                   data = ''
                     {{ with secret "${dbSyncSecrets}" }}
-                    master.${namespace}-database.service.consul:5432:dbsync:{{ ${
+                    master.${namespace}-database.service.consul:5432:${dbName}:{{ ${
                     dbSyncSecrets.pgUser
                   } }}:{{ ${
                     dbSyncSecrets.pgPass
@@ -334,7 +335,6 @@ in
                     {{ end }}
                   '';
                   destination = "secrets/pgpass";
-                  env = true;
                   left_delimiter = "{{";
                   perms = "0644";
                   right_delimiter = "}}";

@@ -112,7 +112,7 @@ in
                   builtins.unsafeDiscardStringContext (toString entrypoints.cardano-node-testnet-entrypoint)
                 }/bin/cardano-node-testnet-entrypoint";
                 args = [ ];
-                flake_deps = [ ];
+                flake_deps = [ "${healthChecks'}.cardano-node-network-testnet-sync" ];
               };
               driver = "exec";
               kill_signal = "SIGINT";
@@ -131,7 +131,7 @@ in
                   builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-publisher-entrypoint)
                 }/bin/cardano-socat-publisher-entrypoint";
                 args = [ ];
-                flake_deps = [ "${healthChecks'}.cardano-node-network-testnet-sync" ];
+                flake_deps = [ ];
               };
               driver = "exec";
               kill_signal = "SIGINT";

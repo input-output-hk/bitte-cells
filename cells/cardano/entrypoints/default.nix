@@ -24,7 +24,12 @@ in
         if envName == "testnet"
         then
           "--testnet ${
-            library.cardano-lib.testnet.networkConfig.ByronGenesisFile
+            library
+            .cardano-lib
+            .environments
+            .testnet
+            .networkConfig
+            .ByronGenesisFile
           }"
         else if envName == "mainnet"
         then "--mainnet"
@@ -39,13 +44,15 @@ in
             + (library.cardano-evalNodeConfig envName).script;
           env = {
             stateDir = nodeStateDir;
-            inherit envName;
+            inherit envName socketPath;
           };
           runtimeInputs = [
             packages.cardano-node
             packages.cardano-cli
             # TODO: take from somewhere else than aws, e.g. an iohk hydra published path or similar
             nixpkgs.awscli2
+            nixpkgs.gnutar
+            nixpkgs.gzip
           ];
         };
         "submit-api-${envName}-entrypoint" = writeShellApplication {
@@ -60,6 +67,7 @@ in
         "db-sync-${envName}-entrypoint" = writeShellApplication {
           name = "cardano-db-sync-${envName}-entrypoint";
           env = {
+            inherit socketPath envFlag;
             schemaDir = inputs.cardano-db-sync + "/schema";
             stateDir = dbSyncStateDir;
             configFile = builtins.toFile "db-sync-config.json" (
@@ -70,16 +78,28 @@ in
             );
           };
           text = (fileContents ./db-sync-entrypoint.sh);
-          runtimeInputs = [ packages.cardano-db-sync packages.cardano-cli ];
+          runtimeInputs = [
+            packages.cardano-db-sync
+            packages.cardano-cli
+            nixpkgs.coreutils
+            nixpkgs.dig
+            nixpkgs.jq
+          ];
         };
         "wallet-${envName}-entrypoint" = writeShellApplication {
           name = "cardano-wallet-${envName}-entrypoint";
           env = {
-            inherit socketPath envFlag;
+            inherit socketPath envFlag walletEnvFlag;
             stateDir = walletStateDir;
           };
           text = (fileContents ./wallet-entrypoint.sh);
-          runtimeInputs = [ packages.cardano-wallet packages.cardano-cli ];
+          runtimeInputs = [
+            packages.cardano-wallet
+            packages.cardano-cli
+            nixpkgs.coreutils
+            nixpkgs.dig
+            nixpkgs.jq
+          ];
         };
       };
   in
@@ -89,25 +109,25 @@ in
       wallet-init-entrypoint = writeShellApplication {
         name = "cardano-wallet-init-entrypoint";
         text = (fileContents ./wallet-init-entrypoint.sh);
-        runtimeInputs = [ nixpkgs.gnused nixpkgs.curl ];
+        runtimeInputs = [ nixpkgs.gnused nixpkgs.curl nixpkgs.coreutils ];
       };
       socat-publisher-entrypoint = writeShellApplication {
         name = "cardano-socat-publisher-entrypoint";
         env = {
           inherit (library.cardano-evalNodeConfig "dummy") socketPath;
-          port = 3000;
+          port = library.cardano-socatPort;
         };
         text = (fileContents ./socat-publisher-entrypoint.sh);
-        runtimeInputs = [ nixpkgs.socat ];
+        runtimeInputs = [ nixpkgs.socat nixpkgs.coreutils ];
       };
       socat-subscriber-entrypoint = writeShellApplication {
         name = "cardano-socat-subscriber-entrypoint";
         env = {
           inherit (library.cardano-evalNodeConfig "dummy") socketPath;
-          port = 3000;
+          port = library.cardano-socatPort;
         };
         text = (fileContents ./socat-subscriber-entrypoint.sh);
-        runtimeInputs = [ nixpkgs.socat ];
+        runtimeInputs = [ nixpkgs.socat nixpkgs.netcat nixpkgs.coreutils ];
       };
     }
 )

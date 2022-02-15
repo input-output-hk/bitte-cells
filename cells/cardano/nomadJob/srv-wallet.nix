@@ -1,5 +1,6 @@
 { namespace
 , healthChecks
+, socatPort
 }:
 {
   address_mode = "auto";
@@ -7,9 +8,12 @@
     {
       address_mode = "host";
       args = [ ];
-      command = "${healthChecks.cardano-wallet-network-sync}/bin/cardano-wallet-network-sync-check";
+      command = "${
+        builtins.unsafeDiscardStringContext (toString healthChecks.cardano-wallet-network-sync)
+      }/bin/cardano-wallet-network-sync-check";
       interval = "30s";
-      on_update = "ignore_warnings";
+      # on_update = "ignore_warnings";
+      # check_restart.ignore_warnings = true;
       task = "wallet";
       timeout = "10s";
       type = "script";
@@ -17,9 +21,12 @@
     {
       address_mode = "host";
       args = [ ];
-      command = "${healthChecks.cardano-wallet-id-sync}/bin/cardano-wallet-id-sync-check";
+      command = "${
+        builtins.unsafeDiscardStringContext (toString healthChecks.cardano-wallet-id-sync)
+      }/bin/cardano-wallet-id-sync-check";
       interval = "30s";
-      on_update = "ignore_warnings";
+      # on_update = "ignore_warnings";
+      # check_restart.ignore_warnings = true;
       task = "wallet";
       timeout = "10s";
       type = "script";
@@ -36,7 +43,7 @@
               upstreams = [
                 {
                   destination_name = "${namespace}-node-synced";
-                  local_bind_port = 3002;
+                  local_bind_port = socatPort;
                 }
               ];
             }

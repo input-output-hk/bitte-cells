@@ -12,6 +12,7 @@ let
   nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
 in
 {
+  socatPort = 3002;
   lib = cardanoLib;
   envFlag = envName: if envName == "testnet"
   then "--testnet-magic 1097911063"

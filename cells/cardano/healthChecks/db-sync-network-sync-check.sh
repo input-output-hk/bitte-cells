@@ -3,11 +3,13 @@
 [ -z "${socketPath:-}" ] && echo "socketPath env var must be set -- aborting" && exit 1
 [ -z "${envFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1
 
+mapfile -t envFlag <<< "${envFlag}"
+
 # Cardano-node in nomad appears to throw `resource vanished (Broken pipe) errors` intermittently.
 # These don't appear to affect the outcome of the call, so forcing an otherwise synced node
 # to ignore these errors when the json status is still correct prevents service flapping.
-# shellcheck disable=SC2034
-NODE_STATUS="$(CARDANO_NODE_SOCKET_PATH="${socketPath}"; cardano-cli query tip "${envFlag}" 2>/dev/null || :)"
+# shellcheck disable=SC2034,SC2068
+NODE_STATUS="$(env CARDANO_NODE_SOCKET_PATH="${socketPath}" cardano-cli query tip ${envFlag[@]} 2>/dev/null || :)"
 NODE_BLOCK_HEIGHT="$(jq -e -r '.block' <<<"$NODE_STATUS" 2>/dev/null || :)"
 
 DB_STATUS="$(curl -s localhost:8080 2>/dev/null | grep -v '#' || :)"

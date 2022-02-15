@@ -4,8 +4,10 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 
 [ -z "${socketPath:-}" ] && echo "socketPath env var must be set -- aborting" && exit 1
 [ -z "${envFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1
-[ -z "${walletEnvFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1
+[ -z "${walletEnvFlag:-}" ] && echo "walletEnvFlag env var must be set -- aborting" && exit 1
 [ -z "${stateDir:-}" ] && echo "stateDir env var must be set -- aborting" && exit 1
+
+mapfile -t envFlag <<< "${envFlag}"
 
 [ -z "${CARDANO_NODE_SYNCED_SERVICE:-}" ] && echo "CARDANO_NODE_SYNCED_SERVICE env var must be set -- aborting" && exit 1
 
@@ -13,7 +15,7 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 # a socket will become available quickly, although it will
 # not necessarily have a route to an active listener.
 until [ -S "${socketPath}" ]; do
-  echo "Waiting 10 seconds for cardano-node socket file at $CARDANO_NODE_SOCKET_PATH..."
+  echo "Waiting 10 seconds for cardano-node socket file at ${socketPath}..."
   sleep 10
 done
 
@@ -26,7 +28,8 @@ done
 
 # shellcheck disable=SC2068
 GET_PROGRESS() {
-  SYNC_PERCENT="$(CARDANO_NODE_SOCKET_PATH="${socketPath}"; cardano-cli query tip "${envFlag}" | jq -e -r .syncProgress || :)"
+  # shellcheck disable=SC2034
+  SYNC_PERCENT="$(env CARDANO_NODE_SOCKET_PATH="${socketPath}" cardano-cli query tip ${envFlag[@]} | jq -e -r .syncProgress || :)"
 }
 
 # Ensure the upstream node listener is validated as synced.

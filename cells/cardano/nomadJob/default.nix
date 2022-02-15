@@ -3,7 +3,6 @@
 }:
 let
   rev = inputs.sourceInfo.rev or "NOREV";
-  library' = "github:input-output-hk/bitte-cells?rev=${rev}#library.${system.host.system}";
   entrypoints' = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${system.host.system}";
   healthChecks' = "github:input-output-hk/bitte-cells?rev=${rev}#healthChecks.${
     system.host.system
@@ -24,6 +23,7 @@ in
       id = "cardano";
       type = "service";
       priority = 50;
+      socatPort = library.cardano-socatPort;
       walletSecrets = {
         __toString = _: "kv/nomad-cluster/${namespace}/wallet";
         cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
@@ -83,7 +83,9 @@ in
             count = scaling;
             service = [
               (import ./srv-node.nix { inherit namespace healthChecks; })
-              (import ./srv-node-socat.nix { inherit namespace healthChecks; })
+              (
+                import ./srv-node-socat.nix { inherit namespace healthChecks socatPort; }
+              )
             ];
             ephemeral_disk = [
               {
@@ -106,7 +108,9 @@ in
             task.node = {
               config = {
                 flake = "${entrypoints'}.cardano-node-testnet-entrypoint";
-                command = "${entrypoints.cardano-node-testnet-entrypoint}/bin/cardano-node-testnet-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-node-testnet-entrypoint)
+                }/bin/cardano-node-testnet-entrypoint";
                 args = [ ];
                 flake_deps = [ ];
               };
@@ -123,7 +127,9 @@ in
             task.socat = {
               config = {
                 flake = "${entrypoints'}.cardano-socat-publisher-entrypoint";
-                command = "${entrypoints.cardano-socat-publisher-entrypoint}/bin/cardano-socat-publisher-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-publisher-entrypoint)
+                }/bin/cardano-socat-publisher-entrypoint";
                 args = [ ];
                 flake_deps = [ "${healthChecks'}.cardano-node-network-testnet-sync" ];
               };
@@ -139,7 +145,9 @@ in
           group.wallet = {
             count = scaling;
             service = [
-              (import ./srv-wallet.nix { inherit namespace healthChecks; })
+              (
+                import ./srv-wallet.nix { inherit namespace healthChecks socatPort; }
+              )
             ];
             ephemeral_disk = [
               {
@@ -159,12 +167,13 @@ in
             task.wallet = {
               config = {
                 flake = "${entrypoints'}.cardano-wallet-testnet-entrypoint";
-                command = "${entrypoints.cardano-wallet-testnet-entrypoint}/bin/cardano-wallet-testnet-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-wallet-testnet-entrypoint)
+                }/bin/cardano-wallet-testnet-entrypoint";
                 args = [ ];
                 flake_deps = [
                   "${healthChecks'}.cardano-wallet-network-sync"
                   "${healthChecks'}.cardano-wallet-id-sync"
-                  "${library'}.cardano-lib.testnet.networkConfig.ByronGenesisFile"
                 ];
               };
               driver = "exec";
@@ -191,7 +200,9 @@ in
             task.wallet-init = {
               config = {
                 flake = "${entrypoints'}.cardano-wallet-init-entrypoint";
-                command = "${entrypoints.cardano-wallet-init-entrypoint}/bin/cardano-wallet-init-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-wallet-init-entrypoint)
+                }/bin/cardano-wallet-init-entrypoint";
                 args = [ ];
                 flake_deps = [ ];
               };
@@ -249,7 +260,9 @@ in
             task.socat = {
               config = {
                 flake = "${entrypoints'}.cardano-socat-subscriber-entrypoint";
-                command = "${entrypoints.cardano-socat-subscriber-entrypoint}/bin/cardano-socat-subscriber-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-subscriber-entrypoint)
+                }/bin/cardano-socat-subscriber-entrypoint";
                 args = [ ];
                 flake_deps = [ ];
               };
@@ -265,7 +278,9 @@ in
           group.db-sync = {
             count = scaling;
             service = [
-              (import ./srv-db-sync.nix { inherit namespace healthChecks; })
+              (
+                import ./srv-db-sync.nix { inherit namespace healthChecks socatPort; }
+              )
             ];
             ephemeral_disk = [
               {
@@ -285,7 +300,9 @@ in
             task.db-sync = {
               config = {
                 flake = "${entrypoints'}.cardano-db-sync-testnet-entrypoint";
-                command = "${entrypoints.cardano-db-sync-testnet-entrypoint}/bin/cardano-db-sync-testnet-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-db-sync-testnet-entrypoint)
+                }/bin/cardano-db-sync-testnet-entrypoint";
                 args = [ ];
                 flake_deps = [ "${healthChecks'}.cardano-db-sync-network-testnet-sync" ];
               };
@@ -295,6 +312,7 @@ in
                 cpu = 5000;
                 memory = 12288;
               };
+              env = { CARDANO_NODE_SYNCED_SERVICE = "${namespace}-node-synced"; };
             };
             # ----------
             # Task: Socat
@@ -302,7 +320,9 @@ in
             task.socat = {
               config = {
                 flake = "${entrypoints'}.cardano-socat-subscriber-entrypoint";
-                command = "${entrypoints.cardano-socat-subscriber-entrypoint}/bin/cardano-socat-subscriber-entrypoint";
+                command = "${
+                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-subscriber-entrypoint)
+                }/bin/cardano-socat-subscriber-entrypoint";
                 args = [ ];
                 flake_deps = [ ];
               };

@@ -23,7 +23,7 @@ in
         stateDir = "/var/lib/cardano-node";
         runtimeDir = "/run/cardano-node";
         databasePath = "/var/lib/cardano-node/db-${envName}";
-        socketPath = "/run/cardano-node/node.socket";
+        socketPath = "/alloc/tmp/node.socket";
         port = 3001;
         nodeId = 0;
         publicProducers = [

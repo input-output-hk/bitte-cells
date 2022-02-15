@@ -6,6 +6,8 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 [ -z "${stateDir:-}" ] && echo "stateDir env var must be set -- aborting" && exit 1
 [ -z "${envFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1
 
+mapfile -t envFlag <<< "${envFlag}"
+
 [ -z "${CARDANO_NODE_SYNCED_SERVICE:-}" ] && echo "CARDANO_NODE_SYNCED_SERVICE env var must be set -- aborting" && exit 1
 
 # For connect services with port to socket tasks via socat,
@@ -26,7 +28,7 @@ done
 # shellcheck disable=SC2068
 GET_PROGRESS() {
   # shellcheck disable=SC2034
-  SYNC_PERCENT="$(CARDANO_NODE_SOCKET_PATH="${socketPath}"; cardano-cli query tip "${envFlag}" | jq -e -r .syncProgress || :)"
+  SYNC_PERCENT="$(env CARDANO_NODE_SOCKET_PATH="${socketPath}" cardano-cli query tip ${envFlag[@]} | jq -e -r .syncProgress || :)"
 }
 
 SYNC_PERCENT=""

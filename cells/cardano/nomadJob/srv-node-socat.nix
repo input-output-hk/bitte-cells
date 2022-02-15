@@ -1,5 +1,6 @@
 { namespace
 , healthChecks
+, socatPort
 }:
 {
   address_mode = "auto";
@@ -7,9 +8,12 @@
     {
       address_mode = "host";
       args = [ ];
-      command = "${healthChecks.cardano-node-network-testnet-sync}/bin/cardano-node-network-testnet-sync-check";
+      command = "${
+        builtins.unsafeDiscardStringContext (toString healthChecks.cardano-node-network-testnet-sync)
+      }/bin/cardano-node-network-testnet-sync-check";
       interval = "30s";
-      on_update = "ignore_warnings";
+      # on_update = "ignore_warnings";
+      # check_restart.ignore_warnings = true;
       task = "node";
       timeout = "10s";
       type = "script";
@@ -40,5 +44,5 @@
     }
   ];
   name = "${namespace}-node-socat";
-  port = "3002";
+  port = "${toString socatPort}";
 }

@@ -18,12 +18,12 @@ in
   callback = writeShellApplication {
     name = "patroni-callback";
     text = (fileContents ./callback.sh);
-    runtimeInputs = [ ];
+    runtimeInputs = [ nixpkgs.postgresql_12 ];
   };
   restore-command = writeShellApplication {
     name = "restore-command";
     text = (fileContents ./restore-command.sh);
-    runtimeInputs = [ ];
+    runtimeInputs = [ nixpkgs.wal-g ];
   };
   walg-restore = writeShellApplication {
     name = "walg-restore";

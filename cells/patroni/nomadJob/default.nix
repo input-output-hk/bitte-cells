@@ -3,7 +3,7 @@
 }:
 let
   rev = inputs.sourceInfo.rev or "NOREV";
-  entrypoints = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${system.host.system}";
+  entrypoints' = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${system.host.system}";
 in
 {
   "" =
@@ -114,7 +114,7 @@ in
                   config = {
                     args = [ ];
                     command = "/bin/patroni-backup-sidecar-entrypoint";
-                    flake = "${entrypoints}.patroni-backup-sidecar-entrypoint";
+                    flake = "${entrypoints'}.patroni-backup-sidecar-entrypoint";
                     flake_deps = [ ];
                   };
                   kill_signal = "SIGINT";
@@ -163,7 +163,7 @@ in
                     };
                     driver = "exec";
                     config = {
-                      flake = "${entrypoints}.patroni-entrypoint";
+                      flake = "${entrypoints'}.patroni-entrypoint";
                       command = "/bin/patroni-entrypoint";
                       args = [ patroniYaml ];
                       flake_deps = [ ];

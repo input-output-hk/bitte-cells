@@ -1,4 +1,4 @@
-{ secretsPath
+{ patroniSecrets
 , volumeMount
 }:
 let
@@ -24,8 +24,8 @@ in
     {
       change_mode = "restart";
       data = ''
-        {{with secret "${secretsPath}"}}
-        INIT_USER="{{.Data.data.patroniSuper}}"
+        {{with secret "${patroniSecrets}"}}
+        INIT_USER="{{ ${patroniSecrets.patroniSuper} }}"
         {{end}}
       '';
       destination = "secrets/env.txt";

@@ -1,4 +1,4 @@
-{ secretsPath
+{ patroniSecrets
 , consulPath
 , patroniYaml
 , volumeMount
@@ -44,15 +44,15 @@ in
       change_mode = "signal";
       change_signal = "SIGHUP";
       data = ''
-        {{with secret "${secretsPath}"}}
+        {{with secret "${patroniSecrets}"}}
         ---
         scope: ${namespace}-database
         name: pg-{{ env "NOMAD_ALLOC_INDEX" }}
 
         restapi:
           authentication:
-            username: {{ .Data.data.patroniApi }}
-            password: {{ .Data.data.patroniApiPass }}
+            username: {{ ${patroniSecrets.patroniApi} }}
+            password: {{ ${patroniSecrets.patroniApiPass} }}
           cafile: '${volumeMount}/postgres/cert-ca-patroni.pem'
           certfile: '${volumeMount}/postgres/cert-patroni.pem'
           keyfile: '${volumeMount}/postgres/cert-key-patroni.pem'
@@ -146,41 +146,41 @@ in
 
           pg_hba:
           - local   all         all                          trust
-          - hostssl all         {{.Data.data.patroniSuper}}  all          scram-sha-256
+          - hostssl all         {{${patroniSecrets.patroniSuper}}}  all          scram-sha-256
           - hostssl all         all                          10.0.0.0/8   scram-sha-256
-          - hostssl replication {{.Data.data.patroniRepl}}   127.0.0.1/32 scram-sha-256
-          - hostssl replication {{.Data.data.patroniRepl}}   10.0.0.0/8   scram-sha-256
+          - hostssl replication {{${patroniSecrets.patroniRepl}}}   127.0.0.1/32 scram-sha-256
+          - hostssl replication {{${patroniSecrets.patroniRepl}}}   10.0.0.0/8   scram-sha-256
           # - host    all         all                          10.0.0.0/8   scram-sha-256
-          # - host    all         {{.Data.data.patroniSuper}}  all          scram-sha-256
-          # - host    replication {{.Data.data.patroniRepl}}   127.0.0.1/32 scram-sha-256
-          # - host    replication {{.Data.data.patroniRepl}}   10.0.0.0/8   scram-sha-256
+          # - host    all         {{${patroniSecrets.patroniSuper}}}  all          scram-sha-256
+          # - host    replication {{${patroniSecrets.patroniRepl}}}   127.0.0.1/32 scram-sha-256
+          # - host    replication {{${patroniSecrets.patroniRepl}}}   10.0.0.0/8   scram-sha-256
 
           post_init: patroni-callback post_init
 
           users:
-            {{.Data.data.patroniSuper}}:
-              password: {{.Data.data.patroniSuperPass}}
+            {{${patroniSecrets.patroniSuper}}}:
+              password: {{${patroniSecrets.patroniSuperPass}}}
               options:
                 - createrole
                 - createdb
-            {{.Data.data.patroniRepl}}:
-              password: {{.Data.data.patroniReplPass}}
+            {{${patroniSecrets.patroniRepl}}}:
+              password: {{${patroniSecrets.patroniReplPass}}}
               options:
                 - replication
-            {{.Data.data.patroniRewind}}:
-              password: {{.Data.data.patroniRewindPass}}
+            {{${patroniSecrets.patroniRewind}}}:
+              password: {{${patroniSecrets.patroniRewindPass}}}
 
         postgresql:
           authentication:
             replication:
-              username: {{.Data.data.patroniRepl}}
-              password: {{.Data.data.patroniReplPass}}
+              username: {{${patroniSecrets.patroniRepl}}}
+              password: {{${patroniSecrets.patroniReplPass}}}
             superuser:
-              username: {{.Data.data.patroniSuper}}
-              password: {{.Data.data.patroniSuperPass}}
+              username: {{${patroniSecrets.patroniSuper}}}
+              password: {{${patroniSecrets.patroniSuperPass}}}
             rewind:
-              username: {{.Data.data.patroniRewind}}
-              password: {{.Data.data.patroniRewindPass}}
+              username: {{${patroniSecrets.patroniRewind}}}
+              password: {{${patroniSecrets.patroniRewindPass}}}
           callbacks:
             on_reload: patroni-callback on_reload
             on_restart: patroni-callback on_restart

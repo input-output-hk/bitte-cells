@@ -19,7 +19,17 @@ in
       priority = 50;
       subdomain = "patroni.${domain}";
       consulPath = "consul/creds/patroni";
-      secretsPath = "kv/nomad-cluster/${namespace}/database";
+      patroniSecrets = {
+        __toString = _: "kv/nomad-cluster/${namespace}/database";
+        patroniApi = ".Data.data.patroniApi";
+        patroniApiPass = ".Data.data.patroniApiPass";
+        patroniRepl = ".Data.data.patroniRepl";
+        patroniReplPass = ".Data.data.patroniReplPass";
+        patroniRewind = ".Data.data.patroniRewind";
+        patroniRewindPass = ".Data.data.patroniRewindPass";
+        patroniSuper = ".Data.data.patroniSuper";
+        patroniSuperPass = ".Data.data.patroniSuperPass";
+      };
       pkiPath = "pki/issue/postgres";
       patroniYaml = "secrets/patroni.yaml";
       volumeMount = "/persist-db";
@@ -103,7 +113,7 @@ in
               # ----------
               backup-walg =
                 (
-                  import ./env-backup-walg.nix { inherit secretsPath volumeMount; }
+                  import ./env-backup-walg.nix { inherit patroniSecrets volumeMount; }
                 )
                 // {
                   resources = {
@@ -143,7 +153,7 @@ in
                 let
                   env-patroni = import ./env-patroni.nix {
                     inherit
-                      secretsPath
+                      patroniSecrets
                       consulPath
                       volumeMount
                       patroniYaml

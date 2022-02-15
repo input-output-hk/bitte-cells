@@ -181,7 +181,6 @@ in
             rewind:
               username: {{.Data.data.patroniRewind}}
               password: {{.Data.data.patroniRewindPass}}
-          bin_dir: '/bin'
           callbacks:
             on_reload: patroni-callback on_reload
             on_restart: patroni-callback on_restart

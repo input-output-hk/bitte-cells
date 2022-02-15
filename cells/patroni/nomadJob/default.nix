@@ -113,7 +113,7 @@ in
                   driver = "exec";
                   config = {
                     args = [ ];
-                    command = "/bin/entrypoint-walg";
+                    command = "/bin/patroni-backup-sidecar-entrypoint";
                     flake = "${entrypoints}.patroni-backup-sidecar-entrypoint";
                     flake_deps = [ ];
                   };
@@ -140,8 +140,8 @@ in
               # Patroni
               # ----------
               patroni =
-                (
-                  import ./env-patroni.nix {
+                let
+                  env-patroni = import ./env-patroni.nix {
                     inherit
                       secretsPath
                       consulPath
@@ -149,42 +149,46 @@ in
                       patroniYaml
                       namespace
                       ;
-                  }
-                )
-                // (import ./env-pki-patroni.nix { inherit pkiPath; })
-                // {
-                  resources = {
-                    cpu = 2000;
-                    memory = 4096;
                   };
-                  driver = "exec";
-                  config = {
-                    flake = "${entrypoints}.patroni-entrypoint";
-                    command = "/bin/entrypoint";
-                    args = [ patroniYaml ];
-                    flake_deps = [ ];
+                  env-patroni-pki = import ./env-pki-patroni.nix { inherit pkiPath; };
+                in
+                  env-patroni
+                  // env-patroni-pki
+                  // {
+                    template =
+                      env-patroni.template ++ env-patroni-pki.template;
+                    resources = {
+                      cpu = 2000;
+                      memory = 4096;
+                    };
+                    driver = "exec";
+                    config = {
+                      flake = "${entrypoints}.patroni-entrypoint";
+                      command = "/bin/patroni-entrypoint";
+                      args = [ patroniYaml ];
+                      flake_deps = [ ];
+                    };
+                    kill_signal = "SIGINT";
+                    kill_timeout = "30s";
+                    logs = [
+                      {
+                        max_file_size = 100;
+                        max_files = 20;
+                      }
+                    ];
+                    vault = {
+                      change_mode = "noop";
+                      env = true;
+                      policies = [ "nomad-cluster" ];
+                    };
+                    volume_mount = [
+                      {
+                        destination = volumeMount;
+                        propagation_mode = "private";
+                        volume = "persistDb";
+                      }
+                    ];
                   };
-                  kill_signal = "SIGINT";
-                  kill_timeout = "30s";
-                  logs = [
-                    {
-                      max_file_size = 100;
-                      max_files = 20;
-                    }
-                  ];
-                  vault = {
-                    change_mode = "noop";
-                    env = true;
-                    policies = [ "nomad-cluster" ];
-                  };
-                  volume_mount = [
-                    {
-                      destination = volumeMount;
-                      propagation_mode = "private";
-                      volume = "persistDb";
-                    }
-                  ];
-                };
             };
           };
         };

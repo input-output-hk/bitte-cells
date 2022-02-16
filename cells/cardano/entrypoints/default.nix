@@ -64,26 +64,37 @@ in
           text = (fileContents ./submit-api-entrypoint.sh);
           runtimeInputs = [ packages.cardano-submit-api packages.cardano-cli ];
         };
-        "db-sync-${envName}-entrypoint" = writeShellApplication {
-          name = "cardano-db-sync-${envName}-entrypoint";
-          env = {
-            inherit socketPath envFlag;
-            schemaDir = inputs.cardano-db-sync + "/schema";
-            stateDir = dbSyncStateDir;
-            configFile = builtins.toFile "db-sync-config.json" (
-              builtins.toJSON (
-                cardanoLib.environments.${envName}.explorerConfig
-                // cardanoLib.defaultExplorerLogConfig
-              )
-            );
-          };
-          text = (fileContents ./db-sync-entrypoint.sh);
-          runtimeInputs = [
-            packages.cardano-db-sync
-            packages.cardano-cli
-            nixpkgs.coreutils
-            nixpkgs.dig
-            nixpkgs.jq
+        "db-sync-${envName}-entrypoint" = nixpkgs.symlinkJoin {
+          name = "cardano-db-sync-${envName}-symlinks";
+          paths = [
+            (
+              writeShellApplication {
+                name = "cardano-db-sync-${envName}-entrypoint";
+                env = {
+                  inherit socketPath envFlag;
+                  schemaDir = inputs.cardano-db-sync + "/schema";
+                  stateDir = dbSyncStateDir;
+                  configFile = builtins.toFile "db-sync-config.json" (
+                    builtins.toJSON (
+                      cardanoLib.environments.${envName}.explorerConfig
+                      // cardanoLib.defaultExplorerLogConfig
+                    )
+                  );
+                };
+                text = (fileContents ./db-sync-entrypoint.sh);
+                runtimeInputs = [
+                  packages.cardano-db-sync
+                  packages.cardano-cli
+                  nixpkgs.postgresql_12
+                  nixpkgs.coreutils
+                  nixpkgs.dig
+                  nixpkgs.jq
+                ];
+              }
+            )
+            # fix for popen failure: Cannot allocate memory
+            # through `nix profile install`, this provides /bin/sh which is a hard-coded dependency of some postgres commands
+            nixpkgs.bashInteractive
           ];
         };
         "wallet-${envName}-entrypoint" = writeShellApplication {

@@ -10,7 +10,7 @@ let
 in
 {
   entrypoint = nixpkgs.symlinkJoin {
-    name = "patroni-entrypoint";
+    name = "patroni-symlinks";
     paths = [
       (
         writeShellApplication {

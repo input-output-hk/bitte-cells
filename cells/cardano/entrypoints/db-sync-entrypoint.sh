@@ -2,6 +2,14 @@
 
 trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" && exit 0' INT
 
+# FIXME: clean-up once https://github.com/hashicorp/nomad/issues/5020#issuecomment-1023140860
+# is implemented in nomad
+# also clean up: nomadJob/default.nix
+# Own the file and set permissons
+cp "${PGPASSFILE}" "${PGPASSFILE}.permissioned"
+chmod 600 "${PGPASSFILE}.permissioned"
+export PGPASSFILE="${PGPASSFILE}.permissioned"
+
 [ -z "${socketPath:-}" ] && echo "socketPath env var must be set -- aborting" && exit 1
 [ -z "${stateDir:-}" ] && echo "stateDir env var must be set -- aborting" && exit 1
 [ -z "${envFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1

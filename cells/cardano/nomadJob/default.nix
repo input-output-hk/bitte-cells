@@ -254,7 +254,10 @@ in
                   destination = "secrets/env.sh";
                   env = true;
                   left_delimiter = "{{";
-                  perms = "0644";
+                  # FIXME: restrict once https://github.com/hashicorp/nomad/issues/5020#issuecomment-1023140860
+                  # is implemented in nomad
+                  # also clean up: entrypoints/db-sync-entrypoint.sh
+                  perms = "0777";
                   right_delimiter = "}}";
                   splay = "5s";
                 }
@@ -325,14 +328,15 @@ in
               template = [
                 {
                   change_mode = "restart";
+                  # CAVE: no empty newlines in the rendered template!!
                   data = ''
-                    {{ with secret "${dbSyncSecrets}" }}
-                    master.${namespace}-database.service.consul:5432:${dbName}:{{ ${
+                    {{ with secret "${dbSyncSecrets}" }}master.${namespace}-database.service.consul:5432:${
+                    dbName
+                  }:{{ ${
                     dbSyncSecrets.pgUser
                   } }}:{{ ${
                     dbSyncSecrets.pgPass
-                  } }}
-                    {{ end }}
+                  } }}{{ end }}
                   '';
                   destination = "secrets/pgpass";
                   left_delimiter = "{{";

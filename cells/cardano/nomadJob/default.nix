@@ -336,7 +336,7 @@ in
                   '';
                   destination = "secrets/pgpass";
                   left_delimiter = "{{";
-                  perms = "0644";
+                  perms = "0600";
                   right_delimiter = "}}";
                   splay = "5s";
                 }

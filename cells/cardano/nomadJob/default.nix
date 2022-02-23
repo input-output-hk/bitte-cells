@@ -89,15 +89,21 @@ in
           # ----------
           # Task Groups
           # ----------
-          group.node = {
+          group.cardano = {
             count = scaling;
             service = [
               (import ./srv-node.nix { inherit namespace healthChecks; })
+              (
+                import ./srv-wallet.nix { inherit namespace healthChecks; }
+              )
+              (
+                import ./srv-db-sync.nix { inherit namespace healthChecks; }
+              )
             ];
             ephemeral_disk = [
               {
                 migrate = true;
-                size = 50000;
+                size = 80000;
                 sticky = true;
               }
             ];
@@ -128,26 +134,6 @@ in
                 cpu = 5000;
                 memory = 8192;
               };
-            };
-          };
-          group.wallet = {
-            count = scaling;
-            service = [
-              (
-                import ./srv-wallet.nix { inherit namespace healthChecks; }
-              )
-            ];
-            ephemeral_disk = [
-              {
-                migrate = true;
-                size = 10000;
-                sticky = true;
-              }
-            ];
-            network = {
-              dns = [ { servers = [ "172.17.0.1" ]; } ];
-              mode = "bridge";
-              port = { envoyPrometheus = [ { to = 9091; } ]; };
             };
 
             # ----------
@@ -245,27 +231,6 @@ in
                   splay = "5s";
                 }
               ];
-            };
-          };
-
-          group.db-sync = {
-            count = scaling;
-            service = [
-              (
-                import ./srv-db-sync.nix { inherit namespace healthChecks; }
-              )
-            ];
-            ephemeral_disk = [
-              {
-                migrate = true;
-                size = 20000;
-                sticky = true;
-              }
-            ];
-            network = {
-              dns = [ { servers = [ "172.17.0.1" ]; } ];
-              mode = "bridge";
-              port = { envoyPrometheus = [ { to = 9091; } ]; };
             };
 
             # ----------

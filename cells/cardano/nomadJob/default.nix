@@ -93,12 +93,8 @@ in
             count = scaling;
             service = [
               (import ./srv-node.nix { inherit namespace healthChecks; })
-              (
-                import ./srv-wallet.nix { inherit namespace healthChecks; }
-              )
-              (
-                import ./srv-db-sync.nix { inherit namespace healthChecks; }
-              )
+              (import ./srv-wallet.nix { inherit namespace healthChecks; })
+              (import ./srv-db-sync.nix { inherit namespace healthChecks; })
             ];
             ephemeral_disk = [
               {
@@ -251,9 +247,7 @@ in
                 cpu = 5000;
                 memory = 12288;
               };
-              env = {
-                PGPASSFILE = "/secrets/pgpass";
-              };
+              env = { PGPASSFILE = "/secrets/pgpass"; };
               template = [
                 {
                   change_mode = "restart";
@@ -269,7 +263,7 @@ in
                   '';
                   destination = "secrets/pgpass";
                   left_delimiter = "{{";
-                  perms = "0600";
+                  perms = "0644";
                   right_delimiter = "}}";
                   splay = "5s";
                 }

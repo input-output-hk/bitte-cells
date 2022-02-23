@@ -42,11 +42,6 @@ in
                 service = "${namespace}-dbsync";
                 only_passing = true;
               };
-              "${to_ namespace}_node_synced" = {
-                name = "${namespace}-node-synced";
-                service = "${namespace}-node-socat";
-                only_passing = true;
-              };
               "${to_ namespace}_wallet_synced" = {
                 name = "${namespace}-wallet-synced";
                 service = "${namespace}-wallet";
@@ -69,14 +64,6 @@ in
             in
               {
                 # Atala dbsync stack
-                "service_defaults_${to_ namespace}_node_socat" = {
-                  inherit kind config_json;
-                  name = "${namespace}-node-socat";
-                };
-                "service_defaults_${to_ namespace}_node_synced" = {
-                  inherit kind config_json;
-                  name = "${namespace}-node-synced";
-                };
                 "service_defaults_${to_ namespace}_dbsync" = {
                   inherit kind config_json;
                   name = "${namespace}-dbsync";
@@ -87,33 +74,12 @@ in
                 };
               }
           );
-          # Service resolver config
-          serviceResolverRedirectConfigs = perNamespace (
+          # Service resolver
+          serviceResolver = perNamespace (
             namespace: let
               kind = "service-resolver";
             in
               {
-                # Atala dbsync stack
-                "service_resolver_redirect_${to_ namespace}_node_synced" = {
-                  inherit kind;
-                  name = "${namespace}-node-synced";
-                  config_json = builtins.toJSON {
-                    redirect = {
-                      service = "${namespace}-node-socat";
-                      serviceSubset = "${namespace}-node-synced";
-                    };
-                  };
-                };
-                "service_resolver_redirect_${to_ namespace}_dbsync_synced" = {
-                  inherit kind;
-                  name = "${namespace}-dbsync-synced";
-                  config_json = builtins.toJSON {
-                    redirect = {
-                      service = "${namespace}-dbsync";
-                      serviceSubset = "${namespace}-dbsync-synced";
-                    };
-                  };
-                };
                 "service_resolver_redirect_${to_ namespace}_wallet_synced" = {
                   inherit kind;
                   name = "${namespace}-wallet-synced";
@@ -121,32 +87,6 @@ in
                     redirect = {
                       service = "${namespace}-wallet";
                       serviceSubset = "${namespace}-wallet-synced";
-                    };
-                  };
-                };
-              }
-          );
-          serviceResolverSubsetsPassing = perNamespace (
-            namespace: let
-              kind = "service-resolver";
-            in
-              {
-                # Atala dbsync stack
-                "service_resolver_subset_passing_${to_ namespace}_node_socat" = {
-                  inherit kind;
-                  name = "${namespace}-node-socat";
-                  config_json = builtins.toJSON {
-                    subsets = {
-                      "${namespace}-node-synced" = { onlyPassing = true; };
-                    };
-                  };
-                };
-                "service_resolver_subset_passing_${to_ namespace}_dbsync" = {
-                  inherit kind;
-                  name = "${namespace}-dbsync";
-                  config_json = builtins.toJSON {
-                    subsets = {
-                      "${namespace}-dbsync-synced" = { onlyPassing = true; };
                     };
                   };
                 };
@@ -174,8 +114,7 @@ in
           configEntries = nixpkgs.lib.foldl' (acc: data: acc // data) { } [
             globalDefaults
             tcpServices
-            serviceResolverRedirectConfigs
-            serviceResolverSubsetsPassing
+            serviceResolver
           ];
         in
           {

@@ -122,23 +122,5 @@ in
         text = (fileContents ./wallet-init-entrypoint.sh);
         runtimeInputs = [ nixpkgs.gnused nixpkgs.curl nixpkgs.coreutils ];
       };
-      socat-publisher-entrypoint = writeShellApplication {
-        name = "cardano-socat-publisher-entrypoint";
-        env = {
-          inherit (library.cardano-evalNodeConfig "dummy") socketPath;
-          port = library.cardano-socatPort;
-        };
-        text = (fileContents ./socat-publisher-entrypoint.sh);
-        runtimeInputs = [ nixpkgs.socat nixpkgs.coreutils ];
-      };
-      socat-subscriber-entrypoint = writeShellApplication {
-        name = "cardano-socat-subscriber-entrypoint";
-        env = {
-          inherit (library.cardano-evalNodeConfig "dummy") socketPath;
-          port = library.cardano-socatPort;
-        };
-        text = (fileContents ./socat-subscriber-entrypoint.sh);
-        runtimeInputs = [ nixpkgs.socat nixpkgs.netcat nixpkgs.coreutils ];
-      };
     }
 )

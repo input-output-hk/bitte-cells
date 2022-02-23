@@ -16,20 +16,8 @@ export PGPASSFILE="${PGPASSFILE}.permissioned"
 
 mapfile -t envFlag <<< "${envFlag}"
 
-[ -z "${CARDANO_NODE_SYNCED_SERVICE:-}" ] && echo "CARDANO_NODE_SYNCED_SERVICE env var must be set -- aborting" && exit 1
-
-# For connect services with port to socket tasks via socat,
-# a socket will become available quickly, although it will
-# not necessarily have a route to an active listener.
 until [ -S "${socketPath}" ]; do
   echo "Waiting 10 seconds for cardano-node socket file at ${socketPath}..."
-  sleep 10
-done
-
-# To avoid unexpected behavior ensure a healthy synced node has become available.
-# A consul prepared query is used as a connect query would return both synced and unsynced nodes.
-while [ "$(dig +short "${CARDANO_NODE_SYNCED_SERVICE}.query.consul")" = "" ]; do
-  echo "Waiting 10 seconds for a synced cardano-node to join the connect service $CARDANO_NODE_SYNCED_SERVICE..."
   sleep 10
 done
 

@@ -1,6 +1,5 @@
 { namespace
 , healthChecks
-, socatPort
 }:
 {
   address_mode = "auto";
@@ -39,13 +38,6 @@
           proxy = [
             {
               config = [ { envoy_prometheus_bind_addr = "0.0.0.0:9091"; } ];
-              local_service_address = "127.0.0.1";
-              upstreams = [
-                {
-                  destination_name = "${namespace}-node-synced";
-                  local_bind_port = socatPort;
-                }
-              ];
             }
           ];
         }

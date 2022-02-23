@@ -24,7 +24,6 @@ in
       type = "service";
       dbName = "dbsync";
       priority = 50;
-      socatPort = library.cardano-socatPort;
       walletSecrets = {
         __toString = _: "kv/nomad-cluster/${namespace}/wallet";
         cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
@@ -40,6 +39,7 @@ in
       {
         job.cardano = {
           inherit namespace datacenters id type priority;
+
           # ----------
           # Scheduling
           # ----------
@@ -59,6 +59,7 @@ in
             }
           ];
           spread = [ { attribute = "\${node.datacenter}"; } ];
+
           # ----------
           # Update
           # ----------
@@ -68,6 +69,7 @@ in
           update.min_healthy_time = "10s";
           update.progress_deadline = "10m0s";
           update.stagger = "30s";
+
           # ----------
           # Migrate
           # ----------
@@ -75,6 +77,7 @@ in
           migrate.healthy_deadline = "8m20s";
           migrate.max_parallel = 1;
           migrate.min_healthy_time = "10s";
+
           # ----------
           # Reschedule
           # ----------
@@ -82,6 +85,7 @@ in
           reschedule.delay_function = "exponential";
           reschedule.max_delay = "1h0m0s";
           reschedule.unlimited = true;
+
           # ----------
           # Task Groups
           # ----------
@@ -89,9 +93,6 @@ in
             count = scaling;
             service = [
               (import ./srv-node.nix { inherit namespace healthChecks; })
-              (
-                import ./srv-node-socat.nix { inherit namespace healthChecks socatPort; }
-              )
             ];
             ephemeral_disk = [
               {
@@ -108,6 +109,7 @@ in
                 node = [ { to = 3001; } ];
               };
             };
+
             # ----------
             # Task: Node
             # ----------
@@ -127,32 +129,12 @@ in
                 memory = 8192;
               };
             };
-            # ----------
-            # Task: Socat
-            # ----------
-            task.socat = {
-              config = {
-                flake = "${entrypoints'}.cardano-socat-publisher-entrypoint";
-                command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-publisher-entrypoint)
-                }/bin/cardano-socat-publisher-entrypoint";
-                args = [ ];
-                flake_deps = [ ];
-              };
-              driver = "exec";
-              kill_signal = "SIGINT";
-              kill_timeout = "1m0s";
-              resources = {
-                cpu = 500;
-                memory = 512;
-              };
-            };
           };
           group.wallet = {
             count = scaling;
             service = [
               (
-                import ./srv-wallet.nix { inherit namespace healthChecks socatPort; }
+                import ./srv-wallet.nix { inherit namespace healthChecks; }
               )
             ];
             ephemeral_disk = [
@@ -167,6 +149,7 @@ in
               mode = "bridge";
               port = { envoyPrometheus = [ { to = 9091; } ]; };
             };
+
             # ----------
             # Task: Wallet
             # ----------
@@ -195,11 +178,11 @@ in
                 memory = 4096;
               };
               env = {
-                CARDANO_NODE_SYNCED_SERVICE = "${namespace}-node-synced";
                 # used by healthChecks
                 CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
               };
             };
+
             # ----------
             # Task: Wallet Init
             # ----------
@@ -263,32 +246,13 @@ in
                 }
               ];
             };
-            # ----------
-            # Task: Socat
-            # ----------
-            task.socat = {
-              config = {
-                flake = "${entrypoints'}.cardano-socat-subscriber-entrypoint";
-                command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-subscriber-entrypoint)
-                }/bin/cardano-socat-subscriber-entrypoint";
-                args = [ ];
-                flake_deps = [ ];
-              };
-              driver = "exec";
-              kill_signal = "SIGINT";
-              kill_timeout = "1m0s";
-              resources = {
-                cpu = 500;
-                memory = 512;
-              };
-            };
           };
+
           group.db-sync = {
             count = scaling;
             service = [
               (
-                import ./srv-db-sync.nix { inherit namespace healthChecks socatPort; }
+                import ./srv-db-sync.nix { inherit namespace healthChecks; }
               )
             ];
             ephemeral_disk = [
@@ -303,6 +267,7 @@ in
               mode = "bridge";
               port = { envoyPrometheus = [ { to = 9091; } ]; };
             };
+
             # ----------
             # Task: DbSync
             # ----------
@@ -322,7 +287,6 @@ in
                 memory = 12288;
               };
               env = {
-                CARDANO_NODE_SYNCED_SERVICE = "${namespace}-node-synced";
                 PGPASSFILE = "/secrets/pgpass";
               };
               template = [
@@ -345,26 +309,6 @@ in
                   splay = "5s";
                 }
               ];
-            };
-            # ----------
-            # Task: Socat
-            # ----------
-            task.socat = {
-              config = {
-                flake = "${entrypoints'}.cardano-socat-subscriber-entrypoint";
-                command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-socat-subscriber-entrypoint)
-                }/bin/cardano-socat-subscriber-entrypoint";
-                args = [ ];
-                flake_deps = [ ];
-              };
-              driver = "exec";
-              kill_signal = "SIGINT";
-              kill_timeout = "1m0s";
-              resources = {
-                cpu = 500;
-                memory = 512;
-              };
             };
           };
         };

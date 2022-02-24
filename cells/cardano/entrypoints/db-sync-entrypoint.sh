@@ -1,6 +1,6 @@
 #! /usr/env bash
 
-trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" && exit 0' INT
+trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting\nMigration logs (if any):\n$(cat /tmp/*.log)" && exit 0' INT
 
 # FIXME: clean-up once https://github.com/hashicorp/nomad/issues/5020#issuecomment-1023140860
 # is implemented in nomad

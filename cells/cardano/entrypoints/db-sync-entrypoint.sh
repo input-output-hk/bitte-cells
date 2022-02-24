@@ -40,7 +40,10 @@ function restore_snapshot {
   echo "Restoring db-sync ledger state file"
 	mv "${lstate_file}" "${stateDir}"
   echo "Restoring database"
-	psql --dbname="$(cut -d ":" -f 3 "${PGPASSFILE}")" -f "${db_file}"
+  DBNAME="$(cut -d ":" -f 3 "${PGPASSFILE}")"
+  DBUSER="$(cut -d ":" -f 4 "${PGPASSFILE}")"
+  DBHOST="$(cut -d ":" -f 1 "${PGPASSFILE}")"
+	psql -U "${DBUSER}" -h "${DBHOST}" "${DBNAME}" -f "${db_file}"
 	rm --recursive "${tmp_dir}"
 }
 

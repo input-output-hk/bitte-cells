@@ -19,6 +19,7 @@ export PGPASSFILE="${PGPASSFILE}.permissioned"
 mapfile -t envFlag <<< "${envFlag}"
 
 function restore_snapshot {
+  mkdir -p "${stateDir}"
 	file_count=$(find "${stateDir}" -type f -name '*.lstate' | wc -l)
 	if test "${file_count}" -gt 0 ; then
 	  echo "Ledger state directory (${stateDir}) is not empty. Don't restore from snapshot."

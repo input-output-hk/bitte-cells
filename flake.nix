@@ -5,7 +5,7 @@
   inputs = {
     cardano-iohk-nix.url = "github:input-output-hk/iohk-nix";
     cardano-node.url = "github:input-output-hk/cardano-node/flake-improvements";
-    cardano-db-sync.url = "github:input-output-hk/cardano-db-sync";
+    cardano-db-sync.url = "github:input-output-hk/cardano-db-sync/12.0.1-flake-improvements";
     cardano-wallet.url = "github:input-output-hk/cardano-wallet";
   };
   outputs = inputs: inputs.std.grow {

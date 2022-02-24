@@ -197,15 +197,16 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1644309673,
-        "narHash": "sha256-zGntg+btduHCtRCRRo9qVSpid8AvacsRP+59AcZ3/is=",
+        "lastModified": 1645734231,
+        "narHash": "sha256-F3ybLE4BMHPOkJv/mG3iEvDhwXqkYakq8CmIoHM8H/c=",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "75065fce2608d6259a44a2cea0353f6162a7050c",
+        "rev": "82ffa7765aa601241d03fb6a85ecd796d190af14",
         "type": "github"
       },
       "original": {
         "owner": "input-output-hk",
+        "ref": "12.0.1-flake-improvements",
         "repo": "cardano-db-sync",
         "type": "github"
       }

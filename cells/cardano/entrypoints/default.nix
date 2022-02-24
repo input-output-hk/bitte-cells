@@ -100,7 +100,9 @@ in
                   nixpkgs.coreutils
                   nixpkgs.curl
                   nixpkgs.dig
+                  nixpkgs.findutils
                   nixpkgs.gnutar
+                  nixpkgs.gzip
                   nixpkgs.jq
                   nixpkgs.postgresql_12
                 ];

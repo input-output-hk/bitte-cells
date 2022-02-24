@@ -9,7 +9,6 @@ let
     cardanoLib
     ;
   cardano-node-nixosModules = inputs.cardano-node.nixosModules;
-  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
 in
 {
   lib = cardanoLib;
@@ -18,7 +17,7 @@ in
   else if "mainnet"
   then "--mainnet"
   else abort "unreachable";
-  evalNodeConfig = envName: let
+  evalNodeConfig = envName: profile: let
     envConfig = cardanoLib.environments.${envName};
   in
     (
@@ -40,7 +39,7 @@ in
             }
           )
           cardano-node-nixosModules.cardano-node
-          nixosProfiles.cardano-node
+          profile
         ];
       }
     )

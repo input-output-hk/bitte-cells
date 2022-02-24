@@ -5,6 +5,7 @@ let
   nixpkgs = inputs.nixpkgs;
   packages = inputs.self.packages.${system.build.system};
   library = inputs.self.library.${system.build.system};
+  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
   writeShellApplication = library._writers-writeShellApplication;
   fileContents = nixpkgs.lib.strings.fileContents;
   inherit
@@ -15,9 +16,10 @@ in
 (
   let
     entrypoints = envName: let
-      inherit (library.cardano-evalNodeConfig envName) socketPath;
+      cfg = library.cardano-evalNodeConfig envName nixosProfiles.cardano-node;
+      inherit (cfg) socketPath;
       envFlag = library.cardano-envFlag envName;
-      nodeStateDir = (library.cardano-evalNodeConfig envName).stateDir;
+      nodeStateDir = (cfg).stateDir;
       dbSyncStateDir = "/var/lib/cardano-db-sync";
       walletStateDir = "/var/lib/cardano-wallet";
       walletEnvFlag =
@@ -48,10 +50,7 @@ in
       {
         "node-${envName}-entrypoint" = writeShellApplication {
           name = "cardano-node-${envName}-entrypoint";
-          text =
-            (fileContents ./node-entrypoint.sh)
-            + "\n"
-            + (library.cardano-evalNodeConfig envName).script;
+          text = (fileContents ./node-entrypoint.sh) + "\n" + cfg.script;
           env = {
             stateDir = nodeStateDir;
             inherit envName socketPath;
@@ -61,6 +60,7 @@ in
             packages.cardano-cli
             # TODO: take from somewhere else than aws, e.g. an iohk hydra published path or similar
             nixpkgs.awscli2
+            nixpkgs.coreutils
             nixpkgs.gnutar
             nixpkgs.gzip
           ];

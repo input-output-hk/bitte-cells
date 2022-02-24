@@ -8,19 +8,19 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 [ -z "${envName:-}" ] && echo "envName env var must be set -- aborting" && exit 1
 [ -z "${stateDir:-}" ] && echo "stateDir env var must be set -- aborting" && exit 1
 
+stateDir="${stateDir/#\~/$HOME}"
+
 S3_BASE="s3://iog-atala-bitte/shared-artifacts"
-LOCAL_DB_FILE="${stateDir}/db-${envName}.tgz"
-RESTORE_DB_FILE="$S3_BASE/db-${envName}.tgz"
 
 mkdir -p "${stateDir}"
 S3_PULL() {
-  if aws s3 cp "$RESTORE_DB_FILE" "$LOCAL_DB_FILE"; then
+  if aws s3 cp "$S3_BASE/db-${envName}.tgz" "${stateDir}/db-${envName}.tgz"; then
     echo "Snapshot file retrieved from s3."
   else
     echo "Snapshot file retreival failed, syncing from genesis."
   fi
 
-  if aws s3 cp "$RESTORE_DB_FILE.sha256" "$LOCAL_DB_FILE.sha256"; then
+  if aws s3 cp "$S3_BASE/db-${envName}.tgz.sha256" "${stateDir}/db-${envName}.tgz.sha256"; then
     echo "Snapshot sha256sum file retrieved from s3."
   else
     echo "Snapshot sha256sum file retreival failed, syncing from genesis."
@@ -29,10 +29,10 @@ S3_PULL() {
 
 EXTRACT() {
   cd "${stateDir}"
-  if sha256sum -c "$LOCAL_DB_FILE.sha256"; then
+  if sha256sum -c "db-${envName}.tgz.sha256"; then
     echo "Snapshot sha256 validation passed."
     echo "Extracting snapshot to ${stateDir}."
-    if tar -C "${stateDir}" -zxf "$LOCAL_DB_FILE"; then
+    if tar -C "${stateDir}" -zxf "${stateDir}/db-${envName}.tgz"; then
       echo "Extracting snapshot to ${stateDir} complete."
       echo "Restore complete."
     else
@@ -44,14 +44,14 @@ EXTRACT() {
   fi
 }
 
-if ! [ -d "${stateDir}/db-$envName" ]; then
+if ! [ -d "${stateDir}/db-${envName}" ]; then
   echo "Cardano node db state not found locally, attempting state snapshot restore."
-  if ! [ -s "$LOCAL_DB_FILE" ]; then
+  if ! [ -s "${stateDir}/db-${envName}.tgz" ]; then
     if S3_PULL; then
       EXTRACT
     fi
-  elif [ -s "$LOCAL_DB_FILE" ] && [ -s "$LOCAL_DB_FILE.sha256" ]; then
-    echo "Utilizing existing restore file: $LOCAL_DB_FILE."
+  elif [ -s "${stateDir}/db-${envName}.tgz" ] && [ -s "${stateDir}/db-${envName}.tgz.sha256" ]; then
+    echo "Utilizing existing restore file: ${stateDir}/db-${envName}.tgz."
     EXTRACT
   fi
 else

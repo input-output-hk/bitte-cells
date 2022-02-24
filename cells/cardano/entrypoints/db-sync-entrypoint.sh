@@ -70,7 +70,7 @@ echo "Cardano node synchronized."
 cmd=(
   cardano-db-sync
   --config "${configFile}"
-  --socket-path ${socketPath}
+  --socket-path "${socketPath}"
   --schema-dir "${schemaDir}"
   --state-dir "${stateDir}"
 )

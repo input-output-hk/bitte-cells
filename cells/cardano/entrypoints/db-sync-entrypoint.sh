@@ -26,15 +26,20 @@ function restore_snapshot {
 	  return
 	fi
 
+  echo "Restoring snapshot from ${snapShotUrl}"
   curl -LOC - "${snapShotUrl}"
   curl -LO "${snapShotUrl}.sha256sum"
+  echo "Validating checksum of snapshot"
   sha256sum -c "$(basename "${snapShotUrl}").sha256sum"
 
 	tmp_dir=$(mktemp --directory -t db-sync-snapshot-XXXXXXXXXX)
+  echo "Extracting snapshot"
 	tar -zxvf "$(basename "${snapShotUrl}")" --directory "$tmp_dir"
 	db_file=$(find "$tmp_dir/" -iname "*.sql")
 	lstate_file=$(find "${tmp_dir}/" -iname "*.lstate")
+  echo "Restoring db-sync ledger state file"
 	mv "${lstate_file}" "${stateDir}"
+  echo "Restoring database"
 	psql --dbname="$(cut -d ":" -f 3 "${PGPASSFILE}")" -f "${db_file}"
 	rm --recursive "${tmp_dir}"
 }

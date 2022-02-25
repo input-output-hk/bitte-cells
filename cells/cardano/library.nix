@@ -2,23 +2,32 @@
 , system
 }:
 let
-  # Render start commands form NixOS service definitions
   nixpkgs = inputs.nixpkgs;
-  inherit
-    (nixpkgs.extend inputs.cardano-iohk-nix.overlays.cardano-lib)
-    cardanoLib
-    ;
   cardano-node-nixosModules = inputs.cardano-node.nixosModules;
+  constants = inputs.self.constants.${system.build.system};
 in
-{
-  lib = cardanoLib;
+rec {
+  walletEnvFlag = envName: if envName == "testnet"
+  then
+    "--testnet ${
+      constants
+      .cardano-lib
+      .__data
+      .environments
+      .testnet
+      .networkConfig
+      .ByronGenesisFile
+    }"
+  else if envName == "mainnet"
+  then "--mainnet"
+  else abort "unreachable";
   envFlag = envName: if envName == "testnet"
   then "--testnet-magic 1097911063"
   else if "mainnet"
   then "--mainnet"
   else abort "unreachable";
   evalNodeConfig = envName: profile: let
-    envConfig = cardanoLib.environments.${envName};
+    envConfig = constants.cardano-lib.__data.environments.${envName};
   in
     (
       nixpkgs.lib.evalModules {

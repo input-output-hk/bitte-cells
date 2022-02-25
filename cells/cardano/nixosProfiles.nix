@@ -70,8 +70,16 @@ in rec {
           / 3
         );
     };
-  };
-  client = namespace: {bittelib, ...}: {
+  client = namespace: { bittelib
+  , ...
+  }:
+  {
+    imports = [
+      (
+        # requires glusterfs be configured on the cluster
+        bittelib.mkNomadHostVolumesConfig [ "${namespace}-db-sync" "${namespace}-wallet" ] (n: "/mnt/gv0/nomad/${n}")
+      )
+    ];
     # for scheduling constraints
     services.nomad.client.meta.cardano = "yeah";
   };

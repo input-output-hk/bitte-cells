@@ -29,5 +29,7 @@
         }
       ];
     };
+    # for scheduling constraints
+    services.nomad.client.meta.patroni = "yeah";
   };
 }

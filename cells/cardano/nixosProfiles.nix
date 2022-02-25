@@ -71,4 +71,8 @@ in rec {
         );
     };
   };
+  client = namespace: {bittelib, ...}: {
+    # for scheduling constraints
+    services.nomad.client.meta.cardano = "yeah";
+  };
 }

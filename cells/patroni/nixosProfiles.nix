@@ -22,17 +22,15 @@
         };
       };
     };
-  client = namespace: { ... }:
+  client = namespace: { bittelib
+  , ...
+  }:
   {
-    services.nomad.client = {
-      host_volume = [
-        {
-          "${namespace}-database" = {
-            path = "/var/lib/nomad-volumes/${namespace}-database";
-            read_only = false;
-          };
-        }
-      ];
-    };
+    imports = [
+      (
+        bittelib.mkNomadHostVolumesConfig [ "${namespace}-database" ] (n: "/var/lib/nomad-volumes/${n}")
+      )
+    ];
+    services.nomad.client.meta.patroni = "yeah";
   };
 }

@@ -9,7 +9,7 @@ sleep 15
 # TODO: Fail after a certain period of time if the API server is unavailable
 until curl -f "http://localhost:8090/v2/network/information"; do
   echo "Waiting 10 seconds for cardano-wallet API server to become available..."
-  sleep 10;
+  sleep 10
 done
 echo
 echo "Checking for walletId $CARDANO_WALLET_ID..."
@@ -25,7 +25,7 @@ else
   echo "Initializing cardano wallet $CARDANO_WALLET_ID."
 
   # Required as regular wallet create since the extended public key wallet creation option creates the wallet as read-only
-  MNEMONICS="$(sed -r -s 's/([[:alpha:]]+)/"\1"/g' <<< "$CARDANO_WALLET_INIT_DATA")"
+  MNEMONICS="$(sed -r -s 's/([[:alpha:]]+)/"\1"/g' <<<"$CARDANO_WALLET_INIT_DATA")"
   PAYLOAD="{\"name\":\"${CARDANO_WALLET_INIT_NAME}\",\"mnemonic_sentence\":${MNEMONICS},\"passphrase\":\"${CARDANO_WALLET_INIT_PASS}\"}"
   LOG_PAYLOAD="{\"name\":\"${CARDANO_WALLET_INIT_NAME}\",\"mnemonic_sentence\":${MNEMONICS}//+([[:alpha:]])/*****},\"passphrase\":\"*****\"}"
   CREATE_CMD=(
@@ -51,4 +51,3 @@ else
     exit 1
   fi
 fi
-

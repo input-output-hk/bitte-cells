@@ -39,7 +39,6 @@ in
       {
         job.cardano = {
           inherit namespace datacenters id type priority;
-
           # ----------
           # Scheduling
           # ----------
@@ -59,7 +58,6 @@ in
             }
           ];
           spread = [ { attribute = "\${node.datacenter}"; } ];
-
           # ----------
           # Update
           # ----------
@@ -69,7 +67,6 @@ in
           update.min_healthy_time = "10s";
           update.progress_deadline = "10m0s";
           update.stagger = "30s";
-
           # ----------
           # Migrate
           # ----------
@@ -77,7 +74,6 @@ in
           migrate.healthy_deadline = "8m20s";
           migrate.max_parallel = 1;
           migrate.min_healthy_time = "10s";
-
           # ----------
           # Reschedule
           # ----------
@@ -85,7 +81,6 @@ in
           reschedule.delay_function = "exponential";
           reschedule.max_delay = "1h0m0s";
           reschedule.unlimited = true;
-
           # ----------
           # Task Groups
           # ----------
@@ -111,7 +106,6 @@ in
                 node = [ { to = 3001; } ];
               };
             };
-
             # ----------
             # Task: Node
             # ----------
@@ -131,7 +125,6 @@ in
                 memory = 8192;
               };
             };
-
             # ----------
             # Task: Wallet
             # ----------
@@ -164,7 +157,6 @@ in
                 CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
               };
             };
-
             # ----------
             # Task: Wallet Init
             # ----------
@@ -228,7 +220,6 @@ in
                 }
               ];
             };
-
             # ----------
             # Task: DbSync
             # ----------

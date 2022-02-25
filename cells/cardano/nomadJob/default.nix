@@ -101,6 +101,18 @@ in {
             node = [{to = 3001;}];
           };
         };
+        volume = {
+          persistDbSync = {
+            # volume name configured via nixosProfiles.client
+            source = "${namespace}-db-sync";
+            type = "host";
+          };
+          persistWallet = {
+            # volume name configured via nixosProfiles.client
+            source = "${namespace}-wallet";
+            type = "host";
+          };
+        };
         # ----------
         # Task: Node
         # ----------
@@ -150,6 +162,11 @@ in {
           env = {
             # used by healthChecks
             CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
+          };
+          volume_mount = {
+            destination = volumeMountWallet;
+            propagation_mode = "private";
+            volume = "persistWallet";
           };
         };
         # ----------
@@ -232,6 +249,11 @@ in {
           resources = {
             cpu = 5000;
             memory = 12288;
+          };
+          volume_mount = {
+            destination = volumeMountDbSync;
+            propagation_mode = "private";
+            volume = "persistDbSync";
           };
           env = {PGPASSFILE = "/secrets/pgpass";};
           template = [

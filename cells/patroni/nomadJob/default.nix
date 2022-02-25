@@ -97,12 +97,10 @@ in {
         };
         service = [(import ./srv-rest.nix {inherit namespace subdomain;})];
         volume = {
-          persistDb = [
-            {
-              source = "${namespace}-database";
-              type = "host";
-            }
-          ];
+          persistDb = {
+            source = "${namespace}-database";
+            type = "host";
+          };
         };
         task = {
           # ----------
@@ -135,13 +133,11 @@ in {
                 env = true;
                 policies = ["nomad-cluster"];
               };
-              volume_mount = [
-                {
-                  destination = volumeMount;
-                  propagation_mode = "private";
-                  volume = "persistDb";
-                }
-              ];
+              volume_mount = {
+                destination = volumeMount;
+                propagation_mode = "private";
+                volume = "persistDb";
+              };
             };
           # ----------
           # Patroni
@@ -187,13 +183,11 @@ in {
                 env = true;
                 policies = ["nomad-cluster"];
               };
-              volume_mount = [
-                {
-                  destination = volumeMount;
-                  propagation_mode = "private";
-                  volume = "persistDb";
-                }
-              ];
+              volume_mount = {
+                destination = volumeMount;
+                propagation_mode = "private";
+                volume = "persistDb";
+              };
             };
         };
       };

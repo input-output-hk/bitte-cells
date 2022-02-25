@@ -20,7 +20,7 @@ in
       envFlag = library.cardano-envFlag "testnet";
     };
     text = (fileContents ./node-network-sync-check.sh);
-    runtimeInputs = [ packages.cardano-cli nixpkgs.jq ];
+    runtimeInputs = [ packages.cardano-cli nixpkgs.jq nixpkgs.coreutils ];
   };
   node-network-mainnet-sync = writeShellApplication {
     name = "cardano-node-network-mainnet-sync-check";
@@ -32,7 +32,7 @@ in
       envFlag = library.cardano-envFlag "mainnet";
     };
     text = (fileContents ./node-network-sync-check.sh);
-    runtimeInputs = [ packages.cardano-cli nixpkgs.jq ];
+    runtimeInputs = [ packages.cardano-cli nixpkgs.jq nixpkgs.coreutils ];
   };
   db-sync-network-testnet-sync = writeShellApplication {
     name = "cardano-db-sync-network-testnet-sync-check";
@@ -44,7 +44,13 @@ in
       envFlag = library.cardano-envFlag "testnet";
     };
     text = (fileContents ./db-sync-network-sync-check.sh);
-    runtimeInputs = [ packages.cardano-cli nixpkgs.curl nixpkgs.jq nixpkgs.gnugrep ];
+    runtimeInputs = [
+      packages.cardano-cli
+      nixpkgs.curl
+      nixpkgs.jq
+      nixpkgs.gnugrep
+      nixpkgs.coreutils
+    ];
   };
   db-sync-network-mainnet-sync = writeShellApplication {
     name = "cardano-db-sync-network-mainnet-sync-check";
@@ -56,7 +62,13 @@ in
       envFlag = library.cardano-envFlag "mainnet";
     };
     text = (fileContents ./db-sync-network-sync-check.sh);
-    runtimeInputs = [ packages.cardano-cli nixpkgs.curl nixpkgs.jq nixpkgs.gnugrep ];
+    runtimeInputs = [
+      packages.cardano-cli
+      nixpkgs.curl
+      nixpkgs.jq
+      nixpkgs.gnugrep
+      nixpkgs.coreutils
+    ];
   };
   wallet-network-sync = writeShellApplication {
     name = "cardano-wallet-network-sync-check";

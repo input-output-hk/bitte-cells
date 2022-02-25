@@ -27,6 +27,7 @@
       (inputs.std.runnables "justTasks")
       (inputs.std.installables "packages")
       (inputs.std.functions "library")
+      (inputs.std.data "constants")
       (inputs.std.functions "nomadJob")
       (inputs.std.functions "devshellProfiles")
       (inputs.std.functions "nixosProfiles")

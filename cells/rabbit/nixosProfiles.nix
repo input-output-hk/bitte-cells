@@ -1,4 +1,6 @@
-{ ... }:
+{ inputs
+, system
+}:
 {
   routing =
     { ... }:

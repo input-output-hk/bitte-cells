@@ -10,6 +10,7 @@ let
   entrypoints = inputs.self.entrypoints.${system.host.system};
   healthChecks = inputs.self.healthChecks.${system.host.system};
   library = inputs.self.library.${system.build.system};
+  constants = inputs.self.constants.${system.build.system};
 in
 {
   "" =
@@ -24,6 +25,8 @@ in
       type = "service";
       dbName = "dbsync";
       priority = 50;
+      volumeMountWallet = constants.stateDirs.__data.wallet;
+      volumeMountDbSync = constants.stateDirs.__data.dbSync;
       walletSecrets = {
         __toString = _: "kv/nomad-cluster/${namespace}/wallet";
         cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
@@ -106,6 +109,18 @@ in
                 node = [ { to = 3001; } ];
               };
             };
+            volume = {
+              persistDbSync = {
+                # volume name configured via nixosProfiles.cardano-client
+                source = "${namespace}-db-sync";
+                type = "host";
+              };
+              persistWallet = {
+                # volume name configured via nixosProfiles.cardano-client
+                source = "${namespace}-wallet";
+                type = "host";
+              };
+            };
             # ----------
             # Task: Node
             # ----------
@@ -155,6 +170,11 @@ in
               env = {
                 # used by healthChecks
                 CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
+              };
+              volume_mount = {
+                destination = volumeMountWallet;
+                propagation_mode = "private";
+                volume = "persistWallet";
               };
             };
             # ----------
@@ -237,6 +257,11 @@ in
               resources = {
                 cpu = 5000;
                 memory = 12288;
+              };
+              volume_mount = {
+                destination = volumeMountDbSync;
+                propagation_mode = "private";
+                volume = "persistDbSync";
               };
               env = { PGPASSFILE = "/secrets/pgpass"; };
               template = [

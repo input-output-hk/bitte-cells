@@ -27,8 +27,8 @@ in
     };
   };
   stateDirs = {
-    dbSync = "/var/lib/cardano-db-sync";
-    wallet = "/var/lib/cardano-wallet";
+    dbSync = "/persist-db-sync";
+    wallet = "/persist-wallet";
     node = "/var/lib/cardano-node";
   };
 }

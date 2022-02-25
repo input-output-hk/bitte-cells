@@ -57,4 +57,3 @@ if ! [ -d "${stateDir}/db-${envName}" ]; then
 else
   echo "Cardano db directory already exists for network: $envName."
 fi
-

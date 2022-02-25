@@ -12,8 +12,8 @@ S3_BASE="s3://iog-atala-bitte/shared-artifacts"
 tmpdir=$(mktemp --directory)
 pushd "$tmpdir"
 tar -zcvf "db-${envName}.tgz" --directory "${stateDir}" .
-sha256sum "db-${envName}.tgz"      > "db-${envName}.tgz.sha256"
-aws s3 cp "db-${envName}.tgz"        "$S3_BASE/db-${envName}.tgz"
+sha256sum "db-${envName}.tgz" >"db-${envName}.tgz.sha256"
+aws s3 cp "db-${envName}.tgz" "$S3_BASE/db-${envName}.tgz"
 aws s3 cp "db-${envName}.tgz.sha256" "$S3_BASE/db-${envName}.tgz.sha256"
 popd "$tmpdir"
 rm -r "$tmpdir"

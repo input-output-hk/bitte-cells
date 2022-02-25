@@ -3,7 +3,7 @@
 [ -z "${socketPath:-}" ] && echo "socketPath env var must be set -- aborting" && exit 1
 [ -z "${envFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1
 
-mapfile -t envFlag <<< "${envFlag}"
+mapfile -t envFlag <<<"${envFlag}"
 
 # Cardano-node in nomad appears to throw `resource vanished (Broken pipe) errors` intermittently.
 # These don't appear to affect the outcome of the call, so forcing an otherwise synced node

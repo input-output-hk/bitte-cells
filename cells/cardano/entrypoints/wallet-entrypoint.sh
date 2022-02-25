@@ -7,7 +7,7 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 [ -z "${walletEnvFlag:-}" ] && echo "walletEnvFlag env var must be set -- aborting" && exit 1
 [ -z "${stateDir:-}" ] && echo "stateDir env var must be set -- aborting" && exit 1
 
-mapfile -t envFlag <<< "${envFlag}"
+mapfile -t envFlag <<<"${envFlag}"
 
 until [ -S "${socketPath}" ]; do
   echo "Waiting 10 seconds for cardano-node socket file at ${socketPath}..."

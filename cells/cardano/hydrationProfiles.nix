@@ -111,11 +111,7 @@ in
               }
           );
           # Accumulated consul configuration entries
-          configEntries = nixpkgs.lib.foldl' (acc: data: acc // data) { } [
-            globalDefaults
-            tcpServices
-            serviceResolver
-          ];
+          configEntries = nixpkgs.lib.foldl' (acc: data: acc // data) { } [ globalDefaults tcpServices serviceResolver ];
         in
           {
             resource = {

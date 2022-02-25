@@ -16,15 +16,15 @@ export PGPASSFILE="${PGPASSFILE}.permissioned"
 [ -z "${snapShotUrl:-}" ] && echo "snapShotUrl env var must be set -- aborting" && exit 1
 [ -z "${snapShotSha:-}" ] && echo "snapShotSha env var must be set -- aborting" && exit 1
 
-mapfile -t envFlag <<< "${envFlag}"
+mapfile -t envFlag <<<"${envFlag}"
 
 function restore_snapshot {
   mkdir -p "${stateDir}"
-	file_count=$(find "${stateDir}" -type f -name '*.lstate' | wc -l)
-	if test "${file_count}" -gt 0 ; then
-	  echo "Ledger state directory (${stateDir}) is not empty. Don't restore from snapshot."
-	  return
-	fi
+  file_count=$(find "${stateDir}" -type f -name '*.lstate' | wc -l)
+  if test "${file_count}" -gt 0; then
+    echo "Ledger state directory (${stateDir}) is not empty. Don't restore from snapshot."
+    return
+  fi
 
   echo "Restoring snapshot from ${snapShotUrl}"
   curl -LOC - "${snapShotUrl}"
@@ -32,23 +32,22 @@ function restore_snapshot {
   echo "Validating checksum of snapshot"
   sha256sum -c "$(basename "${snapShotUrl}").sha256sum"
 
-	tmp_dir=$(mktemp --directory -t db-sync-snapshot-XXXXXXXXXX)
+  tmp_dir=$(mktemp --directory -t db-sync-snapshot-XXXXXXXXXX)
   echo "Extracting snapshot"
-	tar -zxvf "$(basename "${snapShotUrl}")" --directory "$tmp_dir"
-	db_file=$(find "$tmp_dir/" -iname "*.sql")
-	lstate_file=$(find "${tmp_dir}/" -iname "*.lstate")
+  tar -zxvf "$(basename "${snapShotUrl}")" --directory "$tmp_dir"
+  db_file=$(find "$tmp_dir/" -iname "*.sql")
+  lstate_file=$(find "${tmp_dir}/" -iname "*.lstate")
   echo "Restoring db-sync ledger state file"
-	mv "${lstate_file}" "${stateDir}"
+  mv "${lstate_file}" "${stateDir}"
   echo "Restoring database"
   DBNAME="$(cut -d ":" -f 3 "${PGPASSFILE}")"
   DBUSER="$(cut -d ":" -f 4 "${PGPASSFILE}")"
   DBHOST="$(cut -d ":" -f 1 "${PGPASSFILE}")"
-	psql -U "${DBUSER}" -h "${DBHOST}" "${DBNAME}" -f "${db_file}"
-	rm --recursive "${tmp_dir}"
+  psql -U "${DBUSER}" -h "${DBHOST}" "${DBNAME}" -f "${db_file}"
+  rm --recursive "${tmp_dir}"
 }
 
 restore_snapshot
-
 
 until [ -S "${socketPath}" ]; do
   echo "Waiting 10 seconds for cardano-node socket file at ${socketPath}..."

@@ -1,12 +1,12 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  packages = inputs.self.packages.${system.host.system};
+  inherit (inputs) nixpkgs;
+  inherit (cell) packages;
 in
 {
-  "" = _: {
+  default = _: {
     commands = [
       {
         package = nixpkgs.b2sum;
@@ -21,19 +21,19 @@ in
         category = "cardano";
       }
       {
-        package = packages.cardano-bech32;
+        package = packages.bech32;
         category = "cardano";
       }
       {
-        package = packages.cardano-wallet;
+        package = packages.wallet;
         category = "cardano";
       }
       {
-        package = packages.cardano-address;
+        package = packages.address;
         category = "cardano";
       }
       {
-        package = packages.cardano-cli;
+        package = packages.cli;
         name = "cardano-cli";
         category = "cardano";
       }

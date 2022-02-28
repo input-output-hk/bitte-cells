@@ -1,12 +1,11 @@
 { inputs
-, system
+, cell
 }:
 let
-  packages = inputs.self.packages.${system.build.system};
-  library = inputs.self.library.${system.build.system};
-  nixpkgs = inputs.nixpkgs;
-  writeShellApplication = library._writers-writeShellApplication;
-  fileContents = nixpkgs.lib.strings.fileContents;
+  inherit (inputs) nixpkgs;
+  inherit (cell) packages;
+  inherit (inputs.cells._writers.library) writeShellApplication;
+  inherit (inputs.nixpkgs.lib.strings) fileContents;
 in
 {
   entrypoint = nixpkgs.symlinkJoin {

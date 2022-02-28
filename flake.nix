@@ -11,15 +11,9 @@
   outputs = inputs: inputs.std.grow {
     inherit inputs;
     as-nix-cli-epiphyte = false;
-    systems = [
-      {
-        build = "x86_64-unknown-linux-gnu";
-        # GNU/Linux 64 bits
-        host = "x86_64-unknown-linux-gnu";
-        # GNU/Linux 64 bits
-      }
-    ];
+    systems = [ "x86_64-linux" ];
     cellsFrom = ./cells;
+    # debug = ["cells" "cardano" "healthChecks"];
     organelles = [
       (inputs.std.runnables "healthChecks")
       (inputs.std.runnables "entrypoints")

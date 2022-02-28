@@ -1,11 +1,11 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
+  inherit (inputs) nixpkgs;
 in
 {
-  "" = _: {
+  default = _: {
     commands = [
       {
         package = nixpkgs.rabbitmq-server;

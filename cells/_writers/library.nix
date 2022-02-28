@@ -1,14 +1,17 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  lib = inputs.nixpkgs.lib;
-  stdenv = inputs.nixpkgs.stdenv;
-  writeTextFile = inputs.nixpkgs.writeTextFile;
-  runtimeShell = inputs.nixpkgs.runtimeShell;
-  shellcheck = inputs.nixpkgs.shellcheck;
-  glibcLocales = inputs.nixpkgs.glibcLocales;
+  inherit (inputs) nixpkgs;
+  inherit
+    (inputs.nixpkgs)
+    lib
+    stdenv
+    writeTextFile
+    runtimeShell
+    shellcheck
+    glibcLocales
+    ;
   /*
    * Similar to writeShellScriptBin and writeScriptBin.
    * Writes an executable Shell script to /nix/store/<store path>/bin/<name> and

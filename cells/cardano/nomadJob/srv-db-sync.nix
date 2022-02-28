@@ -8,7 +8,7 @@
       address_mode = "host";
       args = [ ];
       command = "${
-        builtins.unsafeDiscardStringContext (toString healthChecks.cardano-db-sync-network-testnet-sync)
+        builtins.unsafeDiscardStringContext (toString healthChecks.db-sync-network-testnet-sync)
       }/bin/cardano-db-sync-network-testnet-sync-check";
       interval = "30s";
       # on_update = "ignore_warnings";

@@ -1,9 +1,8 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
+  inherit (inputs) nixpkgs;
 in
 {
   hydrate-cluster = namespaces: { terralib

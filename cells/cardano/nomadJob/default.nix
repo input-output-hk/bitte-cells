@@ -1,18 +1,14 @@
 { inputs
-, system
+, cell
 }:
 let
-  rev = inputs.sourceInfo.rev or "NOREV";
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${system.host.system}";
-  healthChecks' = "github:input-output-hk/bitte-cells?rev=${rev}#healthChecks.${
-    system.host.system
-  }";
-  entrypoints = inputs.self.entrypoints.${system.host.system};
-  healthChecks = inputs.self.healthChecks.${system.host.system};
-  library = inputs.self.library.${system.build.system};
+  inherit (inputs.nixpkgs) system;
+  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#entrypoints.${system}";
+  healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#healthChecks.${system}";
+  inherit (cell) entrypoints healthChecks constants;
 in
 {
-  "" =
+  default =
     { namespace
     , datacenters ? [ "eu-central-1" "eu-west-1" "us-east-2" ]
     , domain
@@ -24,6 +20,8 @@ in
       type = "service";
       dbName = "dbsync";
       priority = 50;
+      volumeMountWallet = constants.stateDirs.wallet;
+      volumeMountDbSync = constants.stateDirs.dbSync;
       walletSecrets = {
         __toString = _: "kv/nomad-cluster/${namespace}/wallet";
         cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
@@ -113,7 +111,7 @@ in
               config = {
                 flake = "${entrypoints'}.cardano-node-testnet-entrypoint";
                 command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-node-testnet-entrypoint)
+                  builtins.unsafeDiscardStringContext (toString entrypoints.node-testnet-entrypoint)
                 }/bin/cardano-node-testnet-entrypoint";
                 args = [ ];
                 flake_deps = [ "${healthChecks'}.cardano-node-network-testnet-sync" ];
@@ -132,7 +130,7 @@ in
               config = {
                 flake = "${entrypoints'}.cardano-wallet-testnet-entrypoint";
                 command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-wallet-testnet-entrypoint)
+                  builtins.unsafeDiscardStringContext (toString entrypoints.wallet-testnet-entrypoint)
                 }/bin/cardano-wallet-testnet-entrypoint";
                 args = [ ];
                 flake_deps = [
@@ -164,7 +162,7 @@ in
               config = {
                 flake = "${entrypoints'}.cardano-wallet-init-entrypoint";
                 command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-wallet-init-entrypoint)
+                  builtins.unsafeDiscardStringContext (toString entrypoints.wallet-init-entrypoint)
                 }/bin/cardano-wallet-init-entrypoint";
                 args = [ ];
                 flake_deps = [ ];
@@ -227,7 +225,7 @@ in
               config = {
                 flake = "${entrypoints'}.cardano-db-sync-testnet-entrypoint";
                 command = "${
-                  builtins.unsafeDiscardStringContext (toString entrypoints.cardano-db-sync-testnet-entrypoint)
+                  builtins.unsafeDiscardStringContext (toString entrypoints.db-sync-testnet-entrypoint)
                 }/bin/cardano-db-sync-testnet-entrypoint";
                 args = [ ];
                 flake_deps = [ "${healthChecks'}.cardano-db-sync-network-testnet-sync" ];

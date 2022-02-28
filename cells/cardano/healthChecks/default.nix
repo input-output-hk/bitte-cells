@@ -1,51 +1,49 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  packages = inputs.self.packages.${system.build.system};
-  library = inputs.self.library.${system.build.system};
-  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
-  writeShellApplication = library._writers-writeShellApplication;
-  fileContents = nixpkgs.lib.strings.fileContents;
+  inherit (inputs) nixpkgs;
+  inherit (cell) packages library nixosProfiles;
+  inherit (inputs.cells._writers.library) writeShellApplication;
+  inherit (inputs.nixpkgs.lib.strings) fileContents;
 in
 {
   node-network-testnet-sync = writeShellApplication {
     name = "cardano-node-network-testnet-sync-check";
     env = {
       inherit
-        (library.cardano-evalNodeConfig "testnet" nixosProfiles.cardano-node)
+        (library.evalNodeConfig "testnet" nixosProfiles.node)
         socketPath
         ;
-      envFlag = library.cardano-envFlag "testnet";
+      envFlag = library.envFlag "testnet";
     };
     text = (fileContents ./node-network-sync-check.sh);
-    runtimeInputs = [ packages.cardano-cli nixpkgs.jq nixpkgs.coreutils ];
+    runtimeInputs = [ packages.cli nixpkgs.jq nixpkgs.coreutils ];
   };
   node-network-mainnet-sync = writeShellApplication {
     name = "cardano-node-network-mainnet-sync-check";
     env = {
       inherit
-        (library.cardano-evalNodeConfig "mainnet" nixosProfiles.cardano-node)
+        (library.evalNodeConfig "mainnet" nixosProfiles.node)
         socketPath
         ;
-      envFlag = library.cardano-envFlag "mainnet";
+      envFlag = library.envFlag "mainnet";
     };
     text = (fileContents ./node-network-sync-check.sh);
-    runtimeInputs = [ packages.cardano-cli nixpkgs.jq nixpkgs.coreutils ];
+    runtimeInputs = [ packages.cli nixpkgs.jq nixpkgs.coreutils ];
   };
   db-sync-network-testnet-sync = writeShellApplication {
     name = "cardano-db-sync-network-testnet-sync-check";
     env = {
       inherit
-        (library.cardano-evalNodeConfig "testnet" nixosProfiles.cardano-node)
+        (library.evalNodeConfig "testnet" nixosProfiles.node)
         socketPath
         ;
-      envFlag = library.cardano-envFlag "testnet";
+      envFlag = library.envFlag "testnet";
     };
     text = (fileContents ./db-sync-network-sync-check.sh);
     runtimeInputs = [
-      packages.cardano-cli
+      packages.cli
       nixpkgs.curl
       nixpkgs.jq
       nixpkgs.gnugrep
@@ -56,14 +54,14 @@ in
     name = "cardano-db-sync-network-mainnet-sync-check";
     env = {
       inherit
-        (library.cardano-evalNodeConfig "mainnet" nixosProfiles.cardano-node)
+        (library.evalNodeConfig "mainnet" nixosProfiles.node)
         socketPath
         ;
-      envFlag = library.cardano-envFlag "mainnet";
+      envFlag = library.envFlag "mainnet";
     };
     text = (fileContents ./db-sync-network-sync-check.sh);
     runtimeInputs = [
-      packages.cardano-cli
+      packages.cli
       nixpkgs.curl
       nixpkgs.jq
       nixpkgs.gnugrep

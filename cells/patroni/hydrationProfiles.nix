@@ -1,9 +1,9 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
+  inherit (inputs) nixpkgs;
+  inherit (cell) nixosProfiles;
 in
 {
   hydrate-cluster = namespaces: { terralib
@@ -31,7 +31,7 @@ in
       # CAVE: modules are nixosProfiles and require a redeploy of routing
       # ------------------------
       cluster.instances.routing = {
-        modules = [ nixosProfiles.patroni-routing ];
+        modules = [ nixosProfiles.routing ];
         securityGroupRules = {
           psql = {
             port = 5432;

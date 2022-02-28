@@ -1,12 +1,12 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  packages = inputs.self.packages.${system.host.system};
+  inherit (inputs) nixpkgs;
+  inherit (cell) packages;
 in
 {
-  "" = _: {
+  default = _: {
     commands = [
       {
         package = nixpkgs.postgresql;
@@ -14,7 +14,7 @@ in
         category = "patroni";
       }
       {
-        package = packages.patroni;
+        package = packages.default;
         name = "patronictl";
         category = "patroni";
       }

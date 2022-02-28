@@ -1,19 +1,21 @@
 { inputs
-, system
+, cell
 }:
 let
-  library = inputs.self.library.${system.build.system};
-  nixpkgs = inputs.nixpkgs;
-  writeShellApplication = library._writers-writeShellApplication;
-  writePython3Application = library._writers-writePython3Application;
-  fileContents = nixpkgs.lib.strings.fileContents;
+  inherit (inputs) nixpkgs;
+  inherit (inputs.nixpkgs.lib.strings) fileContents;
+  inherit
+    (inputs.cells._writers.library)
+    writeShellApplication
+    writePython3Application
+    ;
 in
 {
-  "" = nixpkgs.callPackage ./patroni.nix { };
+  default = nixpkgs.callPackage ./patroni.nix { };
   clone-with-walg = writePython3Application {
     name = "clone-with-walg";
     text = (fileContents ./clone-with-walg.py);
-    libraries = [ inputs.nixpkgs.python3Packages.dateutil ];
+    libraries = [ nixpkgs.python3Packages.dateutil ];
   };
   callback = writeShellApplication {
     name = "patroni-callback";

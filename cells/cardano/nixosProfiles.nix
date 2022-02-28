@@ -1,10 +1,9 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  packages = inputs.self.packages.${system.host.system};
-  constants = inputs.self.constants.${system.build.system};
+  inherit (inputs) nixpkgs;
+  inherit (cell) packages constants;
 in
 rec {
   # Configuration Profiles for Entrypoint Startcmd rendering
@@ -17,7 +16,7 @@ rec {
       imports = [ node ];
       services.cardano-node =
         let
-          stateDir = "${constants.cardano-localSharePrefix.__data}/run-cardano-node-testnet";
+          stateDir = "${constants.localSharePrefix}/run-cardano-node-testnet";
         in
           {
             stateDir = stateDir;
@@ -34,11 +33,11 @@ rec {
     {
       services.cardano-node =
         let
-          stateDir = constants.cardano-stateDirs.__data.node;
+          stateDir = constants.stateDirs.node;
         in
           {
             # find options definitons in `cardano-node/nix/nixos/cardano-node-service.nix`
-            package = packages.cardano-node;
+            package = packages.node;
             kesKey = null;
             vrfKey = null;
             operationalCertificate = null;

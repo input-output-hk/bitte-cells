@@ -1,30 +1,23 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  packages = inputs.self.packages.${system.build.system};
-  constants = inputs.self.constants.${system.build.system};
-  library = inputs.self.library.${system.build.system};
-  nixosProfiles = inputs.self.nixosProfiles.${system.host.system};
-  writeShellApplication = library._writers-writeShellApplication;
-  fileContents = nixpkgs.lib.strings.fileContents;
+  inherit (inputs) nixpkgs;
+  inherit (cell) packages constants library nixosProfiles;
+  inherit (inputs.cells._writers.library) writeShellApplication;
+  inherit (inputs.nixpkgs.lib.strings) fileContents;
 in
 (
   let
     entrypoints = envName: let
-      cfg = library.cardano-evalNodeConfig envName nixosProfiles.cardano-node;
-      envFlag = library.cardano-envFlag envName;
-      walletEnvFlag = library.cardano-walletEnvFlag envName;
+      cfg = library.evalNodeConfig envName nixosProfiles.node;
+      envFlag = library.envFlag envName;
+      walletEnvFlag = library.walletEnvFlag envName;
       inherit (cfg) socketPath;
       nodeStateDir = (cfg).stateDir;
-      dbSyncStateDir = constants.cardano-stateDir.__data.dbSync;
-      walletStateDir = constants.cardano-stateDir.__data.wallet;
-      inherit
-        (constants.cardano-snapShots.__data.dbSync)
-        snapShotUrl
-        snapShotSha
-        ;
+      dbSyncStateDir = constants.stateDirs.dbSync;
+      walletStateDir = constants.stateDirs.wallet;
+      inherit (constants.snapShots.dbSync) snapShotUrl snapShotSha;
     in
       {
         "node-${envName}-entrypoint" = writeShellApplication {
@@ -35,8 +28,8 @@ in
             inherit envName socketPath;
           };
           runtimeInputs = [
-            packages.cardano-node
-            packages.cardano-cli
+            packages.node
+            packages.cli
             # TODO: take from somewhere else than aws, e.g. an iohk hydra published path or similar
             nixpkgs.awscli2
             nixpkgs.coreutils
@@ -48,13 +41,10 @@ in
           name = "cardano-submit-api-${envName}-entrypoint";
           env = {
             inherit socketPath envFlag;
-            configFile = builtins.toFile "submit-api-config.json" (
-              builtins.toJSON
-              constants.cardano-lib.__data.defaultExplorerLogConfig
-            );
+            configFile = builtins.toFile "submit-api-config.json" (builtins.toJSON constants.lib.defaultExplorerLogConfig);
           };
           text = (fileContents ./submit-api-entrypoint.sh);
-          runtimeInputs = [ packages.cardano-submit-api packages.cardano-cli ];
+          runtimeInputs = [ packages.submit-api packages.cli ];
         };
         "db-sync-${envName}-entrypoint" = nixpkgs.symlinkJoin {
           name = "cardano-db-sync-${envName}-symlinks";
@@ -70,20 +60,15 @@ in
                   snapShotSha = snapShotSha.${envName};
                   configFile = builtins.toFile "db-sync-config.json" (
                     builtins.toJSON (
-                      constants
-                      .cardano-lib
-                      .__data
-                      .environments
-                      .${envName}
-                      .explorerConfig
-                      // constants.cardano-lib.__data.defaultExplorerLogConfig
+                      constants.lib.environments.${envName}.explorerConfig
+                      // constants.lib.defaultExplorerLogConfig
                     )
                   );
                 };
                 text = (fileContents ./db-sync-entrypoint.sh);
                 runtimeInputs = [
-                  packages.cardano-db-sync
-                  packages.cardano-cli
+                  packages.db-sync
+                  packages.cli
                   nixpkgs.coreutils
                   nixpkgs.curl
                   nixpkgs.dig
@@ -108,8 +93,8 @@ in
           };
           text = (fileContents ./wallet-entrypoint.sh);
           runtimeInputs = [
-            packages.cardano-wallet
-            packages.cardano-cli
+            packages.wallet
+            packages.cli
             nixpkgs.coreutils
             nixpkgs.dig
             nixpkgs.jq

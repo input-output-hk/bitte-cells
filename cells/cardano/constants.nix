@@ -1,9 +1,9 @@
 { inputs
-, system
+, cell
 }:
 let
   # Render start commands form NixOS service definitions
-  nixpkgs = inputs.nixpkgs;
+  inherit (inputs) nixpkgs;
   inherit
     (nixpkgs.extend inputs.cardano-iohk-nix.overlays.cardano-lib)
     cardanoLib

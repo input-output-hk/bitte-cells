@@ -5,30 +5,34 @@
   inputs.treefmt.url = "github:numtide/treefmt";
   inputs.alejandra.url = "github:kamadorueda/alejandra";
   inputs.alejandra.inputs.treefmt.url = "github:divnix/blank";
-  inputs.std.url = "github:divnix/std";
+  inputs.main.url = "path:../.";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   outputs = inputs: inputs.flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (
     system: let
-      stdProfiles = inputs.std.devshellProfiles.${system};
-      devshell = inputs.devshell.legacyPackages.${system};
-      nixpkgs = inputs.nixpkgs.legacyPackages.${system};
-      alejandra = inputs.alejandra.defaultPackage.${system};
-      treefmt = inputs.treefmt.defaultPackage.${system};
+      inherit
+        (inputs.main.inputs.std.deSystemize system inputs)
+        main
+        devshell
+        nixpkgs
+        alejandra
+        treefmt
+        ;
+      inherit (main.inputs.std.deSystemize system main.inputs) std;
     in
       {
-        devShells.__default = devshell.mkShell {
+        devShells.__default = devshell.legacyPackages.mkShell {
           name = "Bitte Cells";
-          imports = [ stdProfiles.std ];
-          commands = [ { package = treefmt; } ];
+          imports = [ std.std.devshellProfiles.default ];
+          commands = [ { package = treefmt.defaultPackage; } ];
           packages = [
-            alejandra
-            nixpkgs.shfmt
-            nixpkgs.nodePackages.prettier
-            nixpkgs.nodePackages.prettier-plugin-toml
-            nixpkgs.python3Packages.black
+            alejandra.defaultPackage
+            nixpkgs.legacyPackages.shfmt
+            nixpkgs.legacyPackages.nodePackages.prettier
+            nixpkgs.legacyPackages.nodePackages.prettier-plugin-toml
+            nixpkgs.legacyPackages.python3Packages.black
           ];
           devshell.startup.nodejs-setuphook = nixpkgs.lib.stringsWithDeps.noDepEntry ''
-            export NODE_PATH=${nixpkgs.nodePackages.prettier-plugin-toml}/lib/node_modules:$NODE_PATH
+            export NODE_PATH=${nixpkgs.legacyPackages.nodePackages.prettier-plugin-toml}/lib/node_modules:$NODE_PATH
           '';
         };
       }

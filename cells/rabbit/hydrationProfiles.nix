@@ -1,9 +1,8 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  nixosProfiles = inputs.nixosProfiles.${system.host.system};
+  inherit (inputs) nixpkgs;
 in
 {
   hydrate-cluster = namespaces: { terralib
@@ -28,7 +27,7 @@ in
       # CAVE: modules are nixosProfiles and require a redeploy of routing
       # ------------------------
       instances.routing = {
-        modules = [ nixosProfiles.rabbit-routing ];
+        modules = [ cell.nixosProfiles.routing ];
         securityGroupRules = {
           amqps = {
             port = 5671;

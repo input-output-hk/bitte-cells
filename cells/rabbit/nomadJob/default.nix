@@ -1,12 +1,12 @@
 { inputs
-, system
+, cell
 }:
 let
-  rev = inputs.sourceInfo.rev or "NOREV";
-  entrypoints = "github:input-output-hk/bitte-cells?rev=${rev}#entrypoints.${system.host.system}";
+  inherit (inputs.nixpkgs) system;
+  entrypoints = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#entrypoints.${system}";
 in
 {
-  "" =
+  default =
     { namespace
     , datacenters ? [ "eu-central-1" "eu-west-1" "us-east-2" ]
     , domain

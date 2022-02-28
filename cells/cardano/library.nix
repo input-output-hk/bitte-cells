@@ -1,22 +1,16 @@
 { inputs
-, system
+, cell
 }:
 let
-  nixpkgs = inputs.nixpkgs;
-  cardano-node-nixosModules = inputs.cardano-node.nixosModules;
-  constants = inputs.self.constants.${system.build.system};
+  inherit (inputs) nixpkgs;
+  inherit (inputs.cardano-node) nixosModules;
+  inherit (cell) constants;
 in
 rec {
   walletEnvFlag = envName: if envName == "testnet"
   then
     "--testnet ${
-      constants
-      .cardano-lib
-      .__data
-      .environments
-      .testnet
-      .networkConfig
-      .ByronGenesisFile
+      constants.lib.environments.testnet.networkConfig.ByronGenesisFile
     }"
   else if envName == "mainnet"
   then "--mainnet"
@@ -27,7 +21,7 @@ rec {
   then "--mainnet"
   else abort "unreachable";
   evalNodeConfig = envName: profile: let
-    envConfig = constants.cardano-lib.__data.environments.${envName};
+    envConfig = constants.lib.environments.${envName};
   in
     (
       nixpkgs.lib.evalModules {
@@ -47,7 +41,7 @@ rec {
               options.users = lib.mkOption { type = lib.types.any; };
             }
           )
-          cardano-node-nixosModules.cardano-node
+          nixosModules.cardano-node
           profile
         ];
       }

@@ -1,13 +1,12 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs;
   inherit (cell) packages library nixosProfiles;
   inherit (inputs.cells._writers.library) writeShellApplication;
   inherit (inputs.nixpkgs.lib.strings) fileContents;
-in
-{
+in {
   node-network-testnet-sync = writeShellApplication {
     name = "cardano-node-network-testnet-sync-check";
     env = {
@@ -17,8 +16,8 @@ in
         ;
       envFlag = library.envFlag "testnet";
     };
-    text = (fileContents ./node-network-sync-check.sh);
-    runtimeInputs = [ packages.cli nixpkgs.jq nixpkgs.coreutils ];
+    text = fileContents ./node-network-sync-check.sh;
+    runtimeInputs = [packages.cli nixpkgs.jq nixpkgs.coreutils];
   };
   node-network-mainnet-sync = writeShellApplication {
     name = "cardano-node-network-mainnet-sync-check";
@@ -29,8 +28,8 @@ in
         ;
       envFlag = library.envFlag "mainnet";
     };
-    text = (fileContents ./node-network-sync-check.sh);
-    runtimeInputs = [ packages.cli nixpkgs.jq nixpkgs.coreutils ];
+    text = fileContents ./node-network-sync-check.sh;
+    runtimeInputs = [packages.cli nixpkgs.jq nixpkgs.coreutils];
   };
   db-sync-network-testnet-sync = writeShellApplication {
     name = "cardano-db-sync-network-testnet-sync-check";
@@ -41,7 +40,7 @@ in
         ;
       envFlag = library.envFlag "testnet";
     };
-    text = (fileContents ./db-sync-network-sync-check.sh);
+    text = fileContents ./db-sync-network-sync-check.sh;
     runtimeInputs = [
       packages.cli
       nixpkgs.curl
@@ -59,7 +58,7 @@ in
         ;
       envFlag = library.envFlag "mainnet";
     };
-    text = (fileContents ./db-sync-network-sync-check.sh);
+    text = fileContents ./db-sync-network-sync-check.sh;
     runtimeInputs = [
       packages.cli
       nixpkgs.curl
@@ -70,12 +69,12 @@ in
   };
   wallet-network-sync = writeShellApplication {
     name = "cardano-wallet-network-sync-check";
-    text = (fileContents ./wallet-network-sync-check.sh);
-    runtimeInputs = [ nixpkgs.curl nixpkgs.jq ];
+    text = fileContents ./wallet-network-sync-check.sh;
+    runtimeInputs = [nixpkgs.curl nixpkgs.jq];
   };
   wallet-id-sync = writeShellApplication {
     name = "cardano-wallet-id-sync-check";
-    text = (fileContents ./wallet-id-sync-check.sh);
-    runtimeInputs = [ nixpkgs.curl nixpkgs.jq ];
+    text = fileContents ./wallet-id-sync-check.sh;
+    runtimeInputs = [nixpkgs.curl nixpkgs.jq];
   };
 }

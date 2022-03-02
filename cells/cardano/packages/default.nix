@@ -1,7 +1,7 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs cardano-wallet cardano-db-sync cardano-node;
   cardano-node-project = (
     cardano-node.legacyPackages.extend (
@@ -20,8 +20,7 @@ let
     # TODO: upstream materialization:
     materialized = ./materialized/cardano-node;
   };
-in
-{
+in {
   node =
     cardano-node-project.hsPkgs.cardano-node.components.exes.cardano-node
     // {

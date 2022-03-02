@@ -8,24 +8,25 @@
     cardano-db-sync.url = "github:input-output-hk/cardano-db-sync/12.0.1-flake-improvements";
     cardano-wallet.url = "github:input-output-hk/cardano-wallet";
   };
-  outputs = inputs: inputs.std.grow {
-    inherit inputs;
-    as-nix-cli-epiphyte = false;
-    systems = [ "x86_64-linux" ];
-    cellsFrom = ./cells;
-    # debug = ["cells" "cardano" "healthChecks"];
-    organelles = [
-      (inputs.std.runnables "healthChecks")
-      (inputs.std.runnables "entrypoints")
-      # just repo automation; std - just integration pending
-      (inputs.std.runnables "justTasks")
-      (inputs.std.installables "packages")
-      (inputs.std.functions "library")
-      (inputs.std.data "constants")
-      (inputs.std.functions "nomadJob")
-      (inputs.std.functions "devshellProfiles")
-      (inputs.std.functions "nixosProfiles")
-      (inputs.std.functions "hydrationProfiles")
-    ];
-  };
+  outputs = inputs:
+    inputs.std.grow {
+      inherit inputs;
+      as-nix-cli-epiphyte = false;
+      systems = ["x86_64-linux"];
+      cellsFrom = ./cells;
+      # debug = ["cells" "cardano" "healthChecks"];
+      organelles = [
+        (inputs.std.runnables "healthChecks")
+        (inputs.std.runnables "entrypoints")
+        # just repo automation; std - just integration pending
+        (inputs.std.runnables "justTasks")
+        (inputs.std.installables "packages")
+        (inputs.std.functions "library")
+        (inputs.std.data "constants")
+        (inputs.std.functions "nomadJob")
+        (inputs.std.functions "devshellProfiles")
+        (inputs.std.functions "nixosProfiles")
+        (inputs.std.functions "hydrationProfiles")
+      ];
+    };
 }

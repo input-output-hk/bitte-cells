@@ -1,9 +1,9 @@
-{ secretsPath
-, consulPath
-, rabbitmqConf
-, namespace
-}:
 {
+  secretsPath,
+  consulPath,
+  rabbitmqConf,
+  namespace,
+}: {
   template = [
     {
       change_mode = "restart";

@@ -1,16 +1,15 @@
-{ patroniSecrets
-, consulPath
-, patroniYaml
-, volumeMount
-, namespace
-}:
-let
+{
+  patroniSecrets,
+  consulPath,
+  patroniYaml,
+  volumeMount,
+  namespace,
+}: let
   patroniBootstrapMethod = "initdb";
   patroniBootstrapMethodWalgPitrTimeline = 1;
   patroniBootstrapMethodWalgPitrTimestamp = "'2021-05-24 22:07:00 UTC'";
   patroniBootstrapMethodWalgTimeline = 3;
-in
-{
+in {
   env = {
     PATH = "/bin";
     PGDATA = "${volumeMount}/postgres/patroni";
@@ -122,14 +121,14 @@ in
               recovery_target_inclusive: false
               # This parameter needs to be a timeline positive integer or special keyword
               recovery_target_timeline: ${
-        toString patroniBootstrapMethodWalgTimeline
-      }
+          toString patroniBootstrapMethodWalgTimeline
+        }
               restore_command: restore-command "%f" "%p"
 
           walg_pitr:
             command: clone-with-walg --recovery-target-time="${
-        patroniBootstrapMethodWalgPitrTimestamp
-      }"
+          patroniBootstrapMethodWalgPitrTimestamp
+        }"
             recovery_conf:
               recovery_target_action: promote
               recovery_target_inclusive: false
@@ -140,8 +139,8 @@ in
               # Ref:
               #  https://www.postgresql.org/docs/12/continuous-archiving.html
               recovery_target_timeline: ${
-        toString patroniBootstrapMethodWalgPitrTimeline
-      }
+          toString patroniBootstrapMethodWalgPitrTimeline
+        }
               restore_command: restore-command "%f" "%p"
 
           pg_hba:

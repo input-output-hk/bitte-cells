@@ -1,15 +1,14 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   # Render start commands form NixOS service definitions
   inherit (inputs) nixpkgs;
   inherit
     (nixpkgs.extend inputs.cardano-iohk-nix.overlays.cardano-lib)
     cardanoLib
     ;
-in
-{
+in {
   lib = cardanoLib;
   localSharePrefix = "~/.local/share/bitte-cells";
   snapShots = {

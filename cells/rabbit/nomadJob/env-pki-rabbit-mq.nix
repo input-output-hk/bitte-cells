@@ -1,5 +1,4 @@
-{ pkiPath }:
-{
+{pkiPath}: {
   template = [
     {
       change_mode = "signal";
@@ -7,8 +6,8 @@
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
         {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${
-        subdomain
-      }" "ttl=720h" }}{{ .Data.certificate }}
+          subdomain
+        }" "ttl=720h" }}{{ .Data.certificate }}
         {{ range .Data.ca_chain }}{{ . }}
         {{ end }}
         {{ end }}
@@ -26,8 +25,8 @@
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
         {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${
-        subdomain
-      }" "ttl=720h" }}
+          subdomain
+        }" "ttl=720h" }}
         {{ .Data.private_key }}
         {{ end }}
         {{ end }}
@@ -44,8 +43,8 @@
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
         {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${
-        subdomain
-      }" "ttl=720h" }}
+          subdomain
+        }" "ttl=720h" }}
         {{ .Data.issuing_ca }}
         {{ end }}
         {{ end }}

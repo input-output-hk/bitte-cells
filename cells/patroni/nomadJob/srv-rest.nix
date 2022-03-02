@@ -1,7 +1,7 @@
-{ namespace
-, subdomain
-}:
 {
+  namespace,
+  subdomain,
+}: {
   address_mode = "host";
   check = [
     {

@@ -1,11 +1,10 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs;
   inherit (cell) packages;
-in
-{
+in {
   default = _: {
     commands = [
       {

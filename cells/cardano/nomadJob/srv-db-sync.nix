@@ -1,12 +1,12 @@
-{ namespace
-, healthChecks
-}:
 {
+  namespace,
+  healthChecks,
+}: {
   address_mode = "auto";
   check = [
     {
       address_mode = "host";
-      args = [ ];
+      args = [];
       command = "${
         builtins.unsafeDiscardStringContext (toString healthChecks.db-sync-network-testnet-sync)
       }/bin/cardano-db-sync-network-testnet-sync-check";

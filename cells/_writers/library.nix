@@ -1,7 +1,7 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs;
   inherit
     (inputs.nixpkgs)
@@ -33,13 +33,13 @@ let
    *    '';
    * }
    */
-  writeShellApplication =
-    { name
-    , text
-    , env ? { }
-    , runtimeInputs ? [ ]
-    , checkPhase ? null
-    }:
+  writeShellApplication = {
+    name,
+    text,
+    env ? {},
+    runtimeInputs ? [],
+    checkPhase ? null,
+  }:
     writeTextFile {
       inherit name;
       executable = true;
@@ -54,74 +54,70 @@ let
 
         # TODO: cleanup after https://github.com/divnix/std/issues/27
         ${
-        builtins.concatStringsSep "\n" (
-          lib.attrsets.mapAttrsToList (n: v: "declare ${n}=${''"$''}{${n}:-${toString v}}${''"''}")
-          env
-        )
-      }
+          builtins.concatStringsSep "\n" (
+            lib.attrsets.mapAttrsToList (n: v: "declare ${n}=${''"$''}{${n}:-${toString v}}${''"''}")
+            env
+          )
+        }
 
         ${text}
       '';
       checkPhase =
         if checkPhase == null
-        then
-          ''
-            runHook preCheck
-            ${stdenv.shell} -n $out/bin/${name}
-            ${shellcheck}/bin/shellcheck $out/bin/${name}
-            runHook postCheck
-          ''
+        then ''
+          runHook preCheck
+          ${stdenv.shell} -n $out/bin/${name}
+          ${shellcheck}/bin/shellcheck $out/bin/${name}
+          runHook postCheck
+        ''
         else checkPhase;
       meta.mainProgram = name;
     };
-  writePython3Application =
-    { name
-    , text
-    , env ? { }
-    , runtimeInputs ? [ ]
-    , libraries ? [ ]
-    , checkPhase ? null
-    }:
+  writePython3Application = {
+    name,
+    text,
+    env ? {},
+    runtimeInputs ? [],
+    libraries ? [],
+    checkPhase ? null,
+  }:
     writeTextFile {
       inherit name;
       executable = true;
       destination = "/bin/${name}";
       text = ''
         #!${
-        if libraries == [ ]
-        then "${nixpkgs.python3}/bin/python"
-        else "${nixpkgs.python3.withPackages (ps: libraries)}/bin/python"
-      }
+          if libraries == []
+          then "${nixpkgs.python3}/bin/python"
+          else "${nixpkgs.python3.withPackages (ps: libraries)}/bin/python"
+        }
         # fmt: off
         import os; os.environ["PATH"] += os.pathsep + os.pathsep.join("${
-        lib.makeBinPath runtimeInputs
-      }".split(":"))
+          lib.makeBinPath runtimeInputs
+        }".split(":"))
         ${
-        builtins.concatStringsSep "\n" (
-          lib.attrsets.mapAttrsToList (n: v: "os.environ['${n}'] = os.environ.get('${n}', '${v}')")
-          env
-        )
-      }
+          builtins.concatStringsSep "\n" (
+            lib.attrsets.mapAttrsToList (n: v: "os.environ['${n}'] = os.environ.get('${n}', '${v}')")
+            env
+          )
+        }
         # fmt: on
 
         ${text}
       '';
       checkPhase =
         if checkPhase == null
-        then
-          ''
-            runHook preCheck
-            ${nixpkgs.python3Packages.black}/bin/black --check $out/bin/${name}
-            runHook postCheck
-          ''
+        then ''
+          runHook preCheck
+          ${nixpkgs.python3Packages.black}/bin/black --check $out/bin/${name}
+          runHook postCheck
+        ''
         else checkPhase;
       meta.mainProgram = name;
     };
-in
-{
+in {
   inherit writePython3Application;
-  writeShellApplication =
-    { ... } @ args:
+  writeShellApplication = {...} @ args:
     writeShellApplication (
       args
       // {

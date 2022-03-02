@@ -1,25 +1,25 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs;
   inherit (inputs.cardano-node) nixosModules;
   inherit (cell) constants;
-in
-rec {
-  walletEnvFlag = envName: if envName == "testnet"
-  then
-    "--testnet ${
+in rec {
+  walletEnvFlag = envName:
+    if envName == "testnet"
+    then "--testnet ${
       constants.lib.environments.testnet.networkConfig.ByronGenesisFile
     }"
-  else if envName == "mainnet"
-  then "--mainnet"
-  else abort "unreachable";
-  envFlag = envName: if envName == "testnet"
-  then "--testnet-magic 1097911063"
-  else if "mainnet"
-  then "--mainnet"
-  else abort "unreachable";
+    else if envName == "mainnet"
+    then "--mainnet"
+    else abort "unreachable";
+  envFlag = envName:
+    if envName == "testnet"
+    then "--testnet-magic 1097911063"
+    else if "mainnet"
+    then "--mainnet"
+    else abort "unreachable";
   evalNodeConfig = envName: profile: let
     envConfig = constants.lib.environments.${envName};
   in
@@ -33,12 +33,9 @@ rec {
           (nixpkgs.path + "/nixos/modules/misc/assertions.nix")
           # FIXME: remove dependency on the systemd module from the script renderer
           (
-            { lib
-            , ...
-            }:
-            {
-              options.systemd = lib.mkOption { type = lib.types.any; };
-              options.users = lib.mkOption { type = lib.types.any; };
+            {lib, ...}: {
+              options.systemd = lib.mkOption {type = lib.types.any;};
+              options.users = lib.mkOption {type = lib.types.any;};
             }
           )
           nixosModules.cardano-node

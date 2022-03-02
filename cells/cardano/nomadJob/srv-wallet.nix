@@ -1,12 +1,12 @@
-{ namespace
-, healthChecks
-}:
 {
+  namespace,
+  healthChecks,
+}: {
   address_mode = "auto";
   check = [
     {
       address_mode = "host";
-      args = [ ];
+      args = [];
       command = "${
         builtins.unsafeDiscardStringContext (toString healthChecks.wallet-network-sync)
       }/bin/cardano-wallet-network-sync-check";
@@ -19,7 +19,7 @@
     }
     {
       address_mode = "host";
-      args = [ ];
+      args = [];
       command = "${
         builtins.unsafeDiscardStringContext (toString healthChecks.wallet-id-sync)
       }/bin/cardano-wallet-id-sync-check";
@@ -36,7 +36,7 @@
       sidecar_service = [
         {
           proxy = [
-            { config = [ { envoy_prometheus_bind_addr = "0.0.0.0:9091"; } ]; }
+            {config = [{envoy_prometheus_bind_addr = "0.0.0.0:9091";}];}
           ];
         }
       ];

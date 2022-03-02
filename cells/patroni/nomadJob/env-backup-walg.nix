@@ -1,11 +1,10 @@
-{ patroniSecrets
-, volumeMount
-}:
-let
+{
+  patroniSecrets,
+  volumeMount,
+}: let
   walgBackupFromReplica = false;
   walgDaysToRetain = 7;
-in
-{
+in {
   env = {
     PATH = "/bin";
     PGDATA = "${volumeMount}/postgres/patroni";

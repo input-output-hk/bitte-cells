@@ -1,6 +1,7 @@
-{ lib
-, python38Packages
-, fetchFromGitHub
+{
+  lib,
+  python38Packages,
+  fetchFromGitHub,
 }:
 python38Packages.buildPythonApplication rec {
   pname = "patroni";
@@ -17,38 +18,33 @@ python38Packages.buildPythonApplication rec {
     rm tests/test_raft.py
     rm tests/test_raft_controller.py
   '';
-  propagatedBuildInputs =
-    with python38Packages;
-    [
-      boto
-      click
-      consul
-      dnspython
-      kazoo
-      kubernetes
-      prettytable
-      psutil
-      psycopg2
-      pysyncobj
-      python-dateutil
-      python-etcd
-      pyyaml
-      tzlocal
-      urllib3
-      ydiff
-    ];
-  checkInputs =
-    with python38Packages; [ flake8 mock pytestCheckHook pytest-cov requests ];
+  propagatedBuildInputs = with python38Packages; [
+    boto
+    click
+    consul
+    dnspython
+    kazoo
+    kubernetes
+    prettytable
+    psutil
+    psycopg2
+    pysyncobj
+    python-dateutil
+    python-etcd
+    pyyaml
+    tzlocal
+    urllib3
+    ydiff
+  ];
+  checkInputs = with python38Packages; [flake8 mock pytestCheckHook pytest-cov requests];
   # Fix tests by preventing them from writing to /homeless-shelter.
   preCheck = "export HOME=$(mktemp -d)";
-  pythonImportsCheck = [ "patroni" ];
-  meta =
-    with lib;
-    {
-      homepage = "https://patroni.readthedocs.io/en/latest/";
-      description = "A Template for PostgreSQL HA with ZooKeeper, etcd or Consul";
-      license = licenses.mit;
-      platforms = platforms.linux;
-      maintainers = teams.deshaw.members;
-    };
+  pythonImportsCheck = ["patroni"];
+  meta = with lib; {
+    homepage = "https://patroni.readthedocs.io/en/latest/";
+    description = "A Template for PostgreSQL HA with ZooKeeper, etcd or Consul";
+    license = licenses.mit;
+    platforms = platforms.linux;
+    maintainers = teams.deshaw.members;
+  };
 }

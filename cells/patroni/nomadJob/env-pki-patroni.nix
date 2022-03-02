@@ -1,5 +1,4 @@
-{ pkiPath }:
-{
+{pkiPath}: {
   template = [
     {
       change_mode = "signal";

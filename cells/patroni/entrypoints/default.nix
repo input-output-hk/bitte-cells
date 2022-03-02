@@ -1,20 +1,19 @@
-{ inputs
-, cell
-}:
-let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs;
   inherit (cell) packages;
   inherit (inputs.cells._writers.library) writeShellApplication;
   inherit (inputs.nixpkgs.lib.strings) fileContents;
-in
-{
+in {
   entrypoint = nixpkgs.symlinkJoin {
     name = "patroni-symlinks";
     paths = [
       (
         writeShellApplication {
           name = "patroni-entrypoint";
-          text = (fileContents ./entrypoint.sh);
+          text = fileContents ./entrypoint.sh;
           runtimeInputs = [
             nixpkgs.coreutils
             nixpkgs.postgresql_12
@@ -34,7 +33,7 @@ in
   };
   backup-sidecar-entrypoint = writeShellApplication {
     name = "patroni-backup-sidecar-entrypoint";
-    text = (fileContents ./backup-sidecar-entrypoint.sh);
-    runtimeInputs = [ nixpkgs.coreutils nixpkgs.postgresql_12 nixpkgs.wal-g ];
+    text = fileContents ./backup-sidecar-entrypoint.sh;
+    runtimeInputs = [nixpkgs.coreutils nixpkgs.postgresql_12 nixpkgs.wal-g];
   };
 }

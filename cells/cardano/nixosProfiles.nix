@@ -70,6 +70,7 @@ in rec {
           / 3
         );
     };
+  };
   client = namespace: { bittelib
   , ...
   }:

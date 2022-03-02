@@ -17,6 +17,7 @@
         };
       };
     };
+  };
   client = namespace: { bittelib
   , ...
   }:

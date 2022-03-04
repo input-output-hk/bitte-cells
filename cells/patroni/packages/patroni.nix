@@ -5,12 +5,12 @@
 }:
 python38Packages.buildPythonApplication rec {
   pname = "patroni";
-  version = "2.1.2";
+  version = "2.1.3";
   src = fetchFromGitHub {
     owner = "zalando";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-DW1N7yihKuib2yflNqgLYPA1zfnWLrslRtyLLcnMmOc=";
+    sha256 = "sha256-cBkiBrty/6A3rIv9A1oh8GvPjwxhHwYEKuDIsNzHw1g=";
   };
   # cdiff renamed to ydiff; remove when patroni source reflects this.
   # Raft tests removed due to https://github.com/zalando/patroni/issues/1862

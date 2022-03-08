@@ -13,6 +13,7 @@ in {
       }
       {
         package = nixpkgs.xxd;
+        name = "xxd";
         category = "cardano";
       }
       {
@@ -21,6 +22,7 @@ in {
       }
       {
         package = packages.bech32;
+        name = "bech32";
         category = "cardano";
       }
       {
@@ -29,6 +31,7 @@ in {
       }
       {
         package = packages.address;
+        name = "cardano-address";
         category = "cardano";
       }
       {

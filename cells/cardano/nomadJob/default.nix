@@ -85,6 +85,7 @@ in {
           (import ./srv-node.nix {inherit namespace healthChecks;})
           (import ./srv-wallet.nix {inherit namespace healthChecks;})
           (import ./srv-db-sync.nix {inherit namespace healthChecks;})
+          (import ./srv-submit-api.nix {inherit namespace healthChecks;})
         ];
         ephemeral_disk = [
           {
@@ -130,6 +131,26 @@ in {
           resources = {
             cpu = 5000;
             memory = 8192;
+          };
+        };
+        # ----------
+        # Task: Submit-API
+        # ----------
+        task.node = {
+          config = {
+            flake = "${entrypoints'}.cardano-submit-api-testnet-entrypoint";
+            command = "${
+              builtins.unsafeDiscardStringContext (toString entrypoints.submit-api-testnet-entrypoint)
+            }/bin/cardano-submit-api-testnet-entrypoint";
+            args = [];
+            flake_deps = [];
+            # flake_deps = ["${healthChecks'}.cardano-submit-api-network-testnet-sync"];
+          };
+          driver = "exec";
+          kill_signal = "SIGINT";
+          resources = {
+            cpu = 2000;
+            memory = 4096;
           };
         };
         # ----------

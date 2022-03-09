@@ -18,11 +18,11 @@ in {
             nixpkgs.coreutils
             nixpkgs.postgresql_12
             nixpkgs.wal-g
-            packages.patroni
-            packages.patroni-clone-with-walg
-            packages.patroni-callback
-            packages.patroni-restore-command
-            packages.patroni-walg-restore
+            packages.default
+            packages.clone-with-walg
+            packages.callback
+            packages.restore-command
+            packages.walg-restore
           ];
         }
       )

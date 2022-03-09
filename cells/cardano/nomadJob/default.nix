@@ -136,7 +136,7 @@ in {
         # ----------
         # Task: Submit-API
         # ----------
-        task.node = {
+        task.submit-api = {
           config = {
             flake = "${entrypoints'}.cardano-submit-api-testnet-entrypoint";
             command = "${

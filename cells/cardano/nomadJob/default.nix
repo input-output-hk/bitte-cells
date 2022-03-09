@@ -3,8 +3,8 @@
   cell,
 }: let
   inherit (inputs.nixpkgs) system;
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#entrypoints.${system}";
-  healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#healthChecks.${system}";
+  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.entrypoints";
+  healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.healthChecks";
   inherit (cell) entrypoints healthChecks constants;
 in {
   default = {
@@ -119,12 +119,10 @@ in {
         # ----------
         task.node = {
           config = {
-            flake = "${entrypoints'}.cardano-node-testnet-entrypoint";
-            command = "${
-              builtins.unsafeDiscardStringContext (toString entrypoints.node-testnet-entrypoint)
-            }/bin/cardano-node-testnet-entrypoint";
+            flake = "${entrypoints'}.node-testnet-entrypoint";
+            command = "/bin/cardano-node-testnet-entrypoint";
             args = [];
-            flake_deps = ["${healthChecks'}.cardano-node-network-testnet-sync"];
+            flake_deps = ["${healthChecks'}.node-network-testnet-sync"];
           };
           driver = "exec";
           kill_signal = "SIGINT";
@@ -138,13 +136,11 @@ in {
         # ----------
         task.submit-api = {
           config = {
-            flake = "${entrypoints'}.cardano-submit-api-testnet-entrypoint";
-            command = "${
-              builtins.unsafeDiscardStringContext (toString entrypoints.submit-api-testnet-entrypoint)
-            }/bin/cardano-submit-api-testnet-entrypoint";
+            flake = "${entrypoints'}.submit-api-testnet-entrypoint";
+            command = "/bin/cardano-submit-api-testnet-entrypoint";
             args = [];
             flake_deps = [];
-            # flake_deps = ["${healthChecks'}.cardano-submit-api-network-testnet-sync"];
+            # flake_deps = ["${healthChecks'}.submit-api-network-testnet-sync"];
           };
           driver = "exec";
           kill_signal = "SIGINT";
@@ -158,14 +154,12 @@ in {
         # ----------
         task.wallet = {
           config = {
-            flake = "${entrypoints'}.cardano-wallet-testnet-entrypoint";
-            command = "${
-              builtins.unsafeDiscardStringContext (toString entrypoints.wallet-testnet-entrypoint)
-            }/bin/cardano-wallet-testnet-entrypoint";
+            flake = "${entrypoints'}.wallet-testnet-entrypoint";
+            command = "/bin/cardano-wallet-testnet-entrypoint";
             args = [];
             flake_deps = [
-              "${healthChecks'}.cardano-wallet-network-sync"
-              "${healthChecks'}.cardano-wallet-id-sync"
+              "${healthChecks'}.wallet-network-sync"
+              "${healthChecks'}.wallet-id-sync"
             ];
           };
           driver = "exec";
@@ -195,10 +189,8 @@ in {
         # ----------
         task.wallet-init = {
           config = {
-            flake = "${entrypoints'}.cardano-wallet-init-entrypoint";
-            command = "${
-              builtins.unsafeDiscardStringContext (toString entrypoints.wallet-init-entrypoint)
-            }/bin/cardano-wallet-init-entrypoint";
+            flake = "${entrypoints'}.wallet-init-entrypoint";
+            command = "/bin/cardano-wallet-init-entrypoint";
             args = [];
             flake_deps = [];
           };
@@ -258,12 +250,10 @@ in {
         # ----------
         task.db-sync = {
           config = {
-            flake = "${entrypoints'}.cardano-db-sync-testnet-entrypoint";
-            command = "${
-              builtins.unsafeDiscardStringContext (toString entrypoints.db-sync-testnet-entrypoint)
-            }/bin/cardano-db-sync-testnet-entrypoint";
+            flake = "${entrypoints'}.db-sync-testnet-entrypoint";
+            command = "/bin/cardano-db-sync-testnet-entrypoint";
             args = [];
-            flake_deps = ["${healthChecks'}.cardano-db-sync-network-testnet-sync"];
+            flake_deps = ["${healthChecks'}.db-sync-network-testnet-sync"];
           };
           driver = "exec";
           kill_signal = "SIGINT";

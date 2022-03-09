@@ -3,7 +3,7 @@
   cell,
 }: let
   inherit (inputs.nixpkgs) system;
-  entrypoints = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#entrypoints.${system}";
+  entrypoints = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.rabbit.entrypoints";
 in {
   default = {
     namespace,
@@ -101,7 +101,7 @@ in {
             config = {
               args = [];
               command = "/bin/entrypoint";
-              flake = "${entrypoints}.rabbit-entrypoint";
+              flake = "${entrypoints}.entrypoint";
               flake_deps = [];
             };
             driver = "exec";

@@ -3,7 +3,7 @@
   cell,
 }: let
   inherit (inputs.nixpkgs) system;
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#entrypoints.${system}";
+  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.patroni.entrypoints";
 in {
   default = {
     namespace,
@@ -119,7 +119,7 @@ in {
               config = {
                 args = [];
                 command = "/bin/patroni-backup-sidecar-entrypoint";
-                flake = "${entrypoints'}.patroni-backup-sidecar-entrypoint";
+                flake = "${entrypoints'}.backup-sidecar-entrypoint";
                 flake_deps = [];
               };
               kill_signal = "SIGINT";
@@ -165,7 +165,7 @@ in {
               };
               driver = "exec";
               config = {
-                flake = "${entrypoints'}.patroni-entrypoint";
+                flake = "${entrypoints'}.entrypoint";
                 command = "/bin/patroni-entrypoint";
                 args = [patroniYaml];
                 flake_deps = [];

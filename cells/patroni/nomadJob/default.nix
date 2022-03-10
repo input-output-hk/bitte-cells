@@ -81,18 +81,16 @@ in {
       # ----------
       group.database = {
         count = scaling;
-        ephemeral_disk = [
-          {
-            migrate = true;
-            size = 5000;
-            sticky = true;
-          }
-        ];
+        ephemeral_disk = {
+          migrate = true;
+          size = 5000;
+          sticky = true;
+        };
         network = {
           mode = "host";
           reserved_ports = {
-            psql = [{static = 5432;}];
-            patroni = [{static = 8008;}];
+            psql = {static = 5432;};
+            patroni = {static = 8008;};
           };
         };
         service = [(import ./srv-rest.nix {inherit namespace subdomain;})];
@@ -172,12 +170,10 @@ in {
               };
               kill_signal = "SIGINT";
               kill_timeout = "30s";
-              logs = [
-                {
-                  max_file_size = 100;
-                  max_files = 20;
-                }
-              ];
+              logs = {
+                max_file_size = 100;
+                max_files = 20;
+              };
               vault = {
                 change_mode = "noop";
                 env = true;

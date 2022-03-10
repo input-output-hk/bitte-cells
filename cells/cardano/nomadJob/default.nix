@@ -87,15 +87,13 @@ in {
           (import ./srv-db-sync.nix {inherit namespace healthChecks;})
           (import ./srv-submit-api.nix {inherit namespace healthChecks;})
         ];
-        ephemeral_disk = [
-          {
-            migrate = true;
-            size = 80000;
-            sticky = true;
-          }
-        ];
+        ephemeral_disk = {
+          migrate = true;
+          size = 80000;
+          sticky = true;
+        };
         network = {
-          dns = [{servers = ["172.17.0.1"];}];
+          dns = {servers = ["172.17.0.1"];};
           mode = "bridge";
           port = {
             envoyPrometheus = {to = 9091;};
@@ -209,14 +207,12 @@ in {
             cpu = 500;
             memory = 128;
           };
-          restart = [
-            {
-              attempts = 10;
-              delay = "1m0s";
-              interval = "30m0s";
-              mode = "fail";
-            }
-          ];
+          restart = {
+            attempts = 10;
+            delay = "1m0s";
+            interval = "30m0s";
+            mode = "fail";
+          };
           env = {CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";};
           template = [
             {

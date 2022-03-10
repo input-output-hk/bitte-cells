@@ -7,7 +7,7 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 
 stateDir="${stateDir/#\~/$HOME}"
 
-S3_BASE="s3://iog-atala-bitte/shared-artifacts"
+S3_BASE="s3://iohk-moe-public"
 
 tmpdir=$(mktemp --directory)
 pushd "$tmpdir"

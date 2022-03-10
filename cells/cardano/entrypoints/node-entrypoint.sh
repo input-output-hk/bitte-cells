@@ -10,17 +10,17 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 
 stateDir="${stateDir/#\~/$HOME}"
 
-S3_BASE="s3://iog-atala-bitte/shared-artifacts"
+S3_BASE="https://iohk-moe-public.s3.eu-central-1.amazonaws.com"
 
 mkdir -p "${stateDir}"
 S3_PULL() {
-  if aws s3 cp "$S3_BASE/db-${envName}.tgz" "${stateDir}/db-${envName}.tgz"; then
+  if curl -O -L "$S3_BASE/db-${envName}.tgz" "${stateDir}/db-${envName}.tgz"; then
     echo "Snapshot file retrieved from s3."
   else
     echo "Snapshot file retreival failed, syncing from genesis."
   fi
 
-  if aws s3 cp "$S3_BASE/db-${envName}.tgz.sha256" "${stateDir}/db-${envName}.tgz.sha256"; then
+  if curl -O -L "$S3_BASE/db-${envName}.tgz.sha256" "${stateDir}/db-${envName}.tgz.sha256"; then
     echo "Snapshot sha256sum file retrieved from s3."
   else
     echo "Snapshot sha256sum file retreival failed, syncing from genesis."

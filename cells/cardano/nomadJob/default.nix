@@ -98,8 +98,10 @@ in {
           dns = [{servers = ["172.17.0.1"];}];
           mode = "bridge";
           port = {
-            envoyPrometheus = [{to = 9091;}];
-            node = [{to = 3001;}];
+            envoyPrometheus = {to = 9091;};
+            node = {to = 3001;};
+            submit = {to = 8090;};
+            wallet = {to = 8070;};
           };
         };
         volume = {

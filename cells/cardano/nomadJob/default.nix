@@ -7,6 +7,68 @@
   healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.healthChecks";
   inherit (cell) entrypoints healthChecks constants;
 in {
+  # ----------
+  # Task: Wallet Init - use per environmet
+  # ----------
+  wallet-init-task = {
+    config = {
+      flake = "${entrypoints'}.wallet-init-entrypoint";
+      command = "/bin/cardano-wallet-init-entrypoint";
+      args = [];
+      flake_deps = [];
+    };
+    driver = "exec";
+    vault = {
+      change_mode = "noop";
+      env = true;
+      policies = ["nomad-cluster"];
+    };
+    kill_signal = "SIGINT";
+    kill_timeout = "30s";
+    lifecycle = {hook = "poststart";};
+    resources = {
+      cpu = 500;
+      memory = 128;
+    };
+    restart = {
+      attempts = 10;
+      delay = "1m0s";
+      interval = "30m0s";
+      mode = "fail";
+    };
+    env = {
+      WALLET_SRV_URL = "TO-BE-OVERRIDDEN";
+      CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
+    };
+    template = [
+      {
+        change_mode = "restart";
+        data = ''
+          {{with secret "${walletSecrets}"}}
+          # TODO: use toUnescapedJSON after https://github.com/hashicorp/nomad/issues/11568
+          CARDANO_WALLET_INIT_DATA="{{ ${
+            walletSecrets.cardanoWalletInitData
+          } | toJSON }}"
+          CARDANO_WALLET_INIT_NAME="{{ ${
+            walletSecrets.cardanoWalletInitName
+          } }}"
+          CARDANO_WALLET_INIT_PASS="{{ ${
+            walletSecrets.cardanoWalletInitPass
+          } }}"
+          {{end}}
+        '';
+        destination = "secrets/env.sh";
+        env = true;
+        left_delimiter = "{{";
+        # FIXME: restrict once https://github.com/hashicorp/nomad/issues/5020#issuecomment-1023140860
+        # is implemented in nomad
+        # also clean up: entrypoints/db-sync-entrypoint.sh
+        perms = "0777";
+        right_delimiter = "}}";
+        splay = "5s";
+      }
+    ];
+  };
   default = {
     namespace,
     datacenters ? ["eu-central-1" "eu-west-1" "us-east-2"],
@@ -183,65 +245,6 @@ in {
             propagation_mode = "private";
             volume = "persistWallet";
           };
-        };
-        # ----------
-        # Task: Wallet Init
-        # ----------
-        task.wallet-init = {
-          config = {
-            flake = "${entrypoints'}.wallet-init-entrypoint";
-            command = "/bin/cardano-wallet-init-entrypoint";
-            args = [];
-            flake_deps = [];
-          };
-          driver = "exec";
-          vault = {
-            change_mode = "noop";
-            env = true;
-            policies = ["nomad-cluster"];
-          };
-          kill_signal = "SIGINT";
-          kill_timeout = "30s";
-          lifecycle = {hook = "poststart";};
-          resources = {
-            cpu = 500;
-            memory = 128;
-          };
-          restart = {
-            attempts = 10;
-            delay = "1m0s";
-            interval = "30m0s";
-            mode = "fail";
-          };
-          env = {CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";};
-          template = [
-            {
-              change_mode = "restart";
-              data = ''
-                {{with secret "${walletSecrets}"}}
-                # TODO: use toUnescapedJSON after https://github.com/hashicorp/nomad/issues/11568
-                CARDANO_WALLET_INIT_DATA="{{ ${
-                  walletSecrets.cardanoWalletInitData
-                } | toJSON }}"
-                CARDANO_WALLET_INIT_NAME="{{ ${
-                  walletSecrets.cardanoWalletInitName
-                } }}"
-                CARDANO_WALLET_INIT_PASS="{{ ${
-                  walletSecrets.cardanoWalletInitPass
-                } }}"
-                {{end}}
-              '';
-              destination = "secrets/env.sh";
-              env = true;
-              left_delimiter = "{{";
-              # FIXME: restrict once https://github.com/hashicorp/nomad/issues/5020#issuecomment-1023140860
-              # is implemented in nomad
-              # also clean up: entrypoints/db-sync-entrypoint.sh
-              perms = "0777";
-              right_delimiter = "}}";
-              splay = "5s";
-            }
-          ];
         };
         # ----------
         # Task: DbSync

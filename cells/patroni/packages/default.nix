@@ -29,6 +29,11 @@ in {
   walg-restore = writeShellApplication {
     name = "walg-restore";
     text = fileContents ./walg-restore.sh;
-    runtimeInputs = [nixpkgs.gnused nixpkgs.gawk nixpkgs.wal-g];
+    runtimeInputs = [
+      nixpkgs.findutils
+      nixpkgs.gnused
+      nixpkgs.gawk
+      nixpkgs.wal-g
+    ];
   };
 }

@@ -4,17 +4,21 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 
 [ -z "${cwdPath:-}" ] && echo "cwdPath env var must be set -- aborting" && exit 1
 [ -z "${logdirPath:-}" ] && echo "logdirPath env var must be set -- aborting" && exit 1
-[ -z "${stateDir:-}" ] && echo "stateDir env var must be set -- aborting" && exit 1
 
-stateDir="${stateDir/#\~/$HOME}"
+if ! [ -d "${cwdPath}"]: then
+    echo "Making Dgraph's current working directory"
+    mkdir -p ${cwdPath}
+else
+    echo "${cwdPath} exists, doing nothing."
 
-mkdir -p "${stateDir}"
+if ! [ -d "${logdirPath}"]: then
+    echo "Making Dgraph's logging directory"
+    mkdir -p ${logdirPath}
+else
+    echo "${logdirPath} exists, doing nothing."
 
 cmd=(
-  cardano-db-sync
-  --config "${configFile}"
-  --socket-path "${socketPath}"
-  --schema-dir "${schemaDir}"
-  --state-dir "${stateDir}"
+    dgraph alpha
+    --cwd "${cwdPath}"
+    --log_dir "${logdirPath}"
 )
-exec "${cmd[@]}"

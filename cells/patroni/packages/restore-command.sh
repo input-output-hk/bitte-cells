@@ -6,7 +6,7 @@
 readonly wal_filename=$1
 readonly wal_destination=$2
 
-[[ -z $wal_filename || -z $wal_destination ]] && echo "Aborting restore-command -- wal filename or destination missing" && exit 1
+[[ -z ${wal_filename-} || -z ${wal_destination-} ]] && echo "Aborting restore-command -- wal filename or destination missing" && exit 1
 
 echo "Running restore-command $wal_filename $wal_destination..."
 wal_dir=$(dirname "$wal_destination")

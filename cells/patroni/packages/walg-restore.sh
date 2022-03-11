@@ -34,8 +34,8 @@ while getopts ":-:" optchar; do
   esac
 done
 
-[[ -z $DATA_DIR ]] && echo "Aborting walg-restore -- No data dir option was provided" && exit 1
-[[ -z $NO_MASTER && -z $CONNSTR ]] && echo "Aborting walg-restore -- No connection string was provided" && exit 1
+[[ -z ${DATA_DIR-} ]] && echo "Aborting walg-restore -- No data dir option was provided" && exit 1
+[[ -z ${NO_MASTER-} && -z ${CONNSTR-} ]] && echo "Aborting walg-restore -- No connection string was provided" && exit 1
 
 ATTEMPT=0
 server_version="-1"
@@ -67,13 +67,13 @@ if [[ $server_version != "-1" ]]; then
 
   ATTEMPT=0
   while true; do
-    [[ -z $diff_in_bytes ]] && diff_in_bytes=$(psql -d "$CONNSTR" -tAc "$query")
-    [[ -z $cluster_size ]] && cluster_size=$(psql -d "$CONNSTR" -tAc "SELECT SUM(pg_catalog.pg_database_size(datname)) FROM pg_catalog.pg_database")
+    [[ -z ${diff_in_bytes-} ]] && diff_in_bytes=$(psql -d "$CONNSTR" -tAc "$query")
+    [[ -z ${cluster_size-} ]] && cluster_size=$(psql -d "$CONNSTR" -tAc "SELECT SUM(pg_catalog.pg_database_size(datname)) FROM pg_catalog.pg_database")
     [[ -n $diff_in_bytes && -n $cluster_size ]] && break
     [[ $((ATTEMPT++)) -ge $RETRIES ]] && break
     sleep 1
   done
-  [[ -z $diff_in_bytes || -z $cluster_size ]] && echo "Aborting walg-restore -- Could not determine difference with the master location" && exit 1
+  [[ -z ${diff_in_bytes-} || -z ${cluster_size-} ]] && echo "Aborting walg-restore -- Could not determine difference with the master location" && exit 1
 
   echo "Current cluster size: $cluster_size"
   echo "Wals generated since the last backup: $diff_in_bytes"

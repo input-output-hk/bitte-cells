@@ -14,13 +14,13 @@ S3_BASE="https://iohk-moe-public.s3.eu-central-1.amazonaws.com"
 
 mkdir -p "${stateDir}"
 S3_PULL() {
-  if curl -O -L "$S3_BASE/db-${envName}.tgz" "${stateDir}/db-${envName}.tgz"; then
+  if curl -L "$S3_BASE/db-${envName}.tgz" --output "${stateDir}/db-${envName}.tgz"; then
     echo "Snapshot file retrieved from s3."
   else
     echo "Snapshot file retreival failed, syncing from genesis."
   fi
 
-  if curl -O -L "$S3_BASE/db-${envName}.tgz.sha256" "${stateDir}/db-${envName}.tgz.sha256"; then
+  if curl -L "$S3_BASE/db-${envName}.tgz.sha256" --output "${stateDir}/db-${envName}.tgz.sha256"; then
     echo "Snapshot sha256sum file retrieved from s3."
   else
     echo "Snapshot sha256sum file retreival failed, syncing from genesis."

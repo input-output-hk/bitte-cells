@@ -17,19 +17,6 @@
       timeout = "10s";
       type = "script";
     }
-    {
-      address_mode = "host";
-      args = [];
-      command = "${
-        builtins.unsafeDiscardStringContext (toString healthChecks.wallet-id-sync)
-      }/bin/cardano-wallet-id-sync-check";
-      interval = "30s";
-      # on_update = "ignore_warnings";
-      # check_restart.ignore_warnings = true;
-      task = "wallet";
-      timeout = "10s";
-      type = "script";
-    }
   ];
   connect = [
     {

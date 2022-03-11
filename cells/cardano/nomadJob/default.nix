@@ -10,7 +10,26 @@ in {
   # ----------
   # Task: Wallet Init - use per environmet
   # ----------
-  wallet-init-task = {
+  wallet-init-check = {
+    address_mode = "host";
+    args = [];
+    command = "${
+      builtins.unsafeDiscardStringContext (toString healthChecks.wallet-id-sync)
+    }/bin/cardano-wallet-id-sync-check";
+    interval = "30s";
+    # on_update = "ignore_warnings";
+    # check_restart.ignore_warnings = true;
+    timeout = "10s";
+    type = "script";
+  };
+  wallet-init-task = {namespace, ...}: let
+    walletSecrets = {
+      __toString = _: "kv/nomad-cluster/${namespace}/wallet";
+      cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
+      cardanoWalletInitName = ".Data.data.cardanoWalletInitName";
+      cardanoWalletInitPass = ".Data.data.cardanoWalletInitPass";
+    };
+  in {
     config = {
       flake = "${entrypoints'}.wallet-init-entrypoint";
       command = "/bin/cardano-wallet-init-entrypoint";
@@ -82,12 +101,6 @@ in {
     priority = 50;
     volumeMountWallet = constants.stateDirs.wallet;
     volumeMountDbSync = constants.stateDirs.dbSync;
-    walletSecrets = {
-      __toString = _: "kv/nomad-cluster/${namespace}/wallet";
-      cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
-      cardanoWalletInitName = ".Data.data.cardanoWalletInitName";
-      cardanoWalletInitPass = ".Data.data.cardanoWalletInitPass";
-    };
     dbSyncSecrets = {
       __toString = _: "kv/nomad-cluster/${namespace}/db-sync";
       pgUser = ".Data.data.pgUser";
@@ -221,7 +234,6 @@ in {
             args = [];
             flake_deps = [
               "${healthChecks'}.wallet-network-sync"
-              "${healthChecks'}.wallet-id-sync"
             ];
           };
           driver = "exec";

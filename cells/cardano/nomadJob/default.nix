@@ -160,8 +160,8 @@ in {
           port = {
             envoyPrometheus = {to = 9091;};
             node = {to = 3001;};
-            submit = {to = 8090;};
-            wallet = {to = 8070;};
+            submit = {to = 8070;};
+            wallet = {to = 8090;};
           };
         };
         volume = {

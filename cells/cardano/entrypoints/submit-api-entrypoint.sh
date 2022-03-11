@@ -11,7 +11,7 @@ IFS=" " read -r -a envFlag <<< "${envFlag}"
 cmd=(
   cardano-submit-api
   --socket-path "${socketPath}"
-  --port 8090
+  --port 8070
   --listen-address "0.0.0.0"
   --config "${configFile}"
   "${envFlag[@]}"

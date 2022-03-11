@@ -6,9 +6,9 @@
   namespace,
 }: let
   patroniBootstrapMethod = "initdb";
-  patroniBootstrapMethodWalgPitrTimeline = 1;
-  patroniBootstrapMethodWalgPitrTimestamp = "'2021-05-24 22:07:00 UTC'";
-  patroniBootstrapMethodWalgTimeline = 3;
+  patroniBootstrapMethodWalgPitrTimeline = "latest";
+  patroniBootstrapMethodWalgPitrTimestamp = "'2022-01-01 00:00:00 UTC'";
+  patroniBootstrapMethodWalgTimeline = "latest";
 in {
   env = {
     PATH = "/bin";
@@ -120,7 +120,7 @@ in {
               recovery_target_inclusive: false
               # This parameter needs to be a timeline positive integer or special keyword
               recovery_target_timeline: ${
-          toString patroniBootstrapMethodWalgTimeline
+          patroniBootstrapMethodWalgTimeline
         }
               restore_command: restore-command "%f" "%p"
 
@@ -138,7 +138,7 @@ in {
               # Ref:
               #  https://www.postgresql.org/docs/12/continuous-archiving.html
               recovery_target_timeline: ${
-          toString patroniBootstrapMethodWalgPitrTimeline
+          patroniBootstrapMethodWalgPitrTimeline
         }
               restore_command: restore-command "%f" "%p"
 

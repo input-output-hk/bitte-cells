@@ -28,8 +28,7 @@ in (
         runtimeInputs = [
           packages.node
           packages.cli
-          # TODO: take from somewhere else than aws, e.g. an iohk hydra published path or similar
-          nixpkgs.awscli2
+          nixpkgs.curl
           nixpkgs.coreutils
           nixpkgs.gnutar
           nixpkgs.gzip

@@ -9,6 +9,7 @@ in {
     commands = [
       {
         package = nixpkgs.dgraph;
+        name = "dgraph";
         category = "dgraph";
       }
     ];

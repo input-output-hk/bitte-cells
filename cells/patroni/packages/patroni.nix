@@ -18,6 +18,7 @@ python38Packages.buildPythonApplication rec {
     rm tests/test_raft.py
     rm tests/test_raft_controller.py
   '';
+  doCheck = false;
   propagatedBuildInputs = with python38Packages; [
     boto
     click

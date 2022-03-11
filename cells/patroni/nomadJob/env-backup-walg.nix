@@ -16,7 +16,6 @@ in {
     WALG_DAYS_TO_RETAIN = walgDaysToRetain;
     INIT_CONN_DB = "postgres";
     PGPORT = "\${NOMAD_PORT_psql}";
-    DB = "SPECIFIED-IN-FLAKE";
     WALG_S3_PREFIX = "SPECIFIED-IN-FLAKE";
   };
   template = [

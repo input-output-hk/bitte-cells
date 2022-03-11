@@ -13,7 +13,6 @@ in {
   env = {
     PATH = "/bin";
     PGDATA = "${volumeMount}/postgres/patroni";
-    DB = "SPECIFIED-IN-FLAKE";
     WALG_S3_PREFIX = "SPECIFIED-IN-FLAKE";
   };
   template = [

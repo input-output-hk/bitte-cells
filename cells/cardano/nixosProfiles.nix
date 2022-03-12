@@ -21,6 +21,7 @@ in rec {
       socketPath = "/tmp/node.socket";
     };
   };
+  # Configuration Profile for Entrypoint Startcmd rendering
   node = {
     envConfig,
     envName,

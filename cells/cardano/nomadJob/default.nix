@@ -2,6 +2,7 @@
   inputs,
   cell,
 }: let
+  inherit (inputs) nixpkgs;
   inherit (inputs.nixpkgs) system;
   entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.entrypoints";
   healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.healthChecks";
@@ -88,12 +89,17 @@ in {
       }
     ];
   };
+
   default = {
     namespace,
     datacenters ? ["eu-central-1" "eu-west-1" "us-east-2"],
     domain,
     nodeClass,
     scaling,
+    # extra config switches
+    sumbit ? true,
+    wallet ? true,
+    dbsync ? true,
   }: let
     id = "cardano";
     type = "service";
@@ -189,116 +195,131 @@ in {
             type = "host";
           };
         };
-        # ----------
-        # Task: Node
-        # ----------
-        task.node = {
-          config = {
-            flake = "${entrypoints'}.node-testnet-entrypoint";
-            command = "/bin/cardano-node-testnet-entrypoint";
-            args = [];
-            flake_deps = ["${healthChecks'}.node-network-testnet-sync"];
-          };
-          driver = "exec";
-          kill_signal = "SIGINT";
-          resources = {
-            cpu = 5000;
-            memory = 8192;
-          };
-        };
-        # ----------
-        # Task: Submit-API
-        # ----------
-        task.submit-api = {
-          config = {
-            flake = "${entrypoints'}.submit-api-testnet-entrypoint";
-            command = "/bin/cardano-submit-api-testnet-entrypoint";
-            args = [];
-            flake_deps = [];
-            # flake_deps = ["${healthChecks'}.submit-api-network-testnet-sync"];
-          };
-          driver = "exec";
-          kill_signal = "SIGINT";
-          resources = {
-            cpu = 2000;
-            memory = 4096;
-          };
-        };
-        # ----------
-        # Task: Wallet
-        # ----------
-        task.wallet = {
-          config = {
-            flake = "${entrypoints'}.wallet-testnet-entrypoint";
-            command = "/bin/cardano-wallet-testnet-entrypoint";
-            args = [];
-            flake_deps = [
-              "${healthChecks'}.wallet-network-sync"
-            ];
-          };
-          driver = "exec";
-          vault = {
-            change_mode = "noop";
-            env = true;
-            policies = ["nomad-cluster"];
-          };
-          kill_signal = "SIGINT";
-          kill_timeout = "30s";
-          resources = {
-            cpu = 2000;
-            memory = 4096;
-          };
-          env = {
-            # used by healthChecks
-            CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
-          };
-          volume_mount = {
-            destination = volumeMountWallet;
-            propagation_mode = "private";
-            volume = "persistWallet";
-          };
-        };
-        # ----------
-        # Task: DbSync
-        # ----------
-        task.db-sync = {
-          config = {
-            flake = "${entrypoints'}.db-sync-testnet-entrypoint";
-            command = "/bin/cardano-db-sync-testnet-entrypoint";
-            args = [];
-            flake_deps = ["${healthChecks'}.db-sync-network-testnet-sync"];
-          };
-          driver = "exec";
-          kill_signal = "SIGINT";
-          resources = {
-            cpu = 5000;
-            memory = 12288;
-          };
-          volume_mount = {
-            destination = volumeMountDbSync;
-            propagation_mode = "private";
-            volume = "persistDbSync";
-          };
-          env = {PGPASSFILE = "/secrets/pgpass";};
-          template = [
-            {
-              change_mode = "restart";
-              # CAVE: no empty newlines in the rendered template!!
-              data = ''
-                {{ with secret "${dbSyncSecrets}" }}master.${namespace}-database.service.consul:5432:${dbName}:{{ ${
-                  dbSyncSecrets.pgUser
-                } }}:{{ ${
-                  dbSyncSecrets.pgPass
-                } }}{{ end }}
-              '';
-              destination = "secrets/pgpass";
-              left_delimiter = "{{";
-              perms = "0644";
-              right_delimiter = "}}";
-              splay = "5s";
+        task =
+          {
+            # ----------
+            # Task: Node
+            # ----------
+            node = {
+              config = {
+                flake = "${entrypoints'}.node-testnet-entrypoint";
+                command = "/bin/cardano-node-testnet-entrypoint";
+                args = [];
+                flake_deps = ["${healthChecks'}.node-network-testnet-sync"];
+              };
+              driver = "exec";
+              kill_signal = "SIGINT";
+              resources = {
+                cpu = 5000;
+                memory = 8192;
+              };
+            };
+          }
+          // (
+            # ----------
+            # Task: Submit-API
+            # ----------
+            nixpkgs.lib.optionalAttrs sumbit {
+              submit-api = {
+                config = {
+                  flake = "${entrypoints'}.submit-api-testnet-entrypoint";
+                  command = "/bin/cardano-submit-api-testnet-entrypoint";
+                  args = [];
+                  flake_deps = [];
+                  # flake_deps = ["${healthChecks'}.submit-api-network-testnet-sync"];
+                };
+                driver = "exec";
+                kill_signal = "SIGINT";
+                resources = {
+                  cpu = 2000;
+                  memory = 4096;
+                };
+              };
             }
-          ];
-        };
+          )
+          // (
+            # ----------
+            # Task: Wallet
+            # ----------
+            nixpkgs.lib.optionalAttrs wallet {
+              wallet = {
+                config = {
+                  flake = "${entrypoints'}.wallet-testnet-entrypoint";
+                  command = "/bin/cardano-wallet-testnet-entrypoint";
+                  args = [];
+                  flake_deps = [
+                    "${healthChecks'}.wallet-network-sync"
+                  ];
+                };
+                driver = "exec";
+                vault = {
+                  change_mode = "noop";
+                  env = true;
+                  policies = ["nomad-cluster"];
+                };
+                kill_signal = "SIGINT";
+                kill_timeout = "30s";
+                resources = {
+                  cpu = 2000;
+                  memory = 4096;
+                };
+                env = {
+                  # used by healthChecks
+                  CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
+                };
+                volume_mount = {
+                  destination = volumeMountWallet;
+                  propagation_mode = "private";
+                  volume = "persistWallet";
+                };
+              };
+            }
+          )
+          // (
+            # ----------
+            # Task: DbSync
+            # ----------
+            nixpkgs.lib.optionalAttrs dbsync {
+              db-sync = {
+                config = {
+                  flake = "${entrypoints'}.db-sync-testnet-entrypoint";
+                  command = "/bin/cardano-db-sync-testnet-entrypoint";
+                  args = [];
+                  flake_deps = ["${healthChecks'}.db-sync-network-testnet-sync"];
+                };
+                driver = "exec";
+                kill_signal = "SIGINT";
+                resources = {
+                  cpu = 5000;
+                  memory = 12288;
+                };
+                volume_mount = {
+                  destination = volumeMountDbSync;
+                  propagation_mode = "private";
+                  volume = "persistDbSync";
+                };
+                env = {PGPASSFILE = "/secrets/pgpass";};
+                template = [
+                  {
+                    change_mode = "restart";
+                    # CAVE: no empty newlines in the rendered template!!
+                    data = ''
+                      {{ with secret "${dbSyncSecrets}" }}master.${namespace}-database.service.consul:5432:${dbName}:{{ ${
+                        dbSyncSecrets.pgUser
+                      } }}:{{ ${
+                        dbSyncSecrets.pgPass
+                      } }}{{ end }}
+                    '';
+                    destination = "secrets/pgpass";
+                    left_delimiter = "{{";
+                    perms = "0644";
+                    right_delimiter = "}}";
+                    splay = "5s";
+                  }
+                ];
+              };
+            }
+          );
       };
     };
   };

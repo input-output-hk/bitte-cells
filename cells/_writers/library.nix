@@ -51,6 +51,8 @@
         set -o pipefail
 
         export PATH="${lib.makeBinPath runtimeInputs}:$PATH"
+        [ -n "''${DEBUG_SLEEP:-}" ] && sleep "$DEBUG_SLEEP"
+
 
         # TODO: cleanup after https://github.com/divnix/std/issues/27
         ${
@@ -95,6 +97,7 @@
         import os; os.environ["PATH"] += os.pathsep + os.pathsep.join("${
           lib.makeBinPath runtimeInputs
         }".split(":"))
+        import time; time.sleep(os.environ.get("DEBUG_SLEEP", 0))
         ${
           builtins.concatStringsSep "\n" (
             lib.attrsets.mapAttrsToList (n: v: "os.environ['${n}'] = os.environ.get('${n}', '${v}')")

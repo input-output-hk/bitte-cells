@@ -6,7 +6,7 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 [ -z "${envFlag:-}" ] && echo "envFlag env var must be set -- aborting" && exit 1
 [ -z "${configFile:-}" ] && echo "configFile env var must be set -- aborting" && exit 1
 
-IFS=" " read -r -a envFlag <<< "${envFlag}"
+IFS=" " read -r -a envFlag <<<"${envFlag}"
 
 cmd=(
   cardano-submit-api

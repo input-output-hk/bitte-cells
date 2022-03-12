@@ -8,9 +8,7 @@
       change_signal = "SIGHUP";
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${
-          subdomain
-        }" "ttl=720h" }}{{ .Data.certificate }}
+        {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${subdomain}" "ttl=720h" }}{{ .Data.certificate }}
         {{ range .Data.ca_chain }}{{ . }}
         {{ end }}
         {{ end }}
@@ -27,9 +25,7 @@
       change_signal = "SIGHUP";
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${
-          subdomain
-        }" "ttl=720h" }}
+        {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${subdomain}" "ttl=720h" }}
         {{ .Data.private_key }}
         {{ end }}
         {{ end }}
@@ -45,9 +41,7 @@
       change_signal = "SIGHUP";
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${
-          subdomain
-        }" "ttl=720h" }}
+        {{ with secret "${pkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "alt_names=${subdomain}" "ttl=720h" }}
         {{ .Data.issuing_ca }}
         {{ end }}
         {{ end }}

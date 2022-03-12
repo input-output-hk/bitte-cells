@@ -285,9 +285,7 @@ in {
               change_mode = "restart";
               # CAVE: no empty newlines in the rendered template!!
               data = ''
-                {{ with secret "${dbSyncSecrets}" }}master.${namespace}-database.service.consul:5432:${
-                  dbName
-                }:{{ ${
+                {{ with secret "${dbSyncSecrets}" }}master.${namespace}-database.service.consul:5432:${dbName}:{{ ${
                   dbSyncSecrets.pgUser
                 } }}:{{ ${
                   dbSyncSecrets.pgPass

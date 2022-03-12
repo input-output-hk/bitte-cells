@@ -18,13 +18,10 @@
       };
     };
   };
-  client = namespace: { bittelib
-  , ...
-  }:
-  {
+  client = namespace: {bittelib, ...}: {
     imports = [
       (
-        bittelib.mkNomadHostVolumesConfig [ "${namespace}-database" ] (n: "/var/lib/nomad-volumes/${n}")
+        bittelib.mkNomadHostVolumesConfig ["${namespace}-database"] (n: "/var/lib/nomad-volumes/${n}")
       )
     ];
     # for scheduling constraints

@@ -3,23 +3,24 @@
   cell,
 }: let
   inherit (inputs) nixpkgs cardano-wallet cardano-db-sync cardano-node;
-  cardano-node-project = (
-    cardano-node.legacyPackages.extend (
-      prev: final: {
-        # FIXME: hack to use the materialized version of haskellBuildUtils from cardano-wallet.
-        haskellBuildUtils =
-          cardano-wallet
-          .legacyPackages
-          .pkgs
-          .iohk-nix-utils;
-      }
+  cardano-node-project =
+    (
+      cardano-node.legacyPackages.extend (
+        prev: final: {
+          # FIXME: hack to use the materialized version of haskellBuildUtils from cardano-wallet.
+          haskellBuildUtils =
+            cardano-wallet
+            .legacyPackages
+            .pkgs
+            .iohk-nix-utils;
+        }
+      )
     )
-  )
-  .cardanoNodeProject
-  .appendModule {
-    # TODO: upstream materialization:
-    materialized = ./materialized/cardano-node;
-  };
+    .cardanoNodeProject
+    .appendModule {
+      # TODO: upstream materialization:
+      materialized = ./materialized/cardano-node;
+    };
 in {
   node =
     cardano-node-project.hsPkgs.cardano-node.components.exes.cardano-node

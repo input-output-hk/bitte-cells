@@ -119,15 +119,11 @@ in {
               recovery_target_action: promote
               recovery_target_inclusive: false
               # This parameter needs to be a timeline positive integer or special keyword
-              recovery_target_timeline: ${
-          patroniBootstrapMethodWalgTimeline
-        }
+              recovery_target_timeline: ${patroniBootstrapMethodWalgTimeline}
               restore_command: restore-command "%f" "%p"
 
           walg_pitr:
-            command: clone-with-walg --recovery-target-time="${
-          patroniBootstrapMethodWalgPitrTimestamp
-        }"
+            command: clone-with-walg --recovery-target-time="${patroniBootstrapMethodWalgPitrTimestamp}"
             recovery_conf:
               recovery_target_action: promote
               recovery_target_inclusive: false
@@ -137,9 +133,7 @@ in {
               # PITR may also require specifying the timeline in certain recovery scenarios
               # Ref:
               #  https://www.postgresql.org/docs/12/continuous-archiving.html
-              recovery_target_timeline: ${
-          patroniBootstrapMethodWalgPitrTimeline
-        }
+              recovery_target_timeline: ${patroniBootstrapMethodWalgPitrTimeline}
               restore_command: restore-command "%f" "%p"
 
           pg_hba:

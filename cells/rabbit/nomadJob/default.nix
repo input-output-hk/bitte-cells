@@ -12,7 +12,7 @@ in {
     nodeClass,
     scaling,
   }: let
-    id = "database";
+    id = "rabbit";
     type = "service";
     priority = 50;
     subdomain = "rabbit.${domain}";

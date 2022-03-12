@@ -25,7 +25,7 @@ in {
     # CAVE: securityGroupRules is a genuine aws config for routing and requires reapply of `tf.core`
     # CAVE: modules are nixosProfiles and require a redeploy of routing
     # ------------------------
-    instances.routing = {
+    cluster.instances.routing = {
       modules = [nixosProfiles.routing];
       securityGroupRules = {
         amqps = {

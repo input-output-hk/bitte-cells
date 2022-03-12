@@ -1,4 +1,7 @@
-{pkiPath}: {
+{
+  pkiPath,
+  subdomain,
+}: {
   template = [
     {
       change_mode = "signal";

@@ -1,5 +1,5 @@
 {
-  secretsPath,
+  rabbitSecrets,
   consulPath,
   rabbitmqConf,
   namespace,
@@ -8,7 +8,8 @@
     {
       change_mode = "restart";
       data = ''
-        {{with secret "${secretsPath}"}}PATH="/bin"
+        {{with secret "${rabbitSecrets}"}}
+        PATH="/bin"
         # Debug params -- comment to disable
         # DEBUG_SLEEP=300
 
@@ -23,7 +24,7 @@
         RABBITMQ_CONFIG_FILE="/secrets/rabbitmq.conf"
         RABBITMQ_CONF_ENV_FILE="/secrets/rabbitmq-env.conf"
         RABBITMQ_ENABLED_PLUGINS_FILE="/local/enabled_plugins"
-        RABBITMQ_ERLANG_COOKIE="{{.Data.data.rabbitErlangCookie}}"
+        RABBITMQ_ERLANG_COOKIE="{{${rabbitSecrets.rabbitErlangCookie}}}"
         RABBITMQ_ERLANG_COOKIE_PATH="/local/.erlang.cookie"
         RABBITMQ_ADVANCED_CONFIG_FILE="/local/advanced.config"
         RABBITMQ_LOG_BASE="/local/log"
@@ -44,7 +45,7 @@
     {
       change_mode = "restart";
       data = ''
-        {{with secret "${secretsPath}"}}# Configuration references:
+        {{with secret "${rabbitSecrets}"}}# Configuration references:
         #   https://www.rabbitmq.com/configure.html
         #   https://github.com/rabbitmq/rabbitmq-server/blob/v3.8.x/deps/rabbit/docs/rabbitmq.conf.example
         #   https://www.rabbitmq.com/install-generic-unix.html
@@ -78,8 +79,8 @@
         ssl_options.fail_if_no_peer_cert = true  # let's be paranoidly eager
 
         # Management UI default admin user
-        default_user = {{.Data.data.rabbitAdmin}}
-        default_pass = {{.Data.data.rabbitAdminPass}}
+        default_user = {{${rabbitSecrets.rabbitAdmin}}}
+        default_pass = {{${rabbitSecrets.rabbitAdminPass}}}
 
         # Logging reference:
         #   https://www.rabbitmq.com/logging.html#logging-to-console

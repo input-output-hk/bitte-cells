@@ -18,6 +18,12 @@ in {
     subdomain = "rabbit.${domain}";
     consulPath = "consul/creds/rabbit";
     secretsPath = "kv/nomad-cluster/${namespace}/rabbit";
+    rabbitSecrets = {
+      __toString = _: "kv/nomad-cluster/${namespace}/rabbit";
+      rabbitErlangCookie = ".Data.data.rabbitErlangCookie";
+      rabbitAdminPass = ".Data.data.rabbitAdminPass";
+      rabbitAdmin = ".Data.data.rabbitAdmin";
+    };
     pkiPath = "pki/issue/rabbit";
     rabbitmqConf = "secrets/rabbitmq.conf";
     volumeMount = "/persist-db";
@@ -94,9 +100,9 @@ in {
         service = [(import ./srv-ui.nix {inherit namespace subdomain;})];
         task.rabbitMq =
           (
-            import ./env-rabbit-mq.nix {inherit secretsPath consulPath rabbitmqConf namespace;}
+            import ./env-rabbit-mq.nix {inherit rabbitSecrets consulPath rabbitmqConf namespace;}
           )
-          // (import ./env-pki-rabbit-mq.nix {inherit pkiPath;})
+          // (import ./env-pki-rabbit-mq.nix {inherit pkiPath subdomain;})
           // {
             config = {
               args = [];

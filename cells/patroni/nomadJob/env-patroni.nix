@@ -143,15 +143,17 @@ in {
               restore_command: restore-command "%f" "%p"
 
           pg_hba:
-          - local   all         all                          trust
-          - hostssl all         {{${patroniSecrets.patroniSuper}}}  all          scram-sha-256
-          - hostssl all         all                          10.0.0.0/8   scram-sha-256
-          - hostssl replication {{${patroniSecrets.patroniRepl}}}   127.0.0.1/32 scram-sha-256
-          - hostssl replication {{${patroniSecrets.patroniRepl}}}   10.0.0.0/8   scram-sha-256
-          # - host    all         all                          10.0.0.0/8   scram-sha-256
-          # - host    all         {{${patroniSecrets.patroniSuper}}}  all          scram-sha-256
-          # - host    replication {{${patroniSecrets.patroniRepl}}}   127.0.0.1/32 scram-sha-256
-          # - host    replication {{${patroniSecrets.patroniRepl}}}   10.0.0.0/8   scram-sha-256
+          - local   all         all                                   trust
+          - hostssl all         {{${patroniSecrets.patroniSuper}}}    all            scram-sha-256
+          - hostssl all         all                                   10.0.0.0/8     scram-sha-256
+          - hostssl all         all                                   172.26.66.0/23 scram-sha-256
+          - hostssl replication {{${patroniSecrets.patroniRepl}}}     127.0.0.1/32   scram-sha-256
+          - hostssl replication {{${patroniSecrets.patroniRepl}}}     10.0.0.0/8     scram-sha-256
+          # - host    all         all                                 10.0.0.0/8     scram-sha-256
+          # - host    all         all                                 172.26.66.0/23 scram-sha-256
+          # - host    all         {{${patroniSecrets.patroniSuper}}}  all            scram-sha-256
+          # - host    replication {{${patroniSecrets.patroniRepl}}}   127.0.0.1/32   scram-sha-256
+          # - host    replication {{${patroniSecrets.patroniRepl}}}   10.0.0.0/8     scram-sha-256
 
           post_init: patroni-callback post_init
 

@@ -9,6 +9,6 @@ in {
   entrypoint = writeShellApplication {
     name = "rabbit-entrypoint";
     text = fileContents ./entrypoint.sh;
-    runtimeInputs = [nixpkgs.rabbitmq-server];
+    runtimeInputs = [nixpkgs.rabbitmq-server nixpkgs.coreutils];
   };
 }

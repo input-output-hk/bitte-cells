@@ -2,6 +2,7 @@
   inputs,
   cell,
 }: let
+  inherit (inputs) data-merge;
   inherit (inputs.nixpkgs) system;
   entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.patroni.entrypoints";
 in {
@@ -140,20 +141,12 @@ in {
           # ----------
           # Patroni
           # ----------
-          patroni = let
-            env-patroni = import ./env-patroni.nix {
-              inherit
-                patroniSecrets
-                consulPath
-                volumeMount
-                patroniYaml
-                namespace
-                ;
-            };
-            env-patroni-pki = import ./env-pki-patroni.nix {inherit pkiPath;};
-          in
-            env-patroni
-            // env-patroni-pki
+          patroni = with data-merge;
+            (merge
+              (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace;})
+              (decorate (import ./env-pki-patroni.nix {inherit pkiPath;}) {
+                template = append;
+              }))
             // {
               template =
                 env-patroni.template ++ env-patroni-pki.template;

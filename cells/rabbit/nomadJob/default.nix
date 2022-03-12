@@ -2,6 +2,7 @@
   inputs,
   cell,
 }: let
+  inherit (inputs) data-merge;
   inherit (inputs.nixpkgs) system;
   entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.rabbit.entrypoints";
 in {
@@ -98,11 +99,12 @@ in {
           };
         };
         service = [(import ./srv-ui.nix {inherit namespace subdomain;})];
-        task.rabbitMq =
-          (
-            import ./env-rabbit-mq.nix {inherit rabbitSecrets consulPath rabbitmqConf namespace;}
-          )
-          // (import ./env-pki-rabbit-mq.nix {inherit pkiPath subdomain;})
+        task.rabbitMq = with data-merge;
+          (merge
+            (import ./env-rabbit-mq.nix {inherit rabbitSecrets consulPath rabbitmqConf namespace;})
+            (decorate (import ./env-pki-rabbit-mq.nix {inherit pkiPath subdomain;}) {
+              template = append;
+            }))
           // {
             config = {
               args = [];

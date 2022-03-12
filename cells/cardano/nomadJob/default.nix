@@ -2,7 +2,7 @@
   inputs,
   cell,
 }: let
-  inherit (inputs) nixpkgs;
+  inherit (inputs.nixpkgs) lib;
   inherit (inputs.nixpkgs) system;
   entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.entrypoints";
   healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.healthChecks";
@@ -97,7 +97,7 @@ in {
     nodeClass,
     scaling,
     # extra config switches
-    sumbit ? true,
+    submit ? true,
     wallet ? true,
     dbsync ? true,
   }: let
@@ -162,12 +162,13 @@ in {
       # ----------
       group.cardano = {
         count = scaling;
-        service = [
-          (import ./srv-node.nix {inherit namespace healthChecks;})
-          (import ./srv-wallet.nix {inherit namespace healthChecks;})
-          (import ./srv-db-sync.nix {inherit namespace healthChecks;})
-          (import ./srv-submit-api.nix {inherit namespace healthChecks;})
-        ];
+        service =
+          [
+            (import ./srv-node.nix {inherit namespace healthChecks;})
+          ]
+          ++ (lib.optional wallet (import ./srv-wallet.nix {inherit namespace healthChecks;}))
+          ++ (lib.optional dbsync (import ./srv-db-sync.nix {inherit namespace healthChecks;}))
+          ++ (lib.optional submit (import ./srv-submit-api.nix {inherit namespace healthChecks;}));
         ephemeral_disk = {
           migrate = true;
           size = 80000;
@@ -176,25 +177,33 @@ in {
         network = {
           dns = {servers = ["172.17.0.1"];};
           mode = "bridge";
-          port = {
-            envoyPrometheus = {to = 9091;};
-            node = {to = 3001;};
-            submit = {to = 8070;};
-            wallet = {to = 8090;};
-          };
+          port =
+            {
+              envoyPrometheus = {to = 9091;};
+              node = {to = 3001;};
+            }
+            // lib.optionalAttrs submit {
+              submit = {to = 8070;};
+            }
+            // lib.optionalAttrs wallet {
+              wallet = {to = 8090;};
+            };
         };
-        volume = {
-          persistDbSync = {
-            # volume name configured via nixosProfiles.client
-            source = "${namespace}-db-sync";
-            type = "host";
+        volume =
+          lib.optionalAttrs dbsync {
+            persistDbSync = {
+              # volume name configured via nixosProfiles.client
+              source = "${namespace}-db-sync";
+              type = "host";
+            };
+          }
+          // lib.optionalAttrs wallet {
+            persistWallet = {
+              # volume name configured via nixosProfiles.client
+              source = "${namespace}-wallet";
+              type = "host";
+            };
           };
-          persistWallet = {
-            # volume name configured via nixosProfiles.client
-            source = "${namespace}-wallet";
-            type = "host";
-          };
-        };
         task =
           {
             # ----------
@@ -219,7 +228,7 @@ in {
             # ----------
             # Task: Submit-API
             # ----------
-            nixpkgs.lib.optionalAttrs sumbit {
+            lib.optionalAttrs submit {
               submit-api = {
                 config = {
                   flake = "${entrypoints'}.submit-api-testnet-entrypoint";
@@ -241,7 +250,7 @@ in {
             # ----------
             # Task: Wallet
             # ----------
-            nixpkgs.lib.optionalAttrs wallet {
+            lib.optionalAttrs wallet {
               wallet = {
                 config = {
                   flake = "${entrypoints'}.wallet-testnet-entrypoint";
@@ -279,7 +288,7 @@ in {
             # ----------
             # Task: DbSync
             # ----------
-            nixpkgs.lib.optionalAttrs dbsync {
+            lib.optionalAttrs dbsync {
               db-sync = {
                 config = {
                   flake = "${entrypoints'}.db-sync-testnet-entrypoint";

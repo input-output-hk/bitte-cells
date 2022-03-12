@@ -2,7 +2,7 @@
 
 ## Hydration Profile
 
-- `routing`-mediated hydration requires redeploy of `routing`'s NixOS
+- `routing`-mediated hydration requires redeploy of `routing`'s NixOS & `tf.core` (sec rules)
 - `hydrate-cluster`-mediated hydration requires reapply of cluster hydration
 
 ## NixOS Profile

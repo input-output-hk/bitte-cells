@@ -148,8 +148,6 @@ in {
                 template = append;
               }))
             // {
-              template =
-                env-patroni.template ++ env-patroni-pki.template;
               resources = {
                 cpu = 2000;
                 memory = 4096;

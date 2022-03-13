@@ -9,8 +9,6 @@
     cardanoLib
     ;
 in {
-  wallet-init-healthcheck-flake-url = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${nixpkgs.system}.cardano.health.wallet-init-sync";
-
   lib = cardanoLib;
   localSharePrefix = "~/.local/share/bitte-cells";
   snapShots = {

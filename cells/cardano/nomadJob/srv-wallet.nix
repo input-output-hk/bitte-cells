@@ -7,9 +7,7 @@
     {
       address_mode = "host";
       args = [];
-      command = "${
-        builtins.unsafeDiscardStringContext (toString healthChecks.wallet-network-sync)
-      }/bin/cardano-wallet-network-sync-check";
+      command = "${healthChecks.wallet-network-sync}/bin/cardano-wallet-network-sync-check";
       interval = "30s";
       # on_update = "ignore_warnings";
       # check_restart.ignore_warnings = true;

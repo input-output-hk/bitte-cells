@@ -4,7 +4,6 @@
 }: let
   inherit (inputs) data-merge;
   inherit (inputs.nixpkgs) system;
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.rabbit.entrypoints";
 in {
   default = {
     namespace,
@@ -108,9 +107,7 @@ in {
           // {
             config = {
               args = [];
-              command = "/bin/rabbit-entrypoint";
-              flake = "${entrypoints'}.entrypoint";
-              flake_deps = [];
+              command = "${entrypoints.entrypoint}/bin/rabbit-entrypoint";
             };
             driver = "exec";
             kill_signal = "SIGINT";

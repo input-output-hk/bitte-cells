@@ -4,8 +4,6 @@
 }: let
   inherit (inputs.nixpkgs) lib;
   inherit (inputs.nixpkgs) system;
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.entrypoints";
-  healthChecks' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.cardano.healthChecks";
   inherit (cell) entrypoints healthChecks constants;
 in {
   # ----------
@@ -14,9 +12,7 @@ in {
   wallet-init-check = {
     address_mode = "host";
     args = [];
-    command = "${
-      builtins.unsafeDiscardStringContext (toString healthChecks.wallet-id-sync)
-    }/bin/cardano-wallet-id-sync-check";
+    command = "${healthChecks.wallet-id-sync}/bin/cardano-wallet-id-sync-check";
     interval = "30s";
     # on_update = "ignore_warnings";
     # check_restart.ignore_warnings = true;
@@ -32,10 +28,8 @@ in {
     };
   in {
     config = {
-      flake = "${entrypoints'}.wallet-init-entrypoint";
-      command = "/bin/cardano-wallet-init-entrypoint";
+      command = "${entrypoints.wallet-init-entrypoint}/bin/cardano-wallet-init-entrypoint";
       args = [];
-      flake_deps = [];
     };
     driver = "exec";
     vault = {
@@ -211,10 +205,8 @@ in {
             # ----------
             node = {
               config = {
-                flake = "${entrypoints'}.node-testnet-entrypoint";
-                command = "/bin/cardano-node-testnet-entrypoint";
+                command = "${entrypoints}.node-testnet-entrypoint/bin/cardano-node-testnet-entrypoint";
                 args = [];
-                flake_deps = ["${healthChecks'}.node-network-testnet-sync"];
               };
               driver = "exec";
               kill_signal = "SIGINT";
@@ -231,11 +223,8 @@ in {
             lib.optionalAttrs submit {
               submit-api = {
                 config = {
-                  flake = "${entrypoints'}.submit-api-testnet-entrypoint";
-                  command = "/bin/cardano-submit-api-testnet-entrypoint";
+                  command = "${entrypoints.submit-api-testnet-entrypoint}/bin/cardano-submit-api-testnet-entrypoint";
                   args = [];
-                  flake_deps = [];
-                  # flake_deps = ["${healthChecks'}.submit-api-network-testnet-sync"];
                 };
                 driver = "exec";
                 kill_signal = "SIGINT";
@@ -253,12 +242,8 @@ in {
             lib.optionalAttrs wallet {
               wallet = {
                 config = {
-                  flake = "${entrypoints'}.wallet-testnet-entrypoint";
-                  command = "/bin/cardano-wallet-testnet-entrypoint";
+                  command = "${entrypoints.wallet-testnet-entrypoint}/bin/cardano-wallet-testnet-entrypoint";
                   args = [];
-                  flake_deps = [
-                    "${healthChecks'}.wallet-network-sync"
-                  ];
                 };
                 driver = "exec";
                 vault = {
@@ -291,10 +276,8 @@ in {
             lib.optionalAttrs dbsync {
               db-sync = {
                 config = {
-                  flake = "${entrypoints'}.db-sync-testnet-entrypoint";
-                  command = "/bin/cardano-db-sync-testnet-entrypoint";
+                  command = "${entrypoints.db-sync-testnet-entrypoint}/bin/cardano-db-sync-testnet-entrypoint";
                   args = [];
-                  flake_deps = ["${healthChecks'}.db-sync-network-testnet-sync"];
                 };
                 driver = "exec";
                 kill_signal = "SIGINT";

@@ -14,9 +14,7 @@
     {
       address_mode = "host";
       args = [];
-      command = "${
-        builtins.unsafeDiscardStringContext (toString healthChecks.node-network-testnet-sync)
-      }/bin/cardano-node-network-testnet-sync-check";
+      command = "${healthChecks.node-network-testnet-sync}/bin/cardano-node-network-testnet-sync-check";
       interval = "30s";
       # on_update = "ignore_warnings";
       # check_restart.ignore_warnings = true;

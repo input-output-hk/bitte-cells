@@ -3,8 +3,7 @@
   cell,
 }: let
   inherit (inputs) data-merge;
-  inherit (inputs.nixpkgs) system;
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.patroni.entrypoints";
+  inherit (cell) entrypoints;
 in {
   default = {
     namespace,
@@ -117,9 +116,7 @@ in {
               driver = "exec";
               config = {
                 args = [];
-                command = "/bin/patroni-backup-sidecar-entrypoint";
-                flake = "${entrypoints'}.backup-sidecar-entrypoint";
-                flake_deps = [];
+                command = "${entrypoints.backup-sidecar-entrypoint}/bin/patroni-backup-sidecar-entrypoint";
               };
               kill_signal = "SIGINT";
               kill_timeout = "30s";
@@ -154,10 +151,8 @@ in {
               };
               driver = "exec";
               config = {
-                flake = "${entrypoints'}.entrypoint";
-                command = "/bin/patroni-entrypoint";
+                command = "${entrypoints.entrypoint}/bin/patroni-entrypoint";
                 args = [patroniYaml];
-                flake_deps = [];
               };
               kill_signal = "SIGINT";
               kill_timeout = "30s";

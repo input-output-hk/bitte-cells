@@ -11,6 +11,7 @@ in {
     domain,
     nodeClass,
     scaling,
+    ...
   }: let
     id = "rabbit";
     type = "service";

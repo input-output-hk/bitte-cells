@@ -94,6 +94,7 @@ in {
     submit ? true,
     wallet ? true,
     dbsync ? true,
+    ...
   }: let
     id = "cardano";
     type = "service";

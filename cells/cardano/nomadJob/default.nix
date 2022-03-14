@@ -27,11 +27,8 @@ in {
       cardanoWalletInitPass = ".Data.data.cardanoWalletInitPass";
     };
   in {
-    config = {
-      command = "${entrypoints.wallet-init-entrypoint}/bin/cardano-wallet-init-entrypoint";
-      args = [];
-    };
-    driver = "exec";
+    config.command = ["${entrypoints.wallet-init-entrypoint}/bin/cardano-wallet-init-entrypoint"];
+    driver = "nix";
     vault = {
       change_mode = "noop";
       env = true;
@@ -205,11 +202,8 @@ in {
             # Task: Node
             # ----------
             node = {
-              config = {
-                command = "${entrypoints}.node-testnet-entrypoint/bin/cardano-node-testnet-entrypoint";
-                args = [];
-              };
-              driver = "exec";
+              config.command = ["${entrypoints}.node-testnet-entrypoint/bin/cardano-node-testnet-entrypoint"];
+              driver = "nix";
               kill_signal = "SIGINT";
               resources = {
                 cpu = 5000;
@@ -223,11 +217,8 @@ in {
             # ----------
             lib.optionalAttrs submit {
               submit-api = {
-                config = {
-                  command = "${entrypoints.submit-api-testnet-entrypoint}/bin/cardano-submit-api-testnet-entrypoint";
-                  args = [];
-                };
-                driver = "exec";
+                config.command = ["${entrypoints.submit-api-testnet-entrypoint}/bin/cardano-submit-api-testnet-entrypoint"];
+                driver = "nix";
                 kill_signal = "SIGINT";
                 resources = {
                   cpu = 2000;
@@ -242,11 +233,8 @@ in {
             # ----------
             lib.optionalAttrs wallet {
               wallet = {
-                config = {
-                  command = "${entrypoints.wallet-testnet-entrypoint}/bin/cardano-wallet-testnet-entrypoint";
-                  args = [];
-                };
-                driver = "exec";
+                config.command = ["${entrypoints.wallet-testnet-entrypoint}/bin/cardano-wallet-testnet-entrypoint"];
+                driver = "nix";
                 vault = {
                   change_mode = "noop";
                   env = true;
@@ -276,11 +264,8 @@ in {
             # ----------
             lib.optionalAttrs dbsync {
               db-sync = {
-                config = {
-                  command = "${entrypoints.db-sync-testnet-entrypoint}/bin/cardano-db-sync-testnet-entrypoint";
-                  args = [];
-                };
-                driver = "exec";
+                config.command = ["${entrypoints.db-sync-testnet-entrypoint}/bin/cardano-db-sync-testnet-entrypoint"];
+                driver = "nix";
                 kill_signal = "SIGINT";
                 resources = {
                   cpu = 5000;

@@ -114,11 +114,8 @@ in {
                 cpu = 500;
                 memory = 1024;
               };
-              driver = "exec";
-              config = {
-                args = [];
-                command = "${entrypoints.backup-sidecar-entrypoint}/bin/patroni-backup-sidecar-entrypoint";
-              };
+              driver = "nix";
+              config.command = ["${entrypoints.backup-sidecar-entrypoint}/bin/patroni-backup-sidecar-entrypoint"];
               kill_signal = "SIGINT";
               kill_timeout = "30s";
               lifecycle = {
@@ -150,11 +147,8 @@ in {
                 cpu = 2000;
                 memory = 4096;
               };
-              driver = "exec";
-              config = {
-                command = "${entrypoints.entrypoint}/bin/patroni-entrypoint";
-                args = [patroniYaml];
-              };
+              driver = "nix";
+              config.command = ["${entrypoints.entrypoint}/bin/patroni-entrypoint" patroniYaml];
               kill_signal = "SIGINT";
               kill_timeout = "30s";
               logs = {

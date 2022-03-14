@@ -106,11 +106,8 @@ in {
               template = append;
             }))
           // {
-            config = {
-              args = [];
-              command = "${entrypoints.entrypoint}/bin/rabbit-entrypoint";
-            };
-            driver = "exec";
+            config.command = ["${entrypoints.entrypoint}/bin/rabbit-entrypoint"];
+            driver = "nix";
             kill_signal = "SIGINT";
             kill_timeout = "30s";
             resources = {

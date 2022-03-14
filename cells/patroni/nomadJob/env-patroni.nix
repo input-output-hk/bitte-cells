@@ -83,6 +83,16 @@ in {
             postgresql:
               use_pg_rewind: true
               use_slots: true
+
+              pg_hba:
+              - local   all         all                                   trust
+              - hostssl all         {{${patroniSecrets.patroniSuper}}}    127.0.0.1/32   trust
+              - hostssl all         {{${patroniSecrets.patroniSuper}}}    all            scram-sha-256
+              - hostssl all         all                                   10.0.0.0/8     scram-sha-256
+              - hostssl all         all                                   172.26.66.0/23 scram-sha-256
+              - hostssl replication {{${patroniSecrets.patroniRepl}}}     127.0.0.1/32   scram-sha-256
+              - hostssl replication {{${patroniSecrets.patroniRepl}}}     10.0.0.0/8     scram-sha-256
+
               parameters:
                 # Patroni required dcs params
                 # Ref:
@@ -135,19 +145,6 @@ in {
               #  https://www.postgresql.org/docs/12/continuous-archiving.html
               recovery_target_timeline: ${patroniBootstrapMethodWalgPitrTimeline}
               restore_command: restore-command "%f" "%p"
-
-          pg_hba:
-          - local   all         all                                   trust
-          - hostssl all         {{${patroniSecrets.patroniSuper}}}    all            scram-sha-256
-          - hostssl all         all                                   10.0.0.0/8     scram-sha-256
-          - hostssl all         all                                   172.26.66.0/23 scram-sha-256
-          - hostssl replication {{${patroniSecrets.patroniRepl}}}     127.0.0.1/32   scram-sha-256
-          - hostssl replication {{${patroniSecrets.patroniRepl}}}     10.0.0.0/8     scram-sha-256
-          # - host    all         all                                 10.0.0.0/8     scram-sha-256
-          # - host    all         all                                 172.26.66.0/23 scram-sha-256
-          # - host    all         {{${patroniSecrets.patroniSuper}}}  all            scram-sha-256
-          # - host    replication {{${patroniSecrets.patroniRepl}}}   127.0.0.1/32   scram-sha-256
-          # - host    replication {{${patroniSecrets.patroniRepl}}}   10.0.0.0/8     scram-sha-256
 
           post_init: patroni-callback post_init
 

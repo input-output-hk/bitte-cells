@@ -1,4 +1,5 @@
 {
+  pkgs,
   lib,
   python38Packages,
   fetchFromGitHub,
@@ -36,6 +37,8 @@ python38Packages.buildPythonApplication rec {
     tzlocal
     urllib3
     ydiff
+    # Required for patronictl edit-config
+    (pkgs.more)
   ];
   checkInputs = with python38Packages; [flake8 mock pytestCheckHook pytest-cov requests];
   # Fix tests by preventing them from writing to /homeless-shelter.

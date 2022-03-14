@@ -34,6 +34,6 @@ in {
   backup-sidecar-entrypoint = writeShellApplication {
     name = "patroni-backup-sidecar-entrypoint";
     text = fileContents ./backup-sidecar-entrypoint.sh;
-    runtimeInputs = [nixpkgs.coreutils nixpkgs.postgresql_12 nixpkgs.wal-g];
+    runtimeInputs = [nixpkgs.coreutils nixpkgs.gnused nixpkgs.postgresql_12 nixpkgs.wal-g];
   };
 }

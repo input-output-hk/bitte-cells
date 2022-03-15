@@ -420,6 +420,25 @@
         "type": "github"
       }
     },
+    "data-merge": {
+      "inputs": {
+        "nixlib": "nixlib",
+        "yants": "yants"
+      },
+      "locked": {
+        "lastModified": 1647066869,
+        "narHash": "sha256-/5nITPw7LKMnr2kfrzdMYj73XQ9wdDRlBfln77l0Z7I=",
+        "owner": "divnix",
+        "repo": "data-merge",
+        "rev": "128d66437e8e7a3bfc2c0e9cf12cadc5c707ff80",
+        "type": "github"
+      },
+      "original": {
+        "owner": "divnix",
+        "repo": "data-merge",
+        "type": "github"
+      }
+    },
     "devshell": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -1096,10 +1115,11 @@
         "cardano-iohk-nix": "cardano-iohk-nix",
         "cardano-node": "cardano-node",
         "cardano-wallet": "cardano-wallet",
+        "data-merge": "data-merge",
         "std": "std"
       },
       "locked": {
-        "narHash": "sha256-ytLnZ/0kZRrvh9nQifFafp8dTfkLjtR/Muh3Nnam9f0=",
+        "narHash": "sha256-PMc2yWiy2IeZ8Zd5zzMyT2UhaV+0k69fPM6SqWpWvhQ=",
         "path": "../.",
         "type": "path"
       },
@@ -1189,6 +1209,21 @@
       "original": {
         "owner": "input-output-hk",
         "repo": "nix-tools",
+        "type": "github"
+      }
+    },
+    "nixlib": {
+      "locked": {
+        "lastModified": 1646527169,
+        "narHash": "sha256-L+hnaR1yT9YyJUrNyQlxpluOW6eSgPeChmsDA54Fbwk=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "4936ea5f6fe2be650524006722b4e33a2e4a4e25",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
         "type": "github"
       }
     },
@@ -1402,6 +1437,21 @@
     },
     "nixpkgs_10": {
       "locked": {
+        "lastModified": 1646527169,
+        "narHash": "sha256-L+hnaR1yT9YyJUrNyQlxpluOW6eSgPeChmsDA54Fbwk=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "4936ea5f6fe2be650524006722b4e33a2e4a4e25",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "nixpkgs_11": {
+      "locked": {
         "lastModified": 1645937171,
         "narHash": "sha256-n9f9GZBNMe8UMhcgmmaXNObkH01jjgp7INMrUgBgcy4=",
         "owner": "nixos",
@@ -1416,7 +1466,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_11": {
+    "nixpkgs_12": {
       "locked": {
         "lastModified": 1645937171,
         "narHash": "sha256-n9f9GZBNMe8UMhcgmmaXNObkH01jjgp7INMrUgBgcy4=",
@@ -1644,7 +1694,7 @@
         "devshell": "devshell",
         "flake-utils": "flake-utils_2",
         "main": "main",
-        "nixpkgs": "nixpkgs_11"
+        "nixpkgs": "nixpkgs_12"
       }
     },
     "stackage": {
@@ -1697,8 +1747,8 @@
     },
     "std": {
       "inputs": {
-        "nixpkgs": "nixpkgs_10",
-        "yants": "yants"
+        "nixpkgs": "nixpkgs_11",
+        "yants": "yants_2"
       },
       "locked": {
         "lastModified": 1646093123,
@@ -1787,6 +1837,24 @@
       }
     },
     "yants": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_10"
+      },
+      "locked": {
+        "lastModified": 1645126146,
+        "narHash": "sha256-XQ1eg4gzXoc7Tl8iXak1uCt3KnsTyxqPtLE+vOoDnrQ=",
+        "owner": "divnix",
+        "repo": "yants",
+        "rev": "77df2be1b3cce9f571c6cf451f786b266a6869cc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "divnix",
+        "repo": "yants",
+        "type": "github"
+      }
+    },
+    "yants_2": {
       "inputs": {
         "nixpkgs": [
           "main",

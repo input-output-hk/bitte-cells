@@ -4,6 +4,7 @@
 }: let
   inherit (inputs) data-merge;
   inherit (inputs.nixpkgs) system;
+  inherit (cell) entrypoints;
 in {
   default = {
     namespace,

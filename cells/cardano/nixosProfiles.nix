@@ -31,6 +31,7 @@ in rec {
       stateDir = constants.stateDirs.node;
     in {
       # find options definitons in `cardano-node/nix/nixos/cardano-node-service.nix`
+      nodeConfig = envConfig.nodeConfig;
       package = packages.node;
       kesKey = null;
       vrfKey = null;

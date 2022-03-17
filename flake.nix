@@ -25,6 +25,7 @@
         (inputs.std.functions "library")
         (inputs.std.data "constants")
         (inputs.std.functions "nomadJob")
+        (inputs.std.functions "nomadTask")
         (inputs.std.functions "devshellProfiles")
         (inputs.std.functions "nixosProfiles")
         (inputs.std.functions "hydrationProfiles")

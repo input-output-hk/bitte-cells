@@ -31,6 +31,8 @@ echo "Cardano node synchronized."
 
 mkdir -p "${stateDir}/db"
 
+export CARDANO_WALLET_PROMETHEUS_HOST=8081
+
 # shellcheck disable=SC2206
 cmd=(
   cardano-wallet serve

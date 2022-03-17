@@ -1119,7 +1119,7 @@
         "std": "std"
       },
       "locked": {
-        "narHash": "sha256-PMc2yWiy2IeZ8Zd5zzMyT2UhaV+0k69fPM6SqWpWvhQ=",
+        "narHash": "sha256-fn1FnuvDGRfjkq6yAj3NE1ATDOzE8D1EdGpcwVboPX0=",
         "path": "../.",
         "type": "path"
       },

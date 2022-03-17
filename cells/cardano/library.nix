@@ -11,12 +11,18 @@ in rec {
     then "--testnet ${
       constants.lib.environments.testnet.networkConfig.ByronGenesisFile
     }"
+    else if envName == "sre"
+    then "--testnet ${
+      constants.lib.environments.sre.networkConfig.ByronGenesisFile
+    }"
     else if envName == "mainnet"
     then "--mainnet"
     else abort "unreachable";
   envFlag = envName:
     if envName == "testnet"
     then "--testnet-magic 1097911063"
+    else if "sre"
+    then "--testnet-magic 3"
     else if "mainnet"
     then "--mainnet"
     else abort "unreachable";

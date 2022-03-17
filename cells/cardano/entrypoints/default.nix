@@ -101,6 +101,7 @@ in (
   in
     (entrypoints "testnet")
     // (entrypoints "mainnet")
+    // (entrypoints "sre")
     // {
       wallet-init-entrypoint = writeShellApplication {
         name = "cardano-wallet-init-entrypoint";

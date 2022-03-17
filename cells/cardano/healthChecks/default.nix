@@ -19,6 +19,18 @@ in {
     text = fileContents ./node-network-sync-check.sh;
     runtimeInputs = [packages.cli nixpkgs.jq nixpkgs.coreutils];
   };
+  node-network-sre-sync = writeShellApplication {
+    name = "cardano-node-network-sre-sync-check";
+    env = {
+      inherit
+        (library.evalNodeConfig "sre" nixosProfiles.node)
+        socketPath
+        ;
+      envFlag = library.envFlag "sre";
+    };
+    text = fileContents ./node-network-sync-check.sh;
+    runtimeInputs = [packages.cli nixpkgs.jq nixpkgs.coreutils];
+  };
   node-network-mainnet-sync = writeShellApplication {
     name = "cardano-node-network-mainnet-sync-check";
     env = {

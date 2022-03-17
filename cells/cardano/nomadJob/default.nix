@@ -215,7 +215,7 @@ in
                 # Task: Node
                 # ----------
                 node = {
-                  config.command = ["${entrypoints}.node-testnet-entrypoint/bin/cardano-node-testnet-entrypoint"];
+                  config.command = ["${entrypoints.node-testnet-entrypoint}/bin/cardano-node-testnet-entrypoint"];
                   driver = "nix";
                   kill_signal = "SIGINT";
                   resources = {

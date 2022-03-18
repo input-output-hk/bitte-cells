@@ -3,7 +3,9 @@
   cell,
 }: let
   inherit (inputs) data-merge cells;
-  inherit (cell) entrypoints;
+  inherit (cell) oci-images;
+  # OCI-Image Namer
+  ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
 in
   with data-merge; {
     default = {
@@ -94,6 +96,7 @@ in
               sticky = true;
             };
             network = {
+              dns = {servers = ["172.17.0.1"];};
               mode = "host";
               reserved_ports = {
                 psql = {static = 5432;};
@@ -120,8 +123,8 @@ in
                     cpu = 500;
                     memory = 1024;
                   };
-                  driver = "nix";
-                  config.command = ["${entrypoints.backup-sidecar-entrypoint}/bin/patroni-backup-sidecar-entrypoint"];
+                  driver = "docker";
+                  config.image = ociNamer oci-images.patroni-backup-sidecar;
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
                   lifecycle = {
@@ -153,8 +156,9 @@ in
                     cpu = 2000;
                     memory = 4096;
                   };
-                  driver = "nix";
-                  config.command = ["${entrypoints.entrypoint}/bin/patroni-entrypoint" patroniYaml];
+                  driver = "docker";
+                  config.image = ociNamer oci-images.patroni;
+                  config.args = [patroniYaml];
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
                   logs = {

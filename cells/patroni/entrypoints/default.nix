@@ -7,7 +7,7 @@
   inherit (inputs.cells._writers.library) writeShellApplication;
   inherit (inputs.nixpkgs.lib.strings) fileContents;
 in {
-  entrypoint = nixpkgs.symlinkJoin {
+  patroni-entrypoint = nixpkgs.symlinkJoin {
     name = "patroni-symlinks";
     paths = [
       (
@@ -16,6 +16,8 @@ in {
           text = fileContents ./entrypoint.sh;
           runtimeInputs = [
             nixpkgs.coreutils
+            nixpkgs.shadow
+            nixpkgs.su-exec
             nixpkgs.postgresql_12
             nixpkgs.wal-g
             packages.default
@@ -29,19 +31,6 @@ in {
       # fix for popen failure: Cannot allocate memory
       # through `nix profile install`, this provides /bin/sh which is a hard-coded dependency of some postgres commands
       nixpkgs.bashInteractive
-
-      # Temp debugging, including patronictl:
-      nixpkgs.coreutils
-      nixpkgs.postgresql_12
-      nixpkgs.wal-g
-      packages.default
-      packages.clone-with-walg
-      packages.callback
-      packages.restore-command
-      packages.walg-restore
-      nixpkgs.awscli2
-      nixpkgs.vim
-      nixpkgs.gnused
     ];
   };
   backup-sidecar-entrypoint = writeShellApplication {

@@ -5,7 +5,7 @@
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) lib;
   inherit (inputs.nixpkgs) system;
-  inherit (cell) entrypoints healthChecks constants oci-images;
+  inherit (cell) healthChecks constants oci-images;
   # OCI-Image Namer
   ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
 in

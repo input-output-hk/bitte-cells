@@ -25,7 +25,7 @@ in {
         PATRONICTL_CONFIG_FILE="${patroniYaml}"
         {{ end }}
 
-        CONSUL_HTTP_ADDR="127.0.0.1:8500"
+        CONSUL_HTTP_ADDR="172.17.0.1:8500"
         TERM="xterm-256color"
         # Add wal-g debugging if required
         #
@@ -65,7 +65,7 @@ in {
           verify_client: none
 
         consul:
-          url: http://127.0.0.1:8500
+          url: http://172.17.0.1:8500
           register_service: true
 
         bootstrap:

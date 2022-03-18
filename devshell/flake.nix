@@ -25,10 +25,11 @@
           commands = [{package = nixpkgs.legacyPackages.treefmt;}];
           packages = [
             alejandra.defaultPackage
-            nixpkgs.legacyPackages.shfmt
             nixpkgs.legacyPackages.nodePackages.prettier
             nixpkgs.legacyPackages.nodePackages.prettier-plugin-toml
             nixpkgs.legacyPackages.python3Packages.black
+            nixpkgs.legacyPackages.shfmt
+            nixpkgs.legacyPackages.skopeo
           ];
           devshell.startup.nodejs-setuphook = nixpkgs.lib.stringsWithDeps.noDepEntry ''
             export NODE_PATH=${

@@ -163,7 +163,7 @@ in
                   driver = "exec";
                   config = {
                     command = ["${entrypoints.entrypoint}/bin/patroni-entrypoint" patroniYaml];
-                    flake = "${entrypoints'}.patroni-entrypoint";
+                    flake = "${entrypoints'}.entrypoint";
                     flake_deps = [];
                   };
                   kill_signal = "SIGINT";

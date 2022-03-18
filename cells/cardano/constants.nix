@@ -39,6 +39,6 @@ in
     stateDirs = {
       dbSync = "/persist-db-sync";
       wallet = "/persist-wallet";
-      node = "/var/lib/cardano-node";
+      node = "/local/cardano-node";
     };
   }

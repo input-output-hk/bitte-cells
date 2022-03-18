@@ -3,9 +3,9 @@
   cell,
 }: let
   inherit (inputs) data-merge cells;
-  inherit (cell) oci-images;
-  # OCI-Image Namer
-  ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
+  inherit (inputs.nixpkgs) system;
+  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.patroni.entrypoints";
+  inherit (cell) entrypoints;
 in
   with data-merge; {
     default = {
@@ -96,7 +96,6 @@ in
               sticky = true;
             };
             network = {
-              dns = {servers = ["172.17.0.1"];};
               mode = "host";
               reserved_ports = {
                 psql = {static = 5432;};
@@ -123,8 +122,13 @@ in
                     cpu = 500;
                     memory = 1024;
                   };
-                  driver = "docker";
-                  config.image = ociNamer oci-images.patroni-backup-sidecar;
+                  driver = "exec";
+                  config = {
+                    args = [];
+                    command = "/bin/patroni-backup-sidecar-entrypoint";
+                    flake = "${entrypoints'}.backup-sidecar-entrypoint";
+                    flake_deps = [];
+                  };
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
                   lifecycle = {
@@ -156,10 +160,13 @@ in
                     cpu = 2000;
                     memory = 4096;
                   };
-                  driver = "docker";
-                  user = "postgres";
-                  config.image = ociNamer oci-images.patroni;
-                  config.args = [patroniYaml];
+                  driver = "exec";
+                  config = {
+                    args = [];
+                    command = "/bin/patroni-backup-sidecar-entrypoint";
+                    flake = "${entrypoints'}.backup-sidecar-entrypoint";
+                    flake_deps = [];
+                  };
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
                   logs = {

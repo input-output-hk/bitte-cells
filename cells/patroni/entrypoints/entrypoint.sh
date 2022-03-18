@@ -5,7 +5,6 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 mkdir -p /run/postgresql
 mkdir -p "$PGDATA"
 chmod 0700 "$PGDATA"
-chown postgres "$PGDATA"
 
 # Cannot use direct link and SIGHUP for consul template cert refresh yet due to required ownership change
 # Ref: https://github.com/hashicorp/nomad/issues/5020#issuecomment-8228130620
@@ -19,4 +18,4 @@ chmod 600 "/persist-db/postgres/cert-key-postgres.pem" "/persist-db/postgres/cer
 echo
 echo "Starting postgres patroni high availability job"
 
-exec postgres patroni "$@"
+exec patroni "$@"

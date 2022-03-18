@@ -57,7 +57,7 @@
         # TODO: cleanup after https://github.com/divnix/std/issues/27
         ${
           builtins.concatStringsSep "\n" (
-            lib.attrsets.mapAttrsToList (n: v: "declare ${n}=${''"$''}{${n}:-${toString v}}${''"''}")
+            lib.attrsets.mapAttrsToList (n: v: "export ${n}=${''"$''}{${n}:-${toString v}}${''"''}")
             env
           )
         }

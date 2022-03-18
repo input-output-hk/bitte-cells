@@ -1,6 +1,7 @@
 {
   description = "Bitte Cells";
   inputs.std.url = "github:divnix/std";
+  inputs.n2c.url = "github:nlewo/nix2container";
   inputs.data-merge.url = "github:divnix/data-merge";
   # Cardano Stack Inputs
   inputs = {
@@ -21,6 +22,7 @@
         (inputs.std.runnables "entrypoints")
         # just repo automation; std - just integration pending
         (inputs.std.runnables "justTasks")
+        (inputs.std.installables "oci-images")
         (inputs.std.installables "packages")
         (inputs.std.functions "library")
         (inputs.std.data "constants")

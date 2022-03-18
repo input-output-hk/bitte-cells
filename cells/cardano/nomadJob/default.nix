@@ -5,7 +5,9 @@
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) lib;
   inherit (inputs.nixpkgs) system;
-  inherit (cell) entrypoints healthChecks constants;
+  inherit (cell) entrypoints healthChecks constants oci-images;
+  # OCI-Image Namer
+  ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
 in
   with data-merge; {
     # ----------
@@ -29,8 +31,8 @@ in
         cardanoWalletInitPass = ".Data.data.cardanoWalletInitPass";
       };
     in {
-      config.command = ["${entrypoints.wallet-init-entrypoint}/bin/cardano-wallet-init-entrypoint"];
-      driver = "nix";
+      config.image = ociNamer oci-images.wallet-init;
+      driver = "docker";
       vault = {
         change_mode = "noop";
         env = true;
@@ -215,9 +217,8 @@ in
                 # Task: Node
                 # ----------
                 node = {
-                  config.command = ["${entrypoints.node-testnet-entrypoint}/bin/cardano-node-testnet-entrypoint"];
-                  driver = "nix";
-                  kill_signal = "SIGINT";
+                  config.image = ociNamer oci-images.node-testnet;
+                  driver = "docker";
                   resources = {
                     cpu = 5000;
                     memory = 8192;
@@ -230,9 +231,8 @@ in
                 # ----------
                 lib.optionalAttrs submit {
                   submit-api = {
-                    config.command = ["${entrypoints.submit-api-testnet-entrypoint}/bin/cardano-submit-api-testnet-entrypoint"];
-                    driver = "nix";
-                    kill_signal = "SIGINT";
+                    config.image = ociNamer oci-images.submit-api-testnet;
+                    driver = "docker";
                     resources = {
                       cpu = 2000;
                       memory = 4096;
@@ -246,15 +246,13 @@ in
                 # ----------
                 lib.optionalAttrs wallet {
                   wallet = {
-                    config.command = ["${entrypoints.wallet-testnet-entrypoint}/bin/cardano-wallet-testnet-entrypoint"];
-                    driver = "nix";
+                    config.image = ociNamer oci-images.wallet-testnet;
+                    driver = "docker";
                     vault = {
                       change_mode = "noop";
                       env = true;
                       policies = ["nomad-cluster"];
                     };
-                    kill_signal = "SIGINT";
-                    kill_timeout = "30s";
                     resources = {
                       cpu = 2000;
                       memory = 4096;
@@ -277,9 +275,8 @@ in
                 # ----------
                 lib.optionalAttrs dbsync {
                   db-sync = {
-                    config.command = ["${entrypoints.db-sync-testnet-entrypoint}/bin/cardano-db-sync-testnet-entrypoint"];
-                    driver = "nix";
-                    kill_signal = "SIGINT";
+                    config.image = ociNamer oci-images.db-sync-testnet;
+                    driver = "docker";
                     resources = {
                       cpu = 5000;
                       memory = 12288;

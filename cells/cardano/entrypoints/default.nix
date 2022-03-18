@@ -22,6 +22,7 @@ in (
         name = "cardano-node-${envName}-entrypoint";
         text = (fileContents ./node-entrypoint.sh) + "\n" + cfg.script;
         env = {
+          SSL_CERT_FILE = "${nixpkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
           stateDir = nodeStateDir;
           inherit envName socketPath;
         };
@@ -50,6 +51,7 @@ in (
             writeShellApplication {
               name = "cardano-db-sync-${envName}-entrypoint";
               env = {
+                SSL_CERT_FILE = "${nixpkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
                 inherit socketPath envFlag;
                 schemaDir = inputs.cardano-db-sync + "/schema";
                 stateDir = dbSyncStateDir;

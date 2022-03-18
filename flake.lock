@@ -557,6 +557,21 @@
         "type": "github"
       }
     },
+    "flake-utils_10": {
+      "locked": {
+        "lastModified": 1638122382,
+        "narHash": "sha256-sQzZzAbvKEqN9s0bzWuYmRaA03v40gaJ4+iL1LXjaeI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "74f7e4319258e287b0f9cb95426c9853b282730b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "flake-utils_2": {
       "locked": {
         "lastModified": 1623875721,
@@ -1047,6 +1062,25 @@
         "type": "github"
       }
     },
+    "n2c": {
+      "inputs": {
+        "flake-utils": "flake-utils_10",
+        "nixpkgs": "nixpkgs_9"
+      },
+      "locked": {
+        "lastModified": 1647547997,
+        "narHash": "sha256-KbLVBwvcBtEGDOnpEVlSkhOeW0J11u5iR3VltKjSxLg=",
+        "owner": "nlewo",
+        "repo": "nix2container",
+        "rev": "a102d5678a68d0ea0b92a44eab448fddce5e7875",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nlewo",
+        "repo": "nix2container",
+        "type": "github"
+      }
+    },
     "nix-tools": {
       "flake": false,
       "locked": {
@@ -1316,6 +1350,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_10": {
+      "locked": {
+        "lastModified": 1645937171,
+        "narHash": "sha256-n9f9GZBNMe8UMhcgmmaXNObkH01jjgp7INMrUgBgcy4=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "22dc22f8cedc58fcb11afe1acb08e9999e78be9c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1642336556,
@@ -1423,16 +1473,15 @@
     },
     "nixpkgs_9": {
       "locked": {
-        "lastModified": 1645937171,
-        "narHash": "sha256-n9f9GZBNMe8UMhcgmmaXNObkH01jjgp7INMrUgBgcy4=",
-        "owner": "nixos",
+        "lastModified": 1642451377,
+        "narHash": "sha256-hvAuYDUN8XIrcQKE6wDw4LjTCcwrTp2B1i1i/5vfDMQ=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "22dc22f8cedc58fcb11afe1acb08e9999e78be9c",
+        "rev": "e5b47c5c21336e3fdd887d24c7e34363fa09c6d7",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "nixpkgs-unstable",
+        "owner": "NixOS",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -1530,6 +1579,7 @@
         "cardano-node": "cardano-node",
         "cardano-wallet": "cardano-wallet",
         "data-merge": "data-merge",
+        "n2c": "n2c",
         "std": "std"
       }
     },
@@ -1583,7 +1633,7 @@
     },
     "std": {
       "inputs": {
-        "nixpkgs": "nixpkgs_9",
+        "nixpkgs": "nixpkgs_10",
         "yants": "yants_2"
       },
       "locked": {

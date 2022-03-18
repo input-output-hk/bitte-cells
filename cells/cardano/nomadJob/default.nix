@@ -161,7 +161,9 @@ in
           (cells.vector.nomadTask.default {
             endpoints =
               ["http://127.0.0.1:12798/metrics"] # node
-              ++ (lib.optionals wallet ["http://127.0.0.1:8081"])
+              # undocumented: https://github.com/input-output-hk/cardano-node/blob/5faa1d2bb85ae806ec51fa4c576dec2670c67c7a/cardano-submit-api/src/Cardano/TxSubmit/Metrics.hs#L30
+              ++ (lib.optionals submit ["http://127.0.0.1:8081"])
+              ++ (lib.optionals wallet ["http://127.0.0.1:8082/metrics"])
               ++ (lib.optionals dbsync ["http://127.0.0.1:8080"]);
           })
           {

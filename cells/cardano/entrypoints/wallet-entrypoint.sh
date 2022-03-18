@@ -31,8 +31,6 @@ echo "Cardano node synchronized."
 
 mkdir -p "${stateDir}/db"
 
-export CARDANO_WALLET_PROMETHEUS_HOST=8081
-
 # shellcheck disable=SC2206
 cmd=(
   cardano-wallet serve
@@ -42,4 +40,4 @@ cmd=(
   --node-socket ${socketPath}
   --database "${stateDir}/db"
 )
-exec "${cmd[@]}"
+CARDANO_WALLET_PROMETHEUS_PORT=8082 CARDANO_WALLET_PROMETHEUS_HOST=0.0.0.0 "${cmd[@]}"

@@ -277,7 +277,12 @@ in
                 # ----------
                 lib.optionalAttrs dbsync {
                   db-sync = {
-                    config.image = ociNamer oci-images.db-sync-testnet;
+                    config = {
+                      image = ociNamer oci-images.db-sync-testnet;
+                      volumes = [
+                        "tmp:/tmp"
+                      ];
+                    };
                     driver = "docker";
                     resources = {
                       cpu = 5000;

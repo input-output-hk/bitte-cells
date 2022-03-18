@@ -157,6 +157,7 @@ in
                     memory = 4096;
                   };
                   driver = "docker";
+                  user = "postgres";
                   config.image = ociNamer oci-images.patroni;
                   config.args = [patroniYaml];
                   kill_signal = "SIGINT";

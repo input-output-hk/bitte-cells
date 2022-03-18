@@ -2,8 +2,6 @@
 
 trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" && exit 0' INT
 
-useradd postgres
-
 mkdir -p /run/postgresql
 mkdir -p "$PGDATA"
 chmod 0700 "$PGDATA"
@@ -17,14 +15,8 @@ chown postgres "$PGDATA"
 # This will copy and chmod both postgres and patroni rest API sets of certs
 cp /secrets/cert*.pem "/persist-db/postgres/"
 chmod 600 "/persist-db/postgres/cert-key-postgres.pem" "/persist-db/postgres/cert-key-patroni.pem"
-chown 600 "/persist-db/postgres/cert-key-postgres.pem" "/persist-db/postgres/cert-key-patroni.pem"
 
 echo
 echo "Starting postgres patroni high availability job"
 
-chmod 755 /nix /nix/store
-
-mkdir /home
-chown -R postgres /home /persist-db
-
-su-exec postgres patroni "$@"
+exec postgres patroni "$@"

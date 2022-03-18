@@ -4,9 +4,8 @@
 }: let
   inherit (inputs) nixpkgs;
   inherit (cell) entrypoints;
-  n2c = inputs.n2c.packages.nix2container;
 in {
-  patroni = n2c.buildImage {
+  patroni = nixpkgs.dockerTools.buildLayeredImage {
     name = "docker.infra.aws.iohkdev.io/patroni";
     tag = inputs.self.rev;
     maxLayers = 15;
@@ -15,7 +14,7 @@ in {
       "${entrypoints.patroni-entrypoint}/bin/patroni-entrypoint"
     ];
   };
-  patroni-backup-sidecar = n2c.buildImage {
+  patroni-backup-sidecar = nixpkgs.dockerTools.buildLayeredImage {
     name = "docker.infra.aws.iohkdev.io/patroni-backup-sidecar";
     tag = inputs.self.rev;
     maxLayers = 15;

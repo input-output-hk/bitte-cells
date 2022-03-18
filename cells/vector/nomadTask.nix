@@ -2,16 +2,18 @@
   inputs,
   cell,
 }: let
-  inherit (cell) packages;
+  inherit (cell) oci-images;
+  # OCI-Image Namer
+  ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
 in {
   default = {endpoints}: {
     task.vector = {
-      driver = "nix";
+      driver = "docker";
       lifecycle = {
         sidecar = true;
       };
-      config.packages = [packages.default];
-      config.command = ["/bin/vector" "--config" "/local/vector/default.toml"];
+      config.image = ociNamer oci-images.default;
+      config.args = ["--config" "/local/vector/default.toml"];
       template = [
         {
           destination = "local/vector/default.toml";

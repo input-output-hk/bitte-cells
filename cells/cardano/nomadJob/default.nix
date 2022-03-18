@@ -219,6 +219,8 @@ in
                 node = {
                   config.image = ociNamer oci-images.node-testnet;
                   driver = "docker";
+                  kill_signal = "SIGINT";
+                  kill_timeout = "30s";
                   resources = {
                     cpu = 5000;
                     memory = 8192;

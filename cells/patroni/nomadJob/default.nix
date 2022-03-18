@@ -162,7 +162,8 @@ in
                   };
                   driver = "exec";
                   config = {
-                    command = ["${entrypoints.entrypoint}/bin/patroni-entrypoint" patroniYaml];
+                    command = "/bin/patroni-entrypoint";
+                    args = [patroniYaml];
                     flake = "${entrypoints'}.entrypoint";
                     flake_deps = [];
                   };

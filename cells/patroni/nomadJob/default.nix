@@ -162,9 +162,8 @@ in
                   };
                   driver = "exec";
                   config = {
-                    args = [];
-                    command = "/bin/patroni-backup-sidecar-entrypoint";
-                    flake = "${entrypoints'}.backup-sidecar-entrypoint";
+                    command = ["${entrypoints.entrypoint}/bin/patroni-entrypoint" patroniYaml];
+                    flake = "${entrypoints'}.patroni-entrypoint";
                     flake_deps = [];
                   };
                   kill_signal = "SIGINT";

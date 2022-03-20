@@ -3,7 +3,7 @@
   cell,
 }: let
   inherit (inputs) nixpkgs;
-  inherit (cell) entrypoints;
+  inherit (cell) entrypoints healthChecks;
   n2c = inputs.n2c.packages.nix2container;
 in (
   let
@@ -12,7 +12,7 @@ in (
         name = "docker.infra.aws.iohkdev.io/cardano-node-${envName}";
         tag = inputs.self.rev;
         maxLayers = 15;
-        contents = [nixpkgs.bashInteractive nixpkgs.iana-etc];
+        contents = [nixpkgs.bashInteractive nixpkgs.iana-etc healthChecks."node-network-${envName}-sync"];
         config.Cmd = [
           "${entrypoints."node-${envName}-entrypoint"}/bin/cardano-node-${envName}-entrypoint"
         ];
@@ -30,7 +30,7 @@ in (
         name = "docker.infra.aws.iohkdev.io/cardano-db-sync-${envName}";
         tag = inputs.self.rev;
         maxLayers = 15;
-        contents = [nixpkgs.bashInteractive nixpkgs.iana-etc];
+        contents = [nixpkgs.bashInteractive nixpkgs.iana-etc healthChecks."db-sync-network-${envName}-sync"];
         config.Cmd = [
           "${entrypoints."db-sync-${envName}-entrypoint"}/bin/cardano-db-sync-${envName}-entrypoint"
         ];
@@ -39,7 +39,7 @@ in (
         name = "docker.infra.aws.iohkdev.io/cardano-wallet-${envName}";
         tag = inputs.self.rev;
         maxLayers = 15;
-        contents = [nixpkgs.bashInteractive nixpkgs.iana-etc];
+        contents = [nixpkgs.bashInteractive nixpkgs.iana-etc healthChecks.wallet-network-sync];
         config.Cmd = [
           "${entrypoints."wallet-${envName}-entrypoint"}/bin/cardano-wallet-${envName}-entrypoint"
         ];

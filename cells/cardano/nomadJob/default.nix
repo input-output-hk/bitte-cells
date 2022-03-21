@@ -16,7 +16,10 @@ in
     wallet-init-check = {
       address_mode = "host";
       args = [];
-      command = "${healthChecks.wallet-id-sync}/bin/cardano-wallet-id-sync-check";
+      # FIXME: switch back to fully qualified invocation
+      # after: https://github.com/nlewo/nix2container/issues/15
+      # command = "${healthChecks.wallet-id-sync}/bin/cardano-wallet-id-sync-check";
+      command = "/bin/cardano-wallet-id-sync-check";
       interval = "30s";
       # on_update = "ignore_warnings";
       # check_restart.ignore_warnings = true;

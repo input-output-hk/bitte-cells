@@ -19,17 +19,6 @@
       type = "script";
     }
   ];
-  connect = [
-    {
-      sidecar_service = [
-        {
-          proxy = [
-            {config = [{envoy_prometheus_bind_addr = "0.0.0.0:9091";}];}
-          ];
-        }
-      ];
-    }
-  ];
   name = "${namespace}-wallet";
   port = "8090";
 }

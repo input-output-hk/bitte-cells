@@ -9,6 +9,7 @@ mapfile -t envFlag <<<"${envFlag}"
 # These don't appear to affect the outcome of the call, so forcing an otherwise synced node
 # to ignore these errors when the json status is still correct prevents service flapping.
 # shellcheck disable=SC2034,SC2068
+# TODO: we should probably check slot instead of block
 NODE_STATUS="$(env CARDANO_NODE_SOCKET_PATH="${socketPath}" cardano-cli query tip ${envFlag[@]} 2>/dev/null || :)"
 NODE_BLOCK_HEIGHT="$(jq -e -r '.block' <<<"$NODE_STATUS" 2>/dev/null || :)"
 
@@ -22,5 +23,7 @@ echo
 echo "Compare node to db blockHeight: ($NODE_BLOCK_HEIGHT, $DB_BLOCK_HEIGHT)"
 
 # Failure modes:
-[ -z "$NODE_BLOCK_HEIGHT" ] && [ -z "$DB_BLOCK_HEIGHT" ] && exit 1
-[ "$NODE_BLOCK_HEIGHT" = "$DB_BLOCK_HEIGHT" ] || exit 1
+[ -z "$NODE_BLOCK_HEIGHT" ] && [ -z "$DB_BLOCK_HEIGHT" ] && exit 2
+# Warning modes:
+# Exits as a warning if DB Sync is more than 10 blocks behind node
+[ $(("$NODE_BLOCK_HEIGHT" - "$DB_BLOCK_HEIGHT")) -le 10 ] || exit 1

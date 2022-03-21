@@ -1,7 +1,7 @@
 {
   description = "Bitte Cells";
   inputs.std.url = "github:divnix/std";
-  inputs.n2c.url = "github:nlewo/nix2container";
+  inputs.n2c.url = "github:nlewo/nix2container/bd1ff6d79ad7fa9747853e0637a380ba5650f6f9"; # /pull/14
   inputs.data-merge.url = "github:divnix/data-merge";
   # Cardano Stack Inputs
   inputs = {

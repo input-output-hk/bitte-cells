@@ -23,7 +23,6 @@ echo
 echo "Compare node to db blockHeight: ($NODE_BLOCK_HEIGHT, $DB_BLOCK_HEIGHT)"
 
 # Failure modes:
-[ -z "$NODE_BLOCK_HEIGHT" ] && [ -z "$DB_BLOCK_HEIGHT" ] && exit 2
-# Warning modes:
+[ -z "$NODE_BLOCK_HEIGHT" ] && [ -z "$DB_BLOCK_HEIGHT" ] && exit 1
 # Exits as a warning if DB Sync is more than 10 blocks behind node
 [ $(("$NODE_BLOCK_HEIGHT" - "$DB_BLOCK_HEIGHT")) -le 10 ] || exit 1

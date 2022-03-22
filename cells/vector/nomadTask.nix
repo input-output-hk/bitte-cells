@@ -60,14 +60,15 @@ in {
             [sources.source_stderr]
             ignore_older_secs = 300
             include = ["/alloc/logs/*.stderr.[0-9]*"]
-            line_delimiter = "\r\n"
+            line_delimiter = "\n"
             read_from = "beginning"
             type = "file"
+            max_line_bytes = 8192
 
             [sources.source_stdout]
             ignore_older_secs = 300
             include = ["/alloc/logs/*.stdout.[0-9]*"]
-            line_delimiter = "\r\n"
+            line_delimiter = "\n"
             read_from = "beginning"
             type = "file"
 

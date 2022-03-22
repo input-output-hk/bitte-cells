@@ -15,20 +15,53 @@
     }
   '';
 
-  output = {start}: {
-    success."${name}" =
-      {
-        ok = true;
-      }
-      // start.value."bitte-cells/ci";
-  };
+  job = {start}: let
+    cfg = start.value."bitte-cells/ci".start;
 
-  job = {start}:
+    templates =
+      lib.mapAttrsToList (name: value: {
+        destination = name;
+        data = value;
+      }) {
+        "secrets/skopeo" = ''"{{with secret "kv/data/cicero/docker"}}{{with .Data.data}}{{.user}}:{{.password}}{{end}}{{end}}"'';
+        "secrets/netrc" = ''
+          machine github.com
+          login git
+          password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
+        '';
+        "secrets/auth.json" = ''
+          {
+            "auths": {
+              "docker.infra.aws.iohkdev.io": {
+                "auth": "{{with secret "kv/data/cicero/docker"}}{{with .Data.data}}{{base64Encode (print .user ":" .password)}}{{end}}{{end}}"
+              }
+            }
+          }
+        '';
+      };
+  in
     std.chain args [
       actionLib.simpleJob
 
+      (lib.optionalAttrs (start ? statuses_url)
+        (std.github.reportStatus start.statuses_url))
+
       (actionLib.common.task
         start.value."bitte-cells/ci")
+
+      (std.git.clone cfg)
+
+      std.nix.install
+
+      {
+        resources = {
+          cpu = 15000;
+          memory = 6144;
+        };
+
+        env.REGISTRY_AUTH_FILE = "/secrets/auth.json";
+        template = std.data-merge.append templates;
+      }
 
       (std.script "bash" ''
         fromNix2Container=(

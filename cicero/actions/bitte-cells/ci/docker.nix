@@ -46,9 +46,6 @@
       (lib.optionalAttrs (start ? statuses_url)
         (std.github.reportStatus start.statuses_url))
 
-      (actionLib.common.task
-        start.value."bitte-cells/ci")
-
       (std.git.clone cfg)
 
       std.nix.install

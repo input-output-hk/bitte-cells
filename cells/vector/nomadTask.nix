@@ -43,8 +43,8 @@ in {
             nomad_job_name    = "<<env "NOMAD_JOB_NAME">>"
             nomad_namespace   = "<<env "NOMAD_NAMESPACE">>"
             nomad_region      = "<<env "NOMAD_REGION">>"
-            nomad_task_name   = "<<env "NOMAD_TASK_NAME" >>"
-            source = "{{source}}"
+            nomad_task_name   = "{{nomad_task_name}}"
+            source            = "{{source}}"
 
             [sinks.prometheus]
             endpoint = "http://172.16.0.20:8428/api/v1/write"
@@ -75,13 +75,19 @@ in {
             [transforms]
             [transforms.transform_stderr]
             inputs = ["source_stderr"]
-            source = ".source = \"stderr\""
             type = "remap"
+            source = ''''
+            .source = "stderr"
+            .nomad_task_name = parse_regex!(.file, r'/(?P<task>.+)\.std(out|err)\.\d+$').task
+            ''''
 
             [transforms.transform_stdout]
             inputs = ["source_stdout"]
-            source = ".source = \"stdout\""
             type = "remap"
+            source = ''''
+            .source = "stdout"
+            .nomad_task_name = parse_regex!(.file, r'/(?P<task>.+)\.std(out|err)\.\d+$').task
+            ''''
           '';
         }
       ];

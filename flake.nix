@@ -45,7 +45,7 @@
         cicero.lib.callActionsWithExtraArgs rec {
           inherit (cicero.lib) std;
           inherit (nixpkgs) lib;
-          actionLib = import cicero/lib.nix {inherit cicero lib;};
+          actionLib = import "${cicero}/action-lib.nix" {inherit std lib;};
         }
         cicero/actions;
     };

@@ -58,9 +58,14 @@
 
         env.REGISTRY_AUTH_FILE = "/secrets/auth.json";
         template = std.data-merge.append templates;
+        config.packages = std.data-merge.append [
+          "github:nixos/nixpkgs/nixpkgs-unstable#skopeo"
+        ];
       }
 
       (std.script "bash" ''
+        set -exuo pipefail
+
         fromNix2Container=(
           cardano.oci-images.db-sync-testnet
           cardano.oci-images.node-testnet

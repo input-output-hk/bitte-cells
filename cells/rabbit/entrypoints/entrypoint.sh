@@ -15,7 +15,7 @@ ulimit -n 50000
 [ -z "${RABBITMQ_ERLANG_COOKIE_PATH:-}" ] && echo "RABBITMQ_ERLANG_COOKIE env var must be set -- aborting" && exit 1
 
 echo "Creating erlang cookie at \"$RABBITMQ_ERLANG_COOKIE_PATH\" and setting permissions"
-echo "$RABBITMQ_ERLANG_COOKIE" > "$RABBITMQ_ERLANG_COOKIE_PATH"
+echo "$RABBITMQ_ERLANG_COOKIE" >"$RABBITMQ_ERLANG_COOKIE_PATH"
 chmod 0600 "$RABBITMQ_ERLANG_COOKIE_PATH"
 
 exec rabbitmq-server "$@"

@@ -26,7 +26,7 @@ in
       timeout = "10s";
       type = "script";
     };
-    wallet-init-task = {namespace, ...}: let
+    wallet-init-task = {namespace, walletService, ...}: let
       walletSecrets = {
         __toString = _: "kv/nomad-cluster/${namespace}/wallet";
         cardanoWalletInitData = ".Data.data.cardanoWalletInitData";
@@ -73,7 +73,7 @@ in
               walletSecrets.cardanoWalletInitPass
             } }}"
             {{end}}
-            WALLET_SRV_URL="http://{{ with service "${namespace}-wallet" }}{{ with index . 0 }}{{ .NodeAddress }}:{{ .Port }}{{ end }}{{ end }}"
+            WALLET_SRV_URL="http://{{ with service "${walletService}" }}{{ with index . 0 }}{{ .NodeAddress }}:{{ .Port }}{{ end }}{{ end }}"
           '';
           destination = "secrets/env.sh";
           env = true;

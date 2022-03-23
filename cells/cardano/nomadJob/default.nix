@@ -55,7 +55,6 @@ in
         mode = "fail";
       };
       env = {
-        WALLET_SRV_URL = "TO-BE-OVERRIDDEN";
         CARDANO_WALLET_ID = "TO-BE-OVERRIDDEN";
       };
       template = [
@@ -74,6 +73,7 @@ in
               walletSecrets.cardanoWalletInitPass
             } }}"
             {{end}}
+            WALLET_SRV_URL="http://{{ with service "${namespace}-wallet" }}{{ with index . 0 }}{{ .NodeAddress }}:{{ .Port }}{{ end }}{{ end }}"
           '';
           destination = "secrets/env.sh";
           env = true;

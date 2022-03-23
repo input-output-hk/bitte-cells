@@ -39,7 +39,7 @@ _Example usage:_
 {
   backend = data-merge.merge testnet-staging.backend {
     job.backend.group.backend.task.wallet-init = data-merge.merge cardano.nomadJob.wallet-init-task {
-      env = { inherit WALLET_SRV_URL CARDANO_WALLET_ID; };
+      env = { inherit CARDANO_WALLET_ID; };
     };
     job.backend.group.backend.task.erc20converter-backend = {
       service = data-merge.update [ 0 ] [

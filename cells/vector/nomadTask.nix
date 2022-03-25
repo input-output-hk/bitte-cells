@@ -6,7 +6,10 @@
   # OCI-Image Namer
   ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
 in {
-  default = {endpoints}: {
+  default = {
+    endpoints,
+    namespace,
+  }: {
     task.vector = {
       driver = "docker";
       lifecycle = {
@@ -30,9 +33,9 @@ in {
             type = "loki"
 
             [sinks.loki.encoding]
-              codec = "text"
-              timestamp_format = "rfc3339"
-              only_fields = ["message"]
+            codec = "text"
+            timestamp_format = "rfc3339"
+            only_fields = ["message"]
 
             [sinks.loki.labels]
             nomad_alloc_id    = "<<env "NOMAD_ALLOC_ID">>"
@@ -48,7 +51,7 @@ in {
 
             [sinks.prometheus]
             endpoint = "http://172.16.0.20:8428/api/v1/write"
-            inputs = ["prom"]
+            inputs = ["transform_prom"]
             type = "prometheus_remote_write"
 
             [sources]
@@ -56,6 +59,8 @@ in {
             endpoints = ${builtins.toJSON endpoints}
             scrape_interval_secs = 10
             type = "prometheus_scrape"
+            instance_tag = "instance"
+            endpoint_tag = "endpoint"
 
             [sources.source_stderr]
             ignore_older_secs = 300
@@ -87,6 +92,13 @@ in {
             source = ''''
             .source = "stdout"
             .nomad_task_name = parse_regex!(.file, r'/(?P<task>.+)\.std(out|err)\.\d+$').task
+            ''''
+
+            [transforms.transform_prom]
+            type = "remap"
+            inputs = [ "prom" ]
+            source = ''''
+            .tags.namespace = "${namespace}"
             ''''
           '';
         }

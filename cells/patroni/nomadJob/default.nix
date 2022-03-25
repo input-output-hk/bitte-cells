@@ -86,6 +86,7 @@ in
         group.database =
           merge
           (cells.vector.nomadTask.default {
+            inherit namespace;
             endpoints = ["http://127.0.0.1:8008/metrics"];
           })
           {

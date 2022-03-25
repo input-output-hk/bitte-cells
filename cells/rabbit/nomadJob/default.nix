@@ -81,6 +81,7 @@ in
         group.rabbit =
           merge
           (cells.vector.nomadTask.default {
+            inherit namespace;
             endpoints = ["http://127.0.0.1:15692/metrics"];
           })
           {

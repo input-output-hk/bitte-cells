@@ -162,6 +162,7 @@ in
         group.cardano =
           merge
           (cells.vector.nomadTask.default {
+            inherit namespace;
             endpoints =
               ["http://127.0.0.1:12798/metrics"] # node
               # undocumented: https://github.com/input-output-hk/cardano-node/blob/5faa1d2bb85ae806ec51fa4c576dec2670c67c7a/cardano-submit-api/src/Cardano/TxSubmit/Metrics.hs#L30

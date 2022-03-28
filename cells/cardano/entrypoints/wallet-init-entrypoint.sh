@@ -31,7 +31,7 @@ else
   # Required as regular wallet create since the extended public key wallet creation option creates the wallet as read-only
   MNEMONICS="$(sed -r -s 's/([[:alpha:]]+)/"\1"/g' <<<"$CARDANO_WALLET_INIT_DATA")"
   PAYLOAD="{\"name\":\"${CARDANO_WALLET_INIT_NAME}\",\"mnemonic_sentence\":${MNEMONICS},\"passphrase\":\"${CARDANO_WALLET_INIT_PASS}\"}"
-  LOG_PAYLOAD="{\"name\":\"${CARDANO_WALLET_INIT_NAME}\",\"mnemonic_sentence\":${MNEMONICS}//+([[:alpha:]])/*****},\"passphrase\":\"*****\"}"
+  LOG_PAYLOAD="{\"name\":\"${CARDANO_WALLET_INIT_NAME}\",\"mnemonic_sentence\":\"*****\",\"passphrase\":\"*****\"}"
   CREATE_CMD=(
     curl -f -XPOST "${wallet_urls[0]}/v2/wallets"
     -H 'Content-Type: application/json'

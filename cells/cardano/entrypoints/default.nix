@@ -5,7 +5,6 @@
   inherit (inputs) nixpkgs;
   inherit (cell) packages constants library nixosProfiles;
   inherit (inputs.cells._writers.library) writeShellApplication;
-  inherit (inputs.cells._utils.packages) srvaddr;
   inherit (inputs.nixpkgs.lib.strings) fileContents;
 in (
   let
@@ -109,7 +108,7 @@ in (
       wallet-init-entrypoint = writeShellApplication {
         name = "cardano-wallet-init-entrypoint";
         text = fileContents ./wallet-init-entrypoint.sh;
-        runtimeInputs = [nixpkgs.gnused nixpkgs.curl nixpkgs.coreutils srvaddr];
+        runtimeInputs = [nixpkgs.gnused nixpkgs.curl nixpkgs.coreutils];
       };
     }
 )

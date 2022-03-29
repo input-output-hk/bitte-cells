@@ -188,7 +188,11 @@ in
               mode = "bridge";
               port =
                 {
+                  envoyPrometheus = {to = 9091;};
                   node = {to = 3001;};
+                  # nodeProm = {to = 12798;};
+                  # dbSyncProm = {to = 8080;};
+                  # walletProm = {to = 8081;};
                 }
                 // lib.optionalAttrs submit {
                   submit = {to = 8070;};

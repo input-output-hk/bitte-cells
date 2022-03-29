@@ -20,5 +20,5 @@
     }
   ];
   name = "${namespace}-wallet";
-  port = "wallet";
+  port = "8090";
 }

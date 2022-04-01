@@ -42,6 +42,7 @@ in {
       nixpkgs.awscli2
       nixpkgs.vim
       nixpkgs.gnused
+      nixpkgs.less
     ];
   };
   backup-sidecar-entrypoint = writeShellApplication {

@@ -18,6 +18,7 @@
   name = "${namespace}-patroni-rest";
   port = "patroni";
   tags = [
+    "\${NOMAD_ALLOC_ID}"
     "${namespace}"
     "ingress"
     "traefik.enable=true"

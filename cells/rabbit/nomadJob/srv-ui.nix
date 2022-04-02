@@ -18,6 +18,7 @@
   name = "${namespace}-rabbit-ui";
   port = "mgmt";
   tags = [
+    "\${NOMAD_ALLOC_ID}"
     "${namespace}"
     "ingress"
     "traefik.enable=true"

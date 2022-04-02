@@ -3,6 +3,9 @@
   healthChecks,
 }: {
   address_mode = "auto";
+  tags = [
+    "\${NOMAD_ALLOC_ID}"
+  ];
   check = [
     {
       address_mode = "host";

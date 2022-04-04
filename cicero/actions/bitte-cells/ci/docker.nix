@@ -53,7 +53,7 @@
       {
         resources = {
           cpu = 15000;
-          memory = 9000;
+          memory = 18000;
         };
 
         env.REGISTRY_AUTH_FILE = "/secrets/auth.json";
@@ -69,11 +69,11 @@
         fromNix2Container=(
           cardano.oci-images.wallet-init
           ${lib.concatStringsSep "\n" (map (env: ''
-            cardano.oci-images.db-sync-${env}
-            cardano.oci-images.node-${env}
-            cardano.oci-images.submit-api-${env}
-            cardano.oci-images.wallet-${env}
-          '') [ "testnet" "marlowe-pioneers" ])}
+          cardano.oci-images.db-sync-${env}
+          cardano.oci-images.node-${env}
+          cardano.oci-images.submit-api-${env}
+          cardano.oci-images.wallet-${env}
+        '') ["testnet" "marlowe-pioneers"])}
           vector.oci-images.default
         )
 

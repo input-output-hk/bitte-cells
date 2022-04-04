@@ -21,10 +21,12 @@ in rec {
   envFlag = envName:
     if envName == "testnet"
     then "--testnet-magic 1097911063"
-    else if "sre"
+    else if envName == "sre"
     then "--testnet-magic 3"
-    else if "mainnet"
+    else if envName == "mainnet"
     then "--mainnet"
+    else if envName == "marlowe-pioneers"
+    then "--testnet-magic 1565"
     else abort "unreachable";
   evalNodeConfig = envName: profile: let
     envConfig = constants.lib.environments.${envName};

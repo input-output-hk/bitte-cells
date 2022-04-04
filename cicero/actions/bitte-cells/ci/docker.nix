@@ -67,11 +67,13 @@
         set -exuo pipefail
 
         fromNix2Container=(
-          cardano.oci-images.db-sync-testnet
-          cardano.oci-images.node-testnet
-          cardano.oci-images.submit-api-testnet
           cardano.oci-images.wallet-init
-          cardano.oci-images.wallet-testnet
+          ${lib.concatStringsSep "\n" (map (env: ''
+            cardano.oci-images.db-sync-${env}
+            cardano.oci-images.node-${env}
+            cardano.oci-images.submit-api-${env}
+            cardano.oci-images.wallet-${env}
+          '') [ "testnet" "marlowe-pioneers" ])}
           vector.oci-images.default
         )
 

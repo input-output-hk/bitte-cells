@@ -53,7 +53,7 @@
       {
         resources = {
           cpu = 15000;
-          memory = 8000;
+          memory = 9000;
         };
 
         env.REGISTRY_AUTH_FILE = "/secrets/auth.json";

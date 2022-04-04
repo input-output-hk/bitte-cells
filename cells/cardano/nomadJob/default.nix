@@ -93,6 +93,7 @@ in
       domain,
       nodeClass,
       scaling,
+      env ? "testnet",
       # extra config switches
       submit ? true,
       wallet ? true,
@@ -218,7 +219,7 @@ in
                 # Task: Node
                 # ----------
                 node = {
-                  config.image = ociNamer oci-images.node-testnet;
+                  config.image = ociNamer oci-images."node-${env}";
                   driver = "docker";
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
@@ -234,7 +235,7 @@ in
                 # ----------
                 lib.optionalAttrs submit {
                   submit-api = {
-                    config.image = ociNamer oci-images.submit-api-testnet;
+                    config.image = ociNamer oci-images."submit-api-${env}";
                     driver = "docker";
                     resources = {
                       cpu = 2000;
@@ -249,7 +250,7 @@ in
                 # ----------
                 lib.optionalAttrs wallet {
                   wallet = {
-                    config.image = ociNamer oci-images.wallet-testnet;
+                    config.image = ociNamer oci-images."wallet-${env}";
                     driver = "docker";
                     vault = {
                       change_mode = "noop";
@@ -279,7 +280,7 @@ in
                 lib.optionalAttrs dbsync {
                   db-sync = {
                     config = {
-                      image = ociNamer oci-images.db-sync-testnet;
+                      image = ociNamer oci-images."db-sync-${env}";
                       volumes = [
                         "tmp:/tmp"
                       ];

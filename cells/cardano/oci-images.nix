@@ -47,6 +47,7 @@ in (
     };
   in
     (containers "testnet")
+    // (containers "marlowe-pioneers")
     // {
       wallet-init = n2c.buildImage {
         name = "docker.infra.aws.iohkdev.io/cardano-wallet-init";

@@ -67,6 +67,8 @@ in {
         consul:
           url: http://127.0.0.1:8500
           register_service: true
+          service_tags:
+          - {{ env "NOMAD_ALLOC_ID" }}
 
         bootstrap:
           dcs:

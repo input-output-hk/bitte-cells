@@ -10,7 +10,7 @@ in {
     name = "docker.infra.aws.iohkdev.io/vector";
     tag = inputs.self.rev;
     maxLayers = 15;
-    contents = [nixpkgs.bashInteractive];
+    contents = [nixpkgs.bashInteractive nixpkgs.cacert];
     config.Entrypoint = ["${packages.default}/bin/vector"];
   };
 }

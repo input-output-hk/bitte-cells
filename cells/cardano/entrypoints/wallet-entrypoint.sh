@@ -40,4 +40,10 @@ cmd=(
   --node-socket ${socketPath}
   --database "${stateDir}/db"
 )
-CARDANO_WALLET_PROMETHEUS_PORT=8082 CARDANO_WALLET_PROMETHEUS_HOST=0.0.0.0 "${cmd[@]}"
+
+# Wallet will not export prometheus metrics without also enabling EKG
+export CARDANO_WALLET_EKG_HOST=127.0.0.1
+export CARDANO_WALLET_EKG_PORT=8083
+export CARDANO_WALLET_PROMETHEUS_HOST=127.0.0.1
+export CARDANO_WALLET_PROMETHEUS_PORT=8082
+"${cmd[@]}"

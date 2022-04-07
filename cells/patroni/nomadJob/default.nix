@@ -87,7 +87,28 @@ in
           merge
           (cells.vector.nomadTask.default {
             inherit namespace;
-            endpoints = ["http://127.0.0.1:8008/metrics"];
+            # Patroni requires the rest interface to be publicly
+            # bound, accessible over the network by other cluster
+            # members and the metrics endpoint is served from the
+            # same binding.  Therefore, we need to scrape the host
+            # IP:PORT for metrics.
+            endpoints = ["https://$NOMAD_ADDR_patroni/metrics"];
+
+            extra = {
+              # Until we implement app based mTLS, or alternatively
+              # generate vault pki certs for vector consumption
+              # with rotation and SIGHUP consul template restarts.
+              #
+              # Undocumented option:
+              # https://github.com/vectordotdev/vector/issues/12129
+              sources.prom.tls.verify_certificate = false;
+
+              # Avoid repeating duplicate fingerprint logs for
+              # stdout between patroni and backup-walg logs.
+              sources.source_stdout.fingerprint.strategy = "checksum";
+              sources.source_stdout.fingerprint.lines = 2;
+              sources.source_stdout.fingerprint.ignored_header_bytes = 0;
+            };
           })
           {
             count = scaling;

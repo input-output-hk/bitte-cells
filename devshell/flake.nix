@@ -19,7 +19,7 @@
           ;
         inherit (main.inputs.std.deSystemize system main.inputs) std;
       in {
-        devShells.__default = devshell.legacyPackages.mkShell {
+        devShells.default = devshell.legacyPackages.mkShell {
           name = "Bitte Cells";
           imports = [std.std.devshellProfiles.default];
           commands = [{package = nixpkgs.legacyPackages.treefmt;}];

@@ -27,6 +27,7 @@
     "traefik.http.routers.${namespace}-patroni-rest-api.rule=Host(`${subdomain}`)"
     "traefik.http.routers.${namespace}-patroni-rest-api.entrypoints=https"
     "traefik.http.routers.${namespace}-patroni-rest-api.tls=true"
+    "traefik.http.routers.${namespace}-patroni-rest-api.tls.certresolver=acme"
     "traefik.http.routers.${namespace}-patroni-rest-api.middlewares=${namespace}-patroni-rest-api-ratelimit@consulcatalog"
     "traefik.http.middlewares.${namespace}-patroni-rest-api-ratelimit.ratelimit.average=100"
     "traefik.http.middlewares.${namespace}-patroni-rest-api-ratelimit.ratelimit.burst=250"

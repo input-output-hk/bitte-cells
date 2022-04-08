@@ -25,6 +25,7 @@
     "traefik.http.routers.${namespace}-rabbit-ui.rule=Host(`${subdomain}`)"
     "traefik.http.routers.${namespace}-rabbit-ui.entrypoints=https"
     "traefik.http.routers.${namespace}-rabbit-ui.tls=true"
+    "traefik.http.routers.${namespace}-rabbit-ui.tls.certresolver=acme"
     "traefik.http.routers.${namespace}-rabbit-ui.middlewares=${namespace}-rabbit-ui-ratelimit@consulcatalog"
     "traefik.http.middlewares.${namespace}-rabbit-ui-ratelimit.ratelimit.average=100"
     "traefik.http.middlewares.${namespace}-rabbit-ui-ratelimit.ratelimit.burst=250"

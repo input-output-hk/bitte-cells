@@ -75,6 +75,7 @@
           cardano.oci-images.wallet-${env}
         '') ["testnet" "marlowe-pioneers"])}
           vector.oci-images.default
+          rabbit.oci-images.rabbit
         )
 
         fromDockerTools=(

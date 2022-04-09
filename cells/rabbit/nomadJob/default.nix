@@ -4,7 +4,9 @@
 }: let
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) system;
-  inherit (cell) entrypoints;
+  inherit (cell) oci-images;
+  # OCI-Image Namer
+  ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
 in
   with data-merge; {
     default = {
@@ -87,23 +89,24 @@ in
           {
             count = scaling;
             network = {
-              mode = "host";
-              reserved_ports = {
-                amqps = [{static = 5671;}];
-                clustering = [{static = 25672;}];
-                prometheus = [{static = 15692;}];
-                epmd = [{static = 4369;}];
-                mgmt = [{static = 15672;}];
-                rabbitCli1 = [{static = 35672;}];
-                rabbitCli10 = [{static = 35681;}];
-                rabbitCli2 = [{static = 35673;}];
-                rabbitCli3 = [{static = 35674;}];
-                rabbitCli4 = [{static = 35675;}];
-                rabbitCli5 = [{static = 35676;}];
-                rabbitCli6 = [{static = 35677;}];
-                rabbitCli7 = [{static = 35678;}];
-                rabbitCli8 = [{static = 35679;}];
-                rabbitCli9 = [{static = 35680;}];
+              dns = {servers = ["172.17.0.1"];};
+              mode = "bridge";
+              port = {
+                amqps = [{to = 5671;}];
+                clustering = [{to = 25672;}];
+                prometheus = [{to = 15692;}];
+                epmd = [{to = 4369;}];
+                mgmt = [{to = 15672;}];
+                rabbitCli1 = [{to = 35672;}];
+                rabbitCli10 = [{to = 35681;}];
+                rabbitCli2 = [{to = 35673;}];
+                rabbitCli3 = [{to = 35674;}];
+                rabbitCli4 = [{to = 35675;}];
+                rabbitCli5 = [{to = 35676;}];
+                rabbitCli6 = [{to = 35677;}];
+                rabbitCli7 = [{to = 35678;}];
+                rabbitCli8 = [{to = 35679;}];
+                rabbitCli9 = [{to = 35680;}];
               };
             };
             service = [(import ./srv-ui.nix {inherit namespace subdomain;})];
@@ -114,8 +117,8 @@ in
                   template = append;
                 }))
               // {
-                config.command = ["${entrypoints.entrypoint}/bin/rabbit-entrypoint"];
-                driver = "nix";
+                config.image = ociNamer oci-images.rabbit;
+                driver = "docker";
                 kill_signal = "SIGINT";
                 kill_timeout = "30s";
                 resources = {

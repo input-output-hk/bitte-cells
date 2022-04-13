@@ -21,7 +21,12 @@
     (std.grow {
       inherit inputs;
       as-nix-cli-epiphyte = false;
-      systems = ["x86_64-linux"];
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
       cellsFrom = ./cells;
       # debug = ["cells" "cardano" "healthChecks"];
       organelles = [

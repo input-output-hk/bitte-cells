@@ -19,9 +19,9 @@
 
 ```nix
 {
-  sumbit ? true,
-  wallet ? true,
-  dbsync ? true,
+  submit ? true, # enable submit http api
+  wallet ? true, # run wallet as part of node
+  dbsync ? true, # requires postgres, pushes postgres compatible data to db
 }
 ```
 

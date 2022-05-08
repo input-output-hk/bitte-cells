@@ -4,6 +4,7 @@
 }: let
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) system;
+  inherit (inputs.cells._utils) nomadFragments;
   inherit (cell) oci-images;
   # OCI-Image Namer
   ociNamer = oci: "${oci.imageName}:${oci.imageTag}";
@@ -29,7 +30,7 @@ in
         rabbitAdminPass = ".Data.data.rabbitAdminPass";
         rabbitAdmin = ".Data.data.rabbitAdmin";
       };
-      pkiPath = "pki/issue/rabbit";
+      vaultPkiPath = "pki/issue/rabbit";
       rabbitmqConf = "secrets/rabbitmq.conf";
       volumeMount = "/persist-db";
     in {
@@ -111,11 +112,11 @@ in
             };
             service = [(import ./srv-ui.nix {inherit namespace subdomain;})];
             task.rabbitMq =
-              (merge
+              (
+                merge
                 (import ./env-rabbit-mq.nix {inherit rabbitSecrets consulPath rabbitmqConf namespace;})
-                (decorate (import ./env-pki-rabbit-mq.nix {inherit pkiPath subdomain;}) {
-                  template = append;
-                }))
+                {template = nomadFragments.workload-identity-vault {inherit vaultPkiPath;};}
+              )
               // {
                 config.image = ociNamer oci-images.rabbit;
                 driver = "docker";

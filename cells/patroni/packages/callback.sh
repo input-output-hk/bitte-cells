@@ -26,8 +26,8 @@ echo "Patroni callback initiated with method: $METHOD"
 #
 # Ref: https://github.com/hashicorp/nomad/issues/5020#issuecomment-8228130620
 
-cp /secrets/cert*.pem "/persist-db/postgres/"
-chmod 600 "/persist-db/postgres/cert-key-postgres.pem" "/persist-db/postgres/cert-key-patroni.pem"
+cp /secrets/tls/*.pem "/persist-db/postgres/"
+chmod 600 "/persist-db/postgres/key.pem"
 
 echo
 echo "Signaling postgres to reload configuration files"

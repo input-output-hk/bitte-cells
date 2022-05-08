@@ -40,6 +40,7 @@
         (std.data "constants")
         (std.functions "nomadJob")
         (std.functions "nomadTask")
+        (std.functions "nomadFragments")
         (std.functions "devshellProfiles")
         (std.functions "nixosProfiles")
         (std.functions "hydrationProfiles")

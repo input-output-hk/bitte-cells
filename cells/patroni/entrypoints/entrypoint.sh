@@ -12,8 +12,8 @@ chmod 0700 "$PGDATA"
 # ln -sfn /secrets/{cert,cert-key,cert-ca}.pem "$PGDATA/"
 
 # This will copy and chmod both postgres and patroni rest API sets of certs
-cp /secrets/cert*.pem "/persist-db/postgres/"
-chmod 600 "/persist-db/postgres/cert-key-postgres.pem" "/persist-db/postgres/cert-key-patroni.pem"
+cp /secrets/tls/*.pem "/persist-db/postgres/"
+chmod 600 "/persist-db/postgres/key.pem"
 
 echo
 echo "Starting postgres patroni high availability job"

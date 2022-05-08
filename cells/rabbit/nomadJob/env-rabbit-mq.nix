@@ -71,9 +71,9 @@
         cluster_formation.consul.svc_tags.1 = node-{{ env "NOMAD_ALLOC_INDEX" }}
 
         listeners.ssl.default = 5671
-        ssl_options.cacertfile = /secrets/ca-rabbit.pem
-        ssl_options.certfile = /secrets/cert-rabbit.pem
-        ssl_options.keyfile = /secrets/key-rabbit.pem
+        ssl_options.cacertfile = /secrets/tls/ca.pem
+        ssl_options.certfile = /secrets/tls/cert.pem
+        ssl_options.keyfile = /secrets/tls/key.pem
         ssl_options.verify = verify_peer
         ssl_options.depth = 1  # the default
         ssl_options.fail_if_no_peer_cert = true  # let's be paranoidly eager

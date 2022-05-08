@@ -51,9 +51,9 @@ in {
           authentication:
             username: {{ ${patroniSecrets.patroniApi} }}
             password: {{ ${patroniSecrets.patroniApiPass} }}
-          cafile: '${volumeMount}/postgres/cert-ca-patroni.pem'
-          certfile: '${volumeMount}/postgres/cert-patroni.pem'
-          keyfile: '${volumeMount}/postgres/cert-key-patroni.pem'
+          cafile: '${volumeMount}/postgres/ca.pem'
+          certfile: '${volumeMount}/postgres/cert.pem'
+          keyfile: '${volumeMount}/postgres/key.pem'
           connect_address: {{ env "NOMAD_IP_patroni" }}:{{ env "NOMAD_PORT_patroni" }}
           http_extra_headers:
             'X-Frame-Options': 'SAMEORIGIN'
@@ -198,9 +198,9 @@ in {
             log_statement: mod
             password_encryption: scram-sha-256
             ssl: on
-            ssl_ca_file: '${volumeMount}/postgres/cert-ca-postgres.pem'
-            ssl_cert_file: '${volumeMount}/postgres/cert-postgres.pem'
-            ssl_key_file: '${volumeMount}/postgres/cert-key-postgres.pem'
+            ssl_ca_file: '${volumeMount}/postgres/ca.pem'
+            ssl_cert_file: '${volumeMount}/postgres/cert.pem'
+            ssl_key_file: '${volumeMount}/postgres/key.pem'
             unix_socket_directories: '/alloc'
           recovery_conf:
             restore_command: restore-command "%f" "%p"

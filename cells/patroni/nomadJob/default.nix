@@ -4,6 +4,7 @@
 }: let
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) system;
+  inherit (inputs.cells._utils) nomadFragments;
   entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.patroni.entrypoints";
   inherit (cell) entrypoints;
 in
@@ -32,7 +33,7 @@ in
         patroniSuper = ".Data.data.patroniSuper";
         patroniSuperPass = ".Data.data.patroniSuperPass";
       };
-      pkiPath = "pki/issue/postgres";
+      vaultPkiPath = "pki/issue/postgres";
       patroniYaml = "secrets/patroni.yaml";
       volumeMount = "/persist-db";
     in {
@@ -172,11 +173,11 @@ in
               # Patroni
               # ----------
               patroni = with data-merge;
-                (merge
+                (
+                  merge
                   (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace;})
-                  (decorate (import ./env-pki-patroni.nix {inherit pkiPath;}) {
-                    template = append;
-                  }))
+                  {template = nomadFragments.workload-identity-vault {inherit vaultPkiPath;};}
+                )
                 // {
                   resources = {
                     cpu = 2000;

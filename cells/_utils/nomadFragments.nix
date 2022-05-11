@@ -2,6 +2,18 @@
   inputs,
   cell,
 }: {
+  workload-identity-consul = {consulPolicy}: [
+    {
+      change_mode = "restart";
+      data = ''
+        {{ with secret "consul/creds/${consulPolicy}" }}
+        CONSUL_HTTP_TOKEN={{- .Data.token -}}
+        {{ end }}
+      '';
+      destination = "secrets/consul_token";
+      env = true;
+    }
+  ];
   workload-identity-vault = {vaultPkiPath}: [
     {
       change_mode = "restart";
@@ -13,9 +25,6 @@
         {{ end }}
       '';
       destination = "secrets/tls/cert.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
       splay = "5s";
     }
     {
@@ -28,9 +37,6 @@
         {{ end }}
       '';
       destination = "secrets/tls/key.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
       splay = "5s";
     }
     {
@@ -43,9 +49,6 @@
         {{ end }}
       '';
       destination = "secrets/tls/ca.pem";
-      left_delimiter = "{{";
-      perms = "0644";
-      right_delimiter = "}}";
       splay = "5s";
     }
   ];

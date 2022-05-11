@@ -2,13 +2,14 @@
   inputs,
   cell,
 }: {
-  workload-identity-consul = {consulPolicy}: [
+  workload-identity-vault-consul = {consulRolePath}: [
     {
       change_mode = "restart";
       data = ''
-        {{ with secret "consul/creds/${consulPolicy}" }}
+        {{ with secret "${consulRolePath}" }}
         CONSUL_HTTP_TOKEN={{- .Data.token }}
-        CONSUL_HTTP_ADDR="http://127.0.0.1:8500"
+        CONSUL_HTTP_ADDR="http://172.17.0.1:8500"
+        VAULT_ADDR="http://172.17.0.1:8200"
         {{ end }}
       '';
       destination = "secrets/consul_token";

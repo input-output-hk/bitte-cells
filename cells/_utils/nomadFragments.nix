@@ -7,7 +7,8 @@
       change_mode = "restart";
       data = ''
         {{ with secret "consul/creds/${consulPolicy}" }}
-        CONSUL_HTTP_TOKEN={{- .Data.token -}}
+        CONSUL_HTTP_TOKEN={{- .Data.token }}
+        CONSUL_HTTP_ADDR="http://127.0.0.1:8500"
         {{ end }}
       '';
       destination = "secrets/consul_token";

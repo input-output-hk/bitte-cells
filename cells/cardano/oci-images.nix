@@ -10,7 +10,6 @@ in (
     containers = envName: {
       "node-${envName}" = n2c.buildImage {
         name = "docker.infra.aws.iohkdev.io/cardano-node-${envName}";
-        tag = inputs.self.rev;
         maxLayers = 25;
         contents = [nixpkgs.bashInteractive nixpkgs.iana-etc healthChecks."node-network-${envName}-sync"];
         config.Cmd = [
@@ -19,7 +18,6 @@ in (
       };
       "submit-api-${envName}" = n2c.buildImage {
         name = "docker.infra.aws.iohkdev.io/cardano-submit-api-${envName}";
-        tag = inputs.self.rev;
         maxLayers = 25;
         contents = [nixpkgs.bashInteractive nixpkgs.iana-etc];
         config.Cmd = [
@@ -28,7 +26,6 @@ in (
       };
       "db-sync-${envName}" = n2c.buildImage {
         name = "docker.infra.aws.iohkdev.io/cardano-db-sync-${envName}";
-        tag = inputs.self.rev;
         maxLayers = 25;
         contents = [nixpkgs.bashInteractive nixpkgs.iana-etc healthChecks."db-sync-network-${envName}-sync"];
         config.Cmd = [
@@ -37,7 +34,6 @@ in (
       };
       "wallet-${envName}" = n2c.buildImage {
         name = "docker.infra.aws.iohkdev.io/cardano-wallet-${envName}";
-        tag = inputs.self.rev;
         maxLayers = 25;
         contents = [nixpkgs.bashInteractive nixpkgs.iana-etc healthChecks.wallet-network-sync];
         config.Cmd = [
@@ -51,7 +47,6 @@ in (
     // {
       wallet-init = n2c.buildImage {
         name = "docker.infra.aws.iohkdev.io/cardano-wallet-init";
-        tag = inputs.self.rev;
         maxLayers = 25;
         contents = [nixpkgs.bashInteractive nixpkgs.iana-etc];
         config.Cmd = [

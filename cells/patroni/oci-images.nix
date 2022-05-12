@@ -7,7 +7,6 @@
 in {
   patroni = nixpkgs.dockerTools.buildLayeredImage {
     name = "docker.infra.aws.iohkdev.io/patroni";
-    tag = inputs.self.rev;
     maxLayers = 15;
     contents = [nixpkgs.bashInteractive];
     config.Entrypoint = [
@@ -16,7 +15,6 @@ in {
   };
   patroni-backup-sidecar = nixpkgs.dockerTools.buildLayeredImage {
     name = "docker.infra.aws.iohkdev.io/patroni-backup-sidecar";
-    tag = inputs.self.rev;
     maxLayers = 15;
     contents = [nixpkgs.bashInteractive];
     config.Entrypoint = [

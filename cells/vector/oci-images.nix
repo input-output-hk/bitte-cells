@@ -8,7 +8,6 @@
 in {
   default = n2c.buildImage {
     name = "docker.infra.aws.iohkdev.io/vector";
-    tag = inputs.self.rev;
     maxLayers = 15;
     contents = [nixpkgs.bashInteractive nixpkgs.cacert];
     config.Entrypoint = ["${packages.default}/bin/vector"];

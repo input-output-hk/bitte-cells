@@ -8,7 +8,6 @@
 in {
   rabbit = n2c.buildImage {
     name = "docker.infra.aws.iohkdev.io/rabbit";
-    tag = inputs.self.rev;
     maxLayers = 25;
     contents = [nixpkgs.bashInteractive];
     config.Cmd = [

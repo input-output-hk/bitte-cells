@@ -1,4 +1,7 @@
-{ inputs, cell}: let
+{
+  inputs,
+  cell,
+}: let
   inherit (inputs) nixpkgs;
 in {
   mkDebugOCI = entrypoint: oci: let
@@ -10,6 +13,14 @@ in {
       runtimeInputs = entrypoint.runtimeInputs ++ entrypoint.debugInputs;
       text = ''
         ${nixpkgs.coreutils}/bin/cat ${iog-debug-banner}
+        echo
+        echo "=========================================================="
+        echo "This debug shell contains the runtime environment and "
+        echo "debug dependencies of the entrypoint."
+        echo "To inspect the entrypoint(s) run:"
+        echo "cat ${entrypoint}/bin/*"
+        echo "=========================================================="
+        echo
         exec bash "$@"
       '';
     };

@@ -38,6 +38,7 @@
     text,
     env ? {},
     runtimeInputs ? [],
+    debugInputs ? [],
     checkPhase ? null,
   }:
     writeTextFile {
@@ -75,12 +76,13 @@
         else checkPhase;
       meta.mainProgram = name;
     }
-    // {inherit runtimeInputs;};
+    // {inherit runtimeInputs debugInputs;};
   writePython3Application = {
     name,
     text,
     env ? {},
     runtimeInputs ? [],
+    debugInputs ? [],
     libraries ? [],
     checkPhase ? null,
   }:
@@ -119,7 +121,7 @@
         else checkPhase;
       meta.mainProgram = name;
     }
-    // {inherit runtimeInputs;};
+    // {inherit runtimeInputs debugInputs;};
 in {
   inherit writePython3Application;
   writeShellApplication = {...} @ args:

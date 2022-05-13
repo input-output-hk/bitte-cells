@@ -9,6 +9,9 @@ in {
   rabbit = n2c.buildImage {
     name = "docker.infra.aws.iohkdev.io/rabbit";
     maxLayers = 25;
+    layers = [
+      (n2c.buildLayer {deps = entrypoints.rabbit.runtimeInputs;})
+    ];
     contents = [nixpkgs.bashInteractive];
     config.Cmd = [
       "${entrypoints.rabbit}/bin/rabbit-entrypoint"

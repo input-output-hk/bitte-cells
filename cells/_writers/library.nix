@@ -127,7 +127,9 @@ in {
       args
       // {
         text = ''
-          export LOCALE_ARCHIVE=${glibcLocales}/lib/locale/locale-archive
+          export LOCALE_ARCHIVE=${
+            glibcLocales.override {allLocales = false;}
+          }/lib/locale/locale-archive
           ${args.text}
         '';
       }

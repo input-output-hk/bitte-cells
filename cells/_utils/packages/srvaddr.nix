@@ -17,6 +17,8 @@ buildGoPackage rec {
   goPackagePath = "github.com/pd/srvaddr";
   goDeps = ./srvaddr-deps.nix;
 
+  patches = [./for-consul.patch];
+
   meta = with lib; {
     description = "Simple SRV record querying from the CLI";
     homepage = "https://github.com/pd/srvaddr";

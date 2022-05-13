@@ -74,7 +74,8 @@
         ''
         else checkPhase;
       meta.mainProgram = name;
-    };
+    }
+    // {inherit runtimeInputs;};
   writePython3Application = {
     name,
     text,
@@ -117,7 +118,8 @@
         ''
         else checkPhase;
       meta.mainProgram = name;
-    };
+    }
+    // {inherit runtimeInputs;};
 in {
   inherit writePython3Application;
   writeShellApplication = {...} @ args:

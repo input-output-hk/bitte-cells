@@ -20,7 +20,6 @@
   } @ inputs:
     (std.grow {
       inherit inputs;
-      as-nix-cli-epiphyte = false;
       systems = [
         "aarch64-darwin"
         "aarch64-linux"
@@ -48,7 +47,8 @@
     })
     // {
       ciceroActions =
-        cicero.lib.callActionsWithExtraArgs rec {
+        cicero.lib.callActionsWithExtraArgs
+        rec {
           inherit (cicero.lib) std;
           inherit (nixpkgs) lib;
           actionLib = import "${cicero}/action-lib.nix" {inherit std lib;};

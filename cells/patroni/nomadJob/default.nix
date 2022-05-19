@@ -176,7 +176,7 @@ in
                 (
                   merge
                   (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace;})
-                  {template = nomadFragments.workload-identity-vault {inherit vaultPkiPath;};}
+                  {template = append (nomadFragments.workload-identity-vault {inherit vaultPkiPath;});}
                 )
                 // {
                   resources = {

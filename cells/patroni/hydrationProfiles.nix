@@ -14,12 +14,6 @@ in {
     bucketArn = "arn:aws:s3:::${config.cluster.s3Bucket}";
     allowS3ForBucket = allowS3For bucketArn;
     inherit (terralib) var id;
-    c = "create";
-    r = "read";
-    u = "update";
-    d = "delete";
-    l = "list";
-    s = "sudo";
     acc = nixpkgs.lib.foldl nixpkgs.lib.recursiveUpdate {};
     perNamespaceList = f: builtins.map (n: f n) namespaces;
     perNamespace = f: acc (perNamespaceList f);
@@ -44,16 +38,26 @@ in {
     cluster.iam.roles.client.policies = perNamespace (
       namespace: allowS3ForBucket "postgres-backups-${namespace}" "backups/${namespace}" ["walg"]
     );
+    # FIXME: consolidate policy reconciliation loop with TF
+    # PROBLEM: requires bootstrapper reconciliation loop
+    # clients need the capability to impersonate the `patroni` role
+    services.vault.policies.client = {
+      path."consul/creds/patroni".capabilities = ["read"];
+      path."auth/token/create/patroni".capabilities = ["update"];
+      path."auth/token/roles/patroni".capabilities = ["read"];
+    };
     # ------------------------
     # hydrate-cluster
     # ------------------------
     tf.hydrate-cluster.configuration = {
       locals.policies = {
-        vault."nomad-cluster" = {
-          path."consul/creds/patroni".capabilities = [r];
-          path."pki/issue/postgres".capabilities = [c u];
-          path."pki/roles/postgres".capabilities = [r];
-        };
+        vault.patroni.path = perNamespace (
+          namespace: {
+            "consul/creds/patroni".capabilities = ["read"];
+            "kv/data/patroni/${namespace}".capabilities = ["read" "list"];
+            "kv/metadata/patroni/${namespace}".capabilities = ["read" "list"];
+          }
+        );
         consul.patroni = {
           key_prefix = perNamespace (
             namespace: {
@@ -78,19 +82,6 @@ in {
             };
           };
         };
-      };
-      resource.vault_pki_secret_backend_role.postgres = {
-        # backend = var "vault_pki_secret_backend.pki.path";
-        backend = "pki";
-        name = "postgres";
-        key_type = "ec";
-        key_bits = 256;
-        allow_any_name = true;
-        enforce_hostnames = false;
-        generate_lease = true;
-        key_usage = ["DigitalSignature" "KeyAgreement" "KeyEncipherment"];
-        # 87600h
-        max_ttl = "315360000";
       };
     };
   };

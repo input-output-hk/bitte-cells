@@ -23,7 +23,7 @@ in
       subdomain = "patroni.${domain}";
       consulPath = "consul/creds/patroni";
       patroniSecrets = {
-        __toString = _: "kv/database/${namespace}";
+        __toString = _: "kv/patroni/${namespace}";
         patroniApi = ".Data.data.patroniApi";
         patroniApiPass = ".Data.data.patroniApiPass";
         patroniRepl = ".Data.data.patroniRepl";
@@ -33,7 +33,7 @@ in
         patroniSuper = ".Data.data.patroniSuper";
         patroniSuperPass = ".Data.data.patroniSuperPass";
       };
-      vaultPkiPath = "pki/issue/postgres";
+      vaultPkiPath = "pki/issue/patroni";
       patroniYaml = "secrets/patroni.yaml";
       volumeMount = "/persist-db";
     in {
@@ -161,7 +161,7 @@ in
                   vault = {
                     change_mode = "noop";
                     env = true;
-                    policies = ["nomad-cluster"];
+                    policies = ["patroni"];
                   };
                   volume_mount = {
                     destination = volumeMount;
@@ -176,7 +176,11 @@ in
                 (
                   merge
                   (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace;})
-                  {template = append (nomadFragments.workload-identity-vault {inherit vaultPkiPath;});}
+                  {
+                    template = append (
+                      nomadFragments.workload-identity-vault {inherit vaultPkiPath;}
+                    );
+                  }
                 )
                 // {
                   resources = {
@@ -199,7 +203,7 @@ in
                   vault = {
                     change_mode = "noop";
                     env = true;
-                    policies = ["nomad-cluster"];
+                    policies = ["patroni"];
                   };
                   volume_mount = {
                     destination = volumeMount;

@@ -35,6 +35,7 @@
    */
   writeShellApplication = {
     name,
+    description ? "",
     text,
     env ? {},
     runtimeInputs ? [],
@@ -74,11 +75,15 @@
           runHook postCheck
         ''
         else checkPhase;
-      meta.mainProgram = name;
+      meta = {
+        mainProgram = name;
+        inherit description;
+      };
     }
     // {inherit runtimeInputs debugInputs;};
   writePython3Application = {
     name,
+    description ? "",
     text,
     env ? {},
     runtimeInputs ? [],
@@ -119,7 +124,10 @@
           runHook postCheck
         ''
         else checkPhase;
-      meta.mainProgram = name;
+      meta = {
+        mainProgram = name;
+        inherit description;
+      };
     }
     // {inherit runtimeInputs debugInputs;};
 in {

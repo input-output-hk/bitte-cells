@@ -23,7 +23,7 @@ in
       subdomain = "patroni.${domain}";
       consulPath = "consul/creds/patroni";
       patroniSecrets = {
-        __toString = _: "kv/nomad-cluster/${namespace}/database";
+        __toString = _: "kv/database/${namespace}";
         patroniApi = ".Data.data.patroniApi";
         patroniApiPass = ".Data.data.patroniApiPass";
         patroniRepl = ".Data.data.patroniRepl";

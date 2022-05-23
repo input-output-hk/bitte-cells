@@ -2,6 +2,10 @@
 
 trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" && exit 0' INT
 
+[ -z "${PERSISTENCE_MOUNTPOINT:-}" ] && echo "PERSISTENCE_MOUNTPOINT env var must be set -- aborting" && exit 1
+
+export PGDATA="$PERSISTENCE_MOUNTPOINT/postgres/patroni"
+
 echo "Patroni callback initiated with args of: $*"
 
 if [ $# -eq 0 ]; then
@@ -25,11 +29,8 @@ echo "Patroni callback initiated with method: $METHOD"
 # and then SIGHUP postgres.
 #
 # Ref: https://github.com/hashicorp/nomad/issues/5020#issuecomment-8228130620
-
-cp /secrets/tls/*.pem "/persist-db/postgres/"
-chmod 600 "/persist-db/postgres/key.pem"
-
 echo
 echo "Signaling postgres to reload configuration files"
 pg_ctl reload
+
 echo "Finished callback for method: $METHOD"

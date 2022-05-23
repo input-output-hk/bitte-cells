@@ -4,6 +4,7 @@
   patroniYaml,
   volumeMount,
   namespace,
+  packages,
 }: let
   patroniBootstrapMethod = "initdb";
   patroniBootstrapMethodWalgPitrTimeline = "latest";
@@ -12,7 +13,7 @@
 in {
   env = {
     PATH = "/bin";
-    PGDATA = "${volumeMount}/postgres/patroni";
+    PERSISTENCE_MOUNTPOINT = volumeMount;
     WALG_S3_PREFIX = "SPECIFIED-IN-FLAKE";
   };
   template = [
@@ -25,7 +26,7 @@ in {
         PATRONICTL_CONFIG_FILE="${patroniYaml}"
         {{ end }}
 
-        CONSUL_HTTP_ADDR="127.0.0.1:8500"
+        CONSUL_HTTP_ADDR="172.17.0.1:8500"
         TERM="xterm-256color"
         # Add wal-g debugging if required
         #
@@ -51,9 +52,9 @@ in {
           authentication:
             username: {{ ${patroniSecrets.patroniApi} }}
             password: {{ ${patroniSecrets.patroniApiPass} }}
-          cafile: '${volumeMount}/postgres/ca.pem'
-          certfile: '${volumeMount}/postgres/cert.pem'
-          keyfile: '${volumeMount}/postgres/key.pem'
+          cafile: '/run/postgresql/ca.pem'
+          certfile: '/run/postgresql/cert.pem'
+          keyfile: '/run/postgresql/key.pem'
           connect_address: {{ env "NOMAD_IP_patroni" }}:{{ env "NOMAD_PORT_patroni" }}
           http_extra_headers:
             'X-Frame-Options': 'SAMEORIGIN'
@@ -65,7 +66,7 @@ in {
           verify_client: none
 
         consul:
-          url: http://127.0.0.1:8500
+          url: http://172.17.0.1:8500
           register_service: true
           service_tags:
           - {{ env "NOMAD_ALLOC_ID" }}
@@ -92,6 +93,7 @@ in {
               - hostssl all         {{${patroniSecrets.patroniSuper}}}    all            scram-sha-256
               - hostssl all         all                                   10.0.0.0/8     scram-sha-256
               - hostssl all         all                                   172.26.66.0/23 scram-sha-256
+              - hostssl all         all                                   172.17.0.1/16  scram-sha-256
               - hostssl replication {{${patroniSecrets.patroniRepl}}}     127.0.0.1/32   scram-sha-256
               - hostssl replication {{${patroniSecrets.patroniRepl}}}     10.0.0.0/8     scram-sha-256
 
@@ -126,16 +128,16 @@ in {
           - locale: en_US.UTF8
 
           walg_timeline:
-            command: clone-with-walg
+            command: ${packages.clone-with-walg}/bin/clone
             recovery_conf:
               recovery_target_action: promote
               recovery_target_inclusive: false
               # This parameter needs to be a timeline positive integer or special keyword
               recovery_target_timeline: ${patroniBootstrapMethodWalgTimeline}
-              restore_command: restore-command "%f" "%p"
+              restore_command: ${packages.restore-command}/bin/restore "%f" "%p"
 
           walg_pitr:
-            command: clone-with-walg --recovery-target-time="${patroniBootstrapMethodWalgPitrTimestamp}"
+            command: ${packages.clone-with-walg}/bin/clone --recovery-target-time="${patroniBootstrapMethodWalgPitrTimestamp}"
             recovery_conf:
               recovery_target_action: promote
               recovery_target_inclusive: false
@@ -146,9 +148,9 @@ in {
               # Ref:
               #  https://www.postgresql.org/docs/12/continuous-archiving.html
               recovery_target_timeline: ${patroniBootstrapMethodWalgPitrTimeline}
-              restore_command: restore-command "%f" "%p"
+              restore_command: ${packages.restore-command}/bin/restore "%f" "%p"
 
-          post_init: patroni-callback post_init
+          post_init: ${packages.patroni-callback}/bin/call post_init
 
           users:
             {{${patroniSecrets.patroniSuper}}}:
@@ -175,17 +177,17 @@ in {
               username: {{${patroniSecrets.patroniRewind}}}
               password: {{${patroniSecrets.patroniRewindPass}}}
           callbacks:
-            on_reload: patroni-callback on_reload
-            on_restart: patroni-callback on_restart
-            on_role_change: patroni-callback on_role_change
-            on_start: patroni-callback on_start
-            on_stop: patroni-callback on_stop
+            on_reload:      ${packages.patroni-callback}/bin/call on_reload
+            on_restart:     ${packages.patroni-callback}/bin/call on_restart
+            on_role_change: ${packages.patroni-callback}/bin/call on_role_change
+            on_start:       ${packages.patroni-callback}/bin/call on_start
+            on_stop:        ${packages.patroni-callback}/bin/call on_stop
           create_replica_methods:
             - wal_g
             - basebackup
           connect_address: "{{ env "NOMAD_IP_psql" }}:{{ env "NOMAD_PORT_psql" }}"
           data_dir: '${volumeMount}/postgres/patroni'
-          listen: "0.0.0.0:{{ env "NOMAD_PORT_psql" }}"
+          listen: "0.0.0.0:5432"
           parameters:
             archive_mode: on
             archive_timeout: 60
@@ -198,14 +200,14 @@ in {
             log_statement: mod
             password_encryption: scram-sha-256
             ssl: on
-            ssl_ca_file: '${volumeMount}/postgres/ca.pem'
-            ssl_cert_file: '${volumeMount}/postgres/cert.pem'
-            ssl_key_file: '${volumeMount}/postgres/key.pem'
+            ssl_ca_file: '/run/postgresql/ca.pem'
+            ssl_cert_file: '/run/postgresql/cert.pem'
+            ssl_key_file: '/run/postgresql/key.pem'
             unix_socket_directories: '/alloc'
           recovery_conf:
-            restore_command: restore-command "%f" "%p"
+            restore_command: ${packages.restore-command}/bin/restore "%f" "%p"
           wal_g:
-            command: walg-restore
+            command: ${packages.walg-restore}/bin/restore
             threshold_megabytes: 10240
             threshold_backup_size_percentage: 30
             retries: 2

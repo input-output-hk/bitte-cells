@@ -7,7 +7,7 @@
 in {
   env = {
     PATH = "/bin";
-    PGDATA = "${volumeMount}/postgres/patroni";
+    PERSISTENCE_MOUNTPOINT = volumeMount;
     PGHOST = "/alloc";
     SLEEP_COUNTER = "4320";
     SLEEP_PERIOD = "10";

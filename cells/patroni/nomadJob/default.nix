@@ -5,8 +5,11 @@
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) system;
   inherit (inputs.cells._utils) nomadFragments;
-  entrypoints' = "github:input-output-hk/bitte-cells?rev=${inputs.self.rev}#${system}.patroni.entrypoints";
-  inherit (cell) entrypoints;
+  inherit (cell) entrypoints oci-images packages;
+
+  # OCI-Image Namer
+  ociNamer = oci: l.unsafeDiscardStringContext "${oci.imageName}:${oci.imageTag}";
+  l = inputs.nixpkgs.lib // builtins;
 in
   with data-merge; {
     default = {
@@ -119,10 +122,14 @@ in
               sticky = true;
             };
             network = {
-              mode = "host";
-              reserved_ports = {
-                psql = {static = 5432;};
-                patroni = {static = 8008;};
+              dns = {servers = ["172.17.0.1"];};
+              mode = "bridge";
+              port = {
+                psql = {
+                  static = 5432;
+                  to = 5432;
+                };
+                patroni = {to = 8008;};
               };
             };
             service = [(import ./srv-rest.nix {inherit namespace subdomain;})];
@@ -145,13 +152,8 @@ in
                     cpu = 500;
                     memory = 1024;
                   };
-                  driver = "exec";
-                  config = {
-                    args = [];
-                    command = "/bin/patroni-backup-sidecar-entrypoint";
-                    flake = "${entrypoints'}.backup-sidecar-entrypoint";
-                    flake_deps = [];
-                  };
+                  driver = "docker";
+                  config.image = ociNamer oci-images.patroni-backup-sidecar;
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
                   lifecycle = {
@@ -172,10 +174,10 @@ in
               # ----------
               # Patroni
               # ----------
-              patroni = with data-merge;
+              patroni =
                 (
                   merge
-                  (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace;})
+                  (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace packages;})
                   {
                     template = append (
                       nomadFragments.workload-identity-vault {inherit vaultPkiPath;}
@@ -187,13 +189,9 @@ in
                     cpu = 2000;
                     memory = 4096;
                   };
-                  driver = "exec";
-                  config = {
-                    command = "/bin/patroni-entrypoint";
-                    args = [patroniYaml];
-                    flake = "${entrypoints'}.entrypoint";
-                    flake_deps = [];
-                  };
+                  driver = "docker";
+                  config.image = ociNamer oci-images.patroni;
+                  config.args = [patroniYaml];
                   kill_signal = "SIGINT";
                   kill_timeout = "30s";
                   logs = {

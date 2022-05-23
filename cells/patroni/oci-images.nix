@@ -3,29 +3,30 @@
   cell,
 }: let
   inherit (inputs) nixpkgs;
+  inherit (inputs.cells) _utils;
   inherit (cell) entrypoints;
   n2c = inputs.n2c.packages.nix2container;
+
+  buildDebugImage = ep: o: n2c.buildImage (_utils.library.mkDebugOCI ep o);
 in {
-  patroni = nixpkgs.dockerTools.buildLayeredImage {
+  patroni = buildDebugImage entrypoints.patroni {
     name = "docker.infra.aws.iohkdev.io/patroni";
     maxLayers = 15;
     layers = [
-      (n2c.buildLayer {deps = entrypoints.patroni-entrypoint.runtimeInputs;})
+      (n2c.buildLayer {deps = entrypoints.patroni.runtimeInputs;})
     ];
     contents = [nixpkgs.bashInteractive];
-    config.Entrypoint = [
-      "${entrypoints.patroni-entrypoint}/bin/patroni-entrypoint"
-    ];
+    config.Entrypoint = ["${entrypoints.patroni}/bin/entrypoint"];
   };
-  patroni-backup-sidecar = nixpkgs.dockerTools.buildLayeredImage {
+  patroni-backup-sidecar = buildDebugImage entrypoints.patroni-backup-sidecar {
     name = "docker.infra.aws.iohkdev.io/patroni-backup-sidecar";
     maxLayers = 15;
     layers = [
-      (n2c.buildLayer {deps = entrypoints.backup-sidecar-entrypoint.runtimeInputs;})
+      (n2c.buildLayer {deps = entrypoints.patroni-backup-sidecar.runtimeInputs;})
     ];
     contents = [nixpkgs.bashInteractive];
     config.Entrypoint = [
-      "${entrypoints.backup-sidecar-entrypoint}/bin/patroni-backup-sidecar-entrypoint"
+      "${entrypoints.patroni-backup-sidecar}/bin/entrypoint"
     ];
   };
 }

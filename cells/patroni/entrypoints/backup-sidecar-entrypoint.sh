@@ -6,8 +6,10 @@
 
 trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" && exit 0' INT
 
+[ -z "${PERSISTENCE_MOUNTPOINT:-}" ] && echo "PERSISTENCE_MOUNTPOINT env var must be set -- aborting" && exit 1
+
+PGDATA="$PERSISTENCE_MOUNTPOINT/postgres/patroni"
 PG_NODE="${PG_NODE:-"pg"}"
-PGDATA="${PGDATA:-"undefined"}"
 INIT_CONN_DB="${INIT_CONN_DB:-"postgres"}"
 INIT_USER="${INIT_USER:-"undefined"}"
 WALG_S3_PREFIX="${WALG_S3_PREFIX:-"undefined"}"
@@ -18,7 +20,6 @@ SLEEP_PERIOD="${SLEEP_PERIOD:-"undefined"}"
 
 [ "$INIT_CONN_DB" = "undefined" ] && echo "INIT_CONN_DB must be defined" && exit 1
 [ "$INIT_USER" = "undefined" ] && echo "INIT_USER must be defined" && exit 1
-[ "$PGDATA" = "undefined" ] && echo "PGDATA must be defined" && exit 1
 [ "$WALG_S3_PREFIX" = "undefined" ] && echo "WALG_S3_PREFIX must be defined" && exit 1
 [ "$WALG_BACKUP_FROM_REPLICA" = "undefined" ] && echo "WALG_BACKUP_FROM_REPLICA must be defined" && exit 1
 [ "$WALG_DAYS_TO_RETAIN" = "undefined" ] && echo "WALG_DAYS_TO_RETAIN must be defined" && exit 1

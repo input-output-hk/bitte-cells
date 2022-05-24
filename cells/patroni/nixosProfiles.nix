@@ -3,6 +3,7 @@
   cell,
 }: {
   routing = {pkiFiles, ...}: {
+    networking.firewall.allowedTCPPorts = [ 5432 ];
     services.traefik.staticConfigOptions = {entryPoints = {psql.address = ":5432";};};
     services.traefik.dynamicConfigOptions = {
       http = {

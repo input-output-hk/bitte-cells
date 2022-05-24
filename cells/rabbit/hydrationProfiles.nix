@@ -25,7 +25,7 @@ in {
     # CAVE: securityGroupRules is a genuine aws config for routing and requires reapply of `tf.core`
     # CAVE: modules are nixosProfiles and require a redeploy of routing
     # ------------------------
-    cluster.instances.routing = {
+    cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
       modules = [nixosProfiles.routing];
       securityGroupRules = {
         amqps = {
@@ -34,6 +34,9 @@ in {
           cidrs = ["0.0.0.0/0"];
         };
       };
+    };
+    cluster.premNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "prem") {
+      modules = [nixosProfiles.routing];
     };
     # ------------------------
     # hydrate-cluster

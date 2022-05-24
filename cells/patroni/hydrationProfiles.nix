@@ -22,7 +22,7 @@ in {
     # CAVE: this is a genuine aws config for routing and requires reapply of `tf.core`
     # CAVE: modules are nixosProfiles and require a redeploy of routing
     # ------------------------
-    cluster.instances.routing = {
+    cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
       modules = [nixosProfiles.routing];
       securityGroupRules = {
         psql = {
@@ -31,6 +31,9 @@ in {
           cidrs = ["0.0.0.0/0"];
         };
       };
+    };
+    cluster.premNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "prem") {
+      modules = [nixosProfiles.routing];
     };
     # ------------------------------------------------------------------------------------------
     # CAVE: these are genuine aws client instance roles and currently require a `tf.clients` apply

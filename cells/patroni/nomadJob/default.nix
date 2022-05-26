@@ -129,7 +129,10 @@ in
                   static = 5432;
                   to = 5432;
                 };
-                patroni = {to = 8008;};
+                patroni = {
+                  static = 8008;
+                  to = 8008;
+                };
               };
             };
             service = [(import ./srv-rest.nix {inherit namespace subdomain;})];

@@ -14,7 +14,7 @@ in
   with data-merge; {
     default = {
       namespace,
-      datacenters ? ["eu-central-1" "eu-west-1" "us-east-2"],
+      datacenters,
       domain,
       nodeClass,
       scaling,
@@ -60,7 +60,7 @@ in
             value = "true";
           }
         ];
-        spread = [{attribute = "\${node.datacenter}";}];
+        spread = [{attribute = "\${attr.platform.aws.placement.availability-zone}";}];
         # ----------
         # Update
         # ----------

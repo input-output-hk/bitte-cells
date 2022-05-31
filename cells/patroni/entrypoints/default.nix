@@ -63,6 +63,8 @@ in {
     runtimeInputs = [
       nixpkgs.coreutils
       nixpkgs.su-exec
+      nixpkgs.shadow
+      nixpkgs.bc
       nixpkgs.gnused
       nixpkgs.postgresql_12
       nixpkgs.wal-g

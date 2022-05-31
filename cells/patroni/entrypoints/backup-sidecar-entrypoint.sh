@@ -9,15 +9,20 @@ trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" &&
 [ -z "${PERSISTENCE_MOUNTPOINT:-}" ] && echo "PERSISTENCE_MOUNTPOINT env var must be set -- aborting" && exit 1
 
 PGDATA="$PERSISTENCE_MOUNTPOINT/postgres/patroni"
+PGHOST="${PGHOST:-"undefined"}"
+PGPORT="${PGPORT:-"undefined"}"
 PG_NODE="${PG_NODE:-"pg"}"
 INIT_CONN_DB="${INIT_CONN_DB:-"postgres"}"
 INIT_USER="${INIT_USER:-"undefined"}"
 WALG_S3_PREFIX="${WALG_S3_PREFIX:-"undefined"}"
+WALG_BACKUP_COMPRESSION_METHOD="${WALG_BACKUP_COMPRESSION_METHOD:-"lz4"}"
 WALG_BACKUP_FROM_REPLICA="${WALG_BACKUP_FROM_REPLICA:-"undefined"}"
 WALG_DAYS_TO_RETAIN="${WALG_DAYS_TO_RETAIN:-"undefined"}"
 SLEEP_COUNTER="${SLEEP_COUNTER:-"undefined"}"
 SLEEP_PERIOD="${SLEEP_PERIOD:-"undefined"}"
 
+[ "$PGHOST" = "undefined" ] && echo "PGHOST must be defined" && exit 1
+[ "$PGPORT" = "undefined" ] && echo "PGPORT must be defined" && exit 1
 [ "$INIT_CONN_DB" = "undefined" ] && echo "INIT_CONN_DB must be defined" && exit 1
 [ "$INIT_USER" = "undefined" ] && echo "INIT_USER must be defined" && exit 1
 [ "$WALG_S3_PREFIX" = "undefined" ] && echo "WALG_S3_PREFIX must be defined" && exit 1
@@ -26,6 +31,17 @@ SLEEP_PERIOD="${SLEEP_PERIOD:-"undefined"}"
 [ "$SLEEP_COUNTER" = "undefined" ] && echo "SLEEP_COUNTER must be defined" && exit 1
 [ "$SLEEP_PERIOD" = "undefined" ] && echo "SLEEP_PERIOD must be defined" && exit 1
 
+HOME="/run/postgresql"
+WALG_CMD=(
+  "su-exec"
+  "postgres:postgres"
+  "wal-g"
+  "--walg-s3-prefix" "$WALG_S3_PREFIX"
+  "--walg-compression-method" "$WALG_BACKUP_COMPRESSION_METHOD"
+  "--pghost" "$PGHOST"
+  "--pgport" "$PGPORT"
+)
+
 function log {
   echo "$(date "+%Y-%m-%d %H:%M:%S.%3N") - $0 - $*"
 }
@@ -33,7 +49,10 @@ function log {
 # Leave at least 2 days base backups before creating a new one
 [[ $WALG_DAYS_TO_RETAIN -lt 2 ]] && WALG_DAYS_TO_RETAIN="2"
 
-[[ -z ${WALG_BACKUP_COMPRESSION_METHOD:-} ]] || export WALG_COMPRESSION_METHOD=$WALG_BACKUP_COMPRESSION_METHOD
+if ! id postgres &> /dev/null; then
+  echo "Creating container user postgres"
+  useradd -m -d "$HOME" -U -u 1500 -c "Postgres Container User" postgres
+fi
 
 while true; do
   echo
@@ -51,10 +70,12 @@ while true; do
   echo "Starting walg postgres backup job with:"
   echo "  INIT_CONN_DB:                    $INIT_CONN_DB"
   echo "  INIT_USER:                       $INIT_USER"
+  echo "  PGHOST:                          $PGHOST"
+  echo "  PGPORT:                          $PGPORT"
   echo "  PG_NODE:                         $PG_NODE"
   echo "  PGDATA:                          $PGDATA"
   echo "  WALG_S3_PREFIX:                  $WALG_S3_PREFIX"
-  echo "  WALG_BACKUP_COMPRESSION_METHOD:  ${WALG_BACKUP_COMPRESSION_METHOD:-}"
+  echo "  WALG_BACKUP_COMPRESSION_METHOD:  $WALG_BACKUP_COMPRESSION_METHOD"
   echo "  WALG_BACKUP_FROM_REPLICA:        $WALG_BACKUP_FROM_REPLICA"
   echo "  WALG_DAYS_TO_RETAIN:             $WALG_DAYS_TO_RETAIN"
 
@@ -68,6 +89,7 @@ while true; do
   fi
 
   BEFORE=""
+  COUNT=0
   LEFT=0
 
   NOW=$(date +%s -u)
@@ -82,16 +104,34 @@ while true; do
       # Count how many backups will remain after we remove everything up to certain date
       ((LEFT = LEFT + 1))
     fi
-  done < <(wal-g backup-list 2>/dev/null | sed '0,/^name\s*\(last_\)\{0,1\}modified\s*/d')
+    ((COUNT = COUNT + 1))
+  done < <("${WALG_CMD[@]}" backup-list 2>/dev/null | sed '0,/^name\s*\(last_\)\{0,1\}modified\s*/d')
 
-  # We want keep at least N backups even if the number of days exceeded
-  if [ -n "$BEFORE" ] && [ "$LEFT" -ge "$WALG_DAYS_TO_RETAIN" ]; then
-    wal-g delete before FIND_FULL "$BEFORE" --confirm
+  # We want to keep at least N days worth of backups
+  BACKUPS_PER_DAY="$(printf %.0f "$(echo "86400 / $SLEEP_COUNTER / $SLEEP_PERIOD" | bc -l)")"
+  MIN_RETENTION="$((WALG_DAYS_TO_RETAIN * BACKUPS_PER_DAY))"
+  echo
+  echo "Walg backup statistics:"
+  echo "  Backups per day:                 $BACKUPS_PER_DAY"
+  echo "  Minimum backup retention:        $MIN_RETENTION"
+  echo "  Existing backups counted:        $COUNT"
+  echo "  Existing backups to keep:        $LEFT"
+  echo "  Existing backups expired:        $((COUNT - LEFT))"
+
+  if [ -n "$BEFORE" ] && [[ "$LEFT" -ge "$MIN_RETENTION" ]]; then
+    "${WALG_CMD[@]}" delete before FIND_FULL "$BEFORE" --confirm
+    echo "  Expired backups deleted:         $((COUNT - LEFT))"
+  elif [ -n "$BEFORE" ] && [[ "$COUNT" -ge "$MIN_RETENTION" ]]; then
+    "${WALG_CMD[@]}" delete retain FULL "$MIN_RETENTION" --confirm
+    echo "  Expired backups deleted:         $((COUNT - MIN_RETENTION))"
+  else
+    echo "  Expired backups deleted:         0"
   fi
 
   # Push a new base backup
+  echo
   log "Producing a new wal-g backup"
 
   # Reduce the priority of the backup for CPU consumption
-  nice -n 5 wal-g backup-push --full "$PGDATA" --pguser "$INIT_USER" --pgdatabase "$INIT_CONN_DB"
+  nice -n 5 "${WALG_CMD[@]}" backup-push --full "$PGDATA" --pguser "$INIT_USER" --pgdatabase "$INIT_CONN_DB"
 done

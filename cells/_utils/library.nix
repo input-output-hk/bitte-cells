@@ -30,6 +30,8 @@ in {
         ++ entrypoint.debugInputs
         ++ debug-tools;
       text = ''
+        # shellcheck source=/dev/null
+        source ${nixpkgs.cacert}/nix-support/setup-hook
         cat ${iog-debug-banner}
         echo
         echo "=========================================================="

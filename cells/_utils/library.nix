@@ -17,7 +17,7 @@ in {
       nixpkgs.dnsutils
       nixpkgs.ripgrep
       nixpkgs.strace
-      nixpkgs.curlie
+      nixpkgs.curl
       nixpkgs.gawk
       nixpkgs.jq
       nixpkgs.fd

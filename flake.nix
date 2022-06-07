@@ -2,6 +2,7 @@
   description = "Bitte Cells";
   inputs = {
     std.url = "github:divnix/std";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
     n2c.url = "github:nlewo/nix2container";
     data-merge.url = "github:divnix/data-merge";
     cicero.url = "github:input-output-hk/cicero";

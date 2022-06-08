@@ -27,7 +27,8 @@ in {
       name = "debug";
       runtimeInputs =
         entrypoint.runtimeInputs
-        ++ entrypoint.debugInputs
+        or []
+        ++ entrypoint.debugInputs or []
         ++ debug-tools;
       text = ''
         # shellcheck source=/dev/null

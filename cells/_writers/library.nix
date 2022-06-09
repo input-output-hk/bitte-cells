@@ -137,9 +137,11 @@ in {
       args
       // {
         text = ''
+          ${lib.optionalString (stdenv.hostPlatform.libc == "glibc") ''
           export LOCALE_ARCHIVE=${
             glibcLocales.override {allLocales = false;}
           }/lib/locale/locale-archive
+          ''}
           ${args.text}
         '';
       }

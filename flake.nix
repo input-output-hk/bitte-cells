@@ -3,6 +3,7 @@
   inputs = {
     std.url = "github:divnix/std";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nix.url = "github:NixOS/nix/2.9-maintenance";
     n2c.url = "github:nlewo/nix2container";
     data-merge.url = "github:divnix/data-merge";
     cicero.url = "github:input-output-hk/cicero";

@@ -21,7 +21,6 @@ in {
       nixpkgs.gawk
       nixpkgs.jq
       nixpkgs.fd
-      nixpkgs.cacert
     ];
     debug-tools-layer = n2c.buildLayer {deps = debug-tools;};
     debug-bin = nixpkgs.writeShellApplication {
@@ -33,7 +32,7 @@ in {
         ++ debug-tools;
       text = ''
         # shellcheck source=/dev/null
-        source ${nixpkgs.cacert}/nix-support/setup-hook
+        # source ${nixpkgs.cacert}/nix-support/setup-hook
         cat ${iog-debug-banner}
         echo
         echo "=========================================================="

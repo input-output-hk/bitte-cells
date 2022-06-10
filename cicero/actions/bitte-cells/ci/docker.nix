@@ -32,7 +32,7 @@
         "secrets/auth.json" = ''
           {
             "auths": {
-              "docker.infra.aws.iohkdev.io": {
+              "registry.ci.iog.io": {
                 "auth": "{{with secret "kv/data/cicero/docker"}}{{with .Data.data}}{{base64Encode (print .user ":" .password)}}{{end}}{{end}}"
               }
             }

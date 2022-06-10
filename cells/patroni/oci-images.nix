@@ -10,7 +10,7 @@
   buildDebugImage = ep: o: n2c.buildImage (_utils.library.mkDebugOCI ep o);
 in {
   patroni = buildDebugImage entrypoints.patroni {
-    name = "docker.infra.aws.iohkdev.io/patroni";
+    name = "registry.ci.iog.io/patroni";
     maxLayers = 15;
     layers = [
       (n2c.buildLayer {deps = entrypoints.patroni.runtimeInputs;})
@@ -19,7 +19,7 @@ in {
     config.Entrypoint = ["${entrypoints.patroni}/bin/entrypoint"];
   };
   patroni-backup-sidecar = buildDebugImage entrypoints.patroni-backup-sidecar {
-    name = "docker.infra.aws.iohkdev.io/patroni-backup-sidecar";
+    name = "registry.ci.iog.io/patroni-backup-sidecar";
     maxLayers = 15;
     layers = [
       (n2c.buildLayer {deps = entrypoints.patroni-backup-sidecar.runtimeInputs;})

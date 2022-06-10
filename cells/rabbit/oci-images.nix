@@ -7,7 +7,7 @@
   n2c = inputs.n2c.packages.nix2container;
 in {
   rabbit = n2c.buildImage {
-    name = "docker.infra.aws.iohkdev.io/rabbit";
+    name = "registry.ci.iog.io/rabbit";
     maxLayers = 25;
     layers = [
       (n2c.buildLayer {deps = entrypoints.rabbit.runtimeInputs;})

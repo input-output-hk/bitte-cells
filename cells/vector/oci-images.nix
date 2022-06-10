@@ -7,7 +7,7 @@
   n2c = inputs.n2c.packages.nix2container;
 in {
   default = n2c.buildImage {
-    name = "docker.infra.aws.iohkdev.io/vector";
+    name = "registry.ci.iog.io/vector";
     maxLayers = 15;
     contents = [nixpkgs.bashInteractive nixpkgs.cacert];
     config.Entrypoint = ["${packages.default}/bin/vector"];

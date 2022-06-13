@@ -48,6 +48,6 @@ in {
   in
     oci
     // {
-      contents = oci.contents ++ [debug-bin];
+      contents = (oci.contents or []) ++ [debug-bin];
     };
 }

@@ -45,6 +45,7 @@ in {
         chmod 1777 /tmp
       fi
 
+      chown postgres:postgres "$PERSISTENCE_MOUNTPOINT"
       if [ ! -d "$PGDATA" ]; then
         mkdir -p "$PGDATA"
         chmod -R 0700 "$PERSISTENCE_MOUNTPOINT"

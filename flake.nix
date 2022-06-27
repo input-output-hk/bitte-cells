@@ -33,8 +33,9 @@
         (std.runnables "healthChecks")
         (std.runnables "entrypoints")
         # just repo automation; std - just integration pending
+        (std.devshells "devshells")
         (std.runnables "justTasks")
-        (std.installables "oci-images")
+        (std.containers "oci-images")
         (std.installables "packages")
         (std.functions "library")
         (std.data "constants")

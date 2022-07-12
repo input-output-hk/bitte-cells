@@ -39,6 +39,8 @@
         (std.installables "packages")
         (std.functions "library")
         (std.data "constants")
+        (std.data "alerts")
+        (std.data "dashboards")
         (std.functions "nomadJob")
         (std.functions "nomadTask")
         (std.functions "nomadFragments")

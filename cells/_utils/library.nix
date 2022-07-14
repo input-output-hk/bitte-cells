@@ -47,10 +47,40 @@ in rec {
       };
 
   mkAlerts = let
+    allTrue = lib.all lib.id;
+
+    lintAlerts = n: v: let
+      check = checkFn: msg: nvp: if checkFn then v else throw msg;
+      nvp = lib.nameValuePair n v;
+    in lib.pipe nvp [
+      (check (nvp.value ? "groups") ''Declarative alert file does not contain "groups" attribute: ${nvp.name}'')
+
+      (check (builtins.isList nvp.value.groups) ''Declarative alert file contains a "groups" attribute that is not a list: ${nvp.name}'')
+
+      (check (if (builtins.length nvp.value.groups) == 0 then (builtins.trace ''WARN: Declarative alert file has no group list items: ${nvp.name}'' true) else true)  "Undefined error")
+
+      (check (allTrue (map (group: if group ? "name" then true else false) nvp.value.groups))
+        ''Declarative alert file has a missing "name" attribute in one of the group list items: ${nvp.name}'')
+
+      (check (allTrue (map (group: if group ? "rules" then true else false) nvp.value.groups))
+        ''Declarative alert file has a missing "rules" attribute in one of the group list items: ${nvp.name}'')
+
+      (check (allTrue (map (group: builtins.isList group.rules) nvp.value.groups))
+        ''Declarative alert file contains a group list item with a "rules" attribute that is not a list: ${nvp.name}'')
+
+      (check (allTrue (map (group:
+        if (builtins.length group.rules) == 0
+        then (builtins.trace ''WARN: Declarative alert file has a group list item with no rules: ${nvp.name}'' true)
+        else true
+      ) nvp.value.groups)) "Undefined error")
+    ];
+
     mkAlertType = ds: alertSet: lib.pipe alertSet [
       (lib.filterAttrs (n: v: v.datasource == ds))
       (lib.mapAttrs' sanitizeAlertAttrs)
       (toAlertFilePrep ds)
+      (lib.mapAttrs lintAlerts)
+      (lib.mapAttrs (n: v: builtins.toJSON v))
       (lib.mapAttrs (n: v: builtins.toFile n v))
       (lib.mapAttrs' (toKvAlertAttrs ds))
       (let resources = kvAlertAttrs: { vault_generic_secret =  kvAlertAttrs; }; in resources)
@@ -61,9 +91,7 @@ in rec {
 
     sanitizeAlertAttrs = n: v: lib.nameValuePair (normalizeTfName n) ((builtins.removeAttrs v [ "datasource" ]) // { name = normalizeTfName n; });
 
-    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair "vmalert_${ds}_${n}" (
-      builtins.toJSON ( { groups = lib.singleton v; })
-    )) rules;
+    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair "vmalert_${ds}_${n}" { groups = lib.singleton v; }) rules;
 
     toKvAlertAttrs = ds: n: v: lib.nameValuePair n ({ path = "kv/system/alerts/${ds}/${n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
   in mkAlertResources;

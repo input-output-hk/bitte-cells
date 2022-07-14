@@ -4,6 +4,8 @@
 }: let
   inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
+  inherit (inputs.cells._utils.packages) norouter;
+
   n2c = inputs.n2c.packages.nix2container;
 in rec {
   mkDebugOCI = with nixpkgs.pkgsStatic;
@@ -16,6 +18,7 @@ in rec {
         busybox
         curl.bin
         jq.bin
+        norouter
       ];
       debug-bin = writeShellApplication {
         name = "debug";
@@ -43,7 +46,7 @@ in rec {
     in
       oci
       // {
-        contents = (oci.contents or []) ++ [debug-bin];
+        contents = (oci.contents or []) ++ [debug-bin norouter];
       };
 
   mkAlerts = let

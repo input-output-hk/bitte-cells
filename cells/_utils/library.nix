@@ -91,14 +91,13 @@ in rec {
 
     sanitizeAlertAttrs = n: v: lib.nameValuePair (normalizeTfName n) ((builtins.removeAttrs v [ "datasource" ]) // { name = normalizeTfName n; });
 
-    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair "vmalert_${ds}_${n}" { groups = lib.singleton v; }) rules;
+    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair n { groups = lib.singleton v; }) rules;
 
-    toKvAlertAttrs = ds: n: v: lib.nameValuePair n ({ path = "kv/system/alerts/${ds}/${n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
+    toKvAlertAttrs = ds: n: v: lib.nameValuePair "vmalert_${ds}_${n}" ({ path = "kv/system/alerts/${ds}/${n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
   in mkAlertResources;
 
   mkDashboards = let
     mkDashboardType = dashboardSet: lib.pipe dashboardSet [
-      (lib.mapAttrs' sanitizeDashboardAttrs)
       (lib.mapAttrs (n: v: builtins.toFile n v))
       (lib.mapAttrs' toKvDashboardAttrs)
       (let resources = kvDashboardAttrs: { vault_generic_secret =  kvDashboardAttrs; }; in resources)
@@ -107,9 +106,7 @@ in rec {
 
     mkDashboardResources = dashboardSet: mkDashboardType dashboardSet;
 
-    sanitizeDashboardAttrs = n: v: lib.nameValuePair "grafana_dashboard_${normalizeTfName n}" v;
-
-    toKvDashboardAttrs = n: v: lib.nameValuePair n ({ path = "kv/system/dashboards/${n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
+    toKvDashboardAttrs = n: v: lib.nameValuePair "grafana_dashboard_${normalizeTfName n}" ({ path = "kv/system/dashboards/${normalizeTfName n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
   in mkDashboardResources;
 
   mkMonitoring = alertSet: dashboardSet: lib.recursiveUpdate (mkAlerts alertSet) (mkDashboards dashboardSet);

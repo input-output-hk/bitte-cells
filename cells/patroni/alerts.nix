@@ -63,7 +63,7 @@
       }
       {
         alert = "PatroniTimelineIncreasing";
-        expr = "rate(patroni_postgres_timeline)[1h] > 2";
+        expr = "sum_over_time(rate(patroni_postgres_timeline)[1h]) > 2";
         for = "5m";
         labels.severity = "critical";
         annotations = {

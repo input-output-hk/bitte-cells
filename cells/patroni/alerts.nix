@@ -1,8 +1,7 @@
 {
   inputs,
   cell,
-}:
-{
+}: {
   bitte-cells-patroni = {
     datasource = "vm";
     rules = [
@@ -68,8 +67,8 @@
         labels.severity = "critical";
         annotations = {
           description = ''
-             The patroni postgres timeline has increased by an average of {{ $value }} timelines
-              over the past hour in namespace {{ $labels.namespace }} on allocation {{ $labels.nomad_alloc_name }}.'';
+            The patroni postgres timeline has increased by an average of {{ $value }} timelines
+             over the past hour in namespace {{ $labels.namespace }} on allocation {{ $labels.nomad_alloc_name }}.'';
           summary = "[Bitte-cells] Patroni timeline is increasing rapidly in namespace {{ $labels.namespace }} on allocation {{ $labels.nomad_alloc_name }}";
         };
       }
@@ -87,4 +86,3 @@
     ];
   };
 }
-

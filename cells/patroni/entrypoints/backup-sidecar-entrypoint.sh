@@ -49,7 +49,7 @@ function log {
 # Leave at least 2 days base backups before creating a new one
 [[ $WALG_DAYS_TO_RETAIN -lt 2 ]] && WALG_DAYS_TO_RETAIN="2"
 
-if ! id postgres &> /dev/null; then
+if ! id postgres &>/dev/null; then
   echo "Creating container user postgres"
   useradd -m -d "$HOME" -U -u 1500 -c "Postgres Container User" postgres
 fi
@@ -118,10 +118,10 @@ while true; do
   echo "  Existing backups to keep:        $LEFT"
   echo "  Existing backups expired:        $((COUNT - LEFT))"
 
-  if [ -n "$BEFORE" ] && [[ "$LEFT" -ge "$MIN_RETENTION" ]]; then
+  if [ -n "$BEFORE" ] && [[ $LEFT -ge $MIN_RETENTION ]]; then
     "${WALG_CMD[@]}" delete before FIND_FULL "$BEFORE" --confirm
     echo "  Expired backups deleted:         $((COUNT - LEFT))"
-  elif [ -n "$BEFORE" ] && [[ "$COUNT" -ge "$MIN_RETENTION" ]]; then
+  elif [ -n "$BEFORE" ] && [[ $COUNT -ge $MIN_RETENTION ]]; then
     "${WALG_CMD[@]}" delete retain FULL "$MIN_RETENTION" --confirm
     echo "  Expired backups deleted:         $((COUNT - MIN_RETENTION))"
   else

@@ -1,8 +1,7 @@
 {
   inputs,
   cell,
-}:
-{
+}: {
   bitte-deadmanssnitch = {
     datasource = "vm";
     rules = [
@@ -22,7 +21,8 @@
     ];
   };
 
-  inherit (import ./alerts/bitte-alerts.nix {})
+  inherit
+    (import ./alerts/bitte-alerts.nix {})
     bitte-consul
     bitte-loki
     bitte-system
@@ -32,4 +32,3 @@
     bitte-vmagent
     ;
 }
-

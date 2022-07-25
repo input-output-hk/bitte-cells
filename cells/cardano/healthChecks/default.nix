@@ -46,14 +46,14 @@ in
   // (syncs "mainnet")
   // (syncs "marlowe-pioneers")
   // {
-  wallet-network-sync = writeShellApplication {
-    name = "cardano-wallet-network-sync-check";
-    text = fileContents ./wallet-network-sync-check.sh;
-    runtimeInputs = [nixpkgs.curl nixpkgs.jq];
-  };
-  wallet-id-sync = writeShellApplication {
-    name = "cardano-wallet-id-sync-check";
-    text = fileContents ./wallet-id-sync-check.sh;
-    runtimeInputs = [nixpkgs.curl nixpkgs.jq];
-  };
-}
+    wallet-network-sync = writeShellApplication {
+      name = "cardano-wallet-network-sync-check";
+      text = fileContents ./wallet-network-sync-check.sh;
+      runtimeInputs = [nixpkgs.curl nixpkgs.jq];
+    };
+    wallet-id-sync = writeShellApplication {
+      name = "cardano-wallet-id-sync-check";
+      text = fileContents ./wallet-id-sync-check.sh;
+      runtimeInputs = [nixpkgs.curl nixpkgs.jq];
+    };
+  }

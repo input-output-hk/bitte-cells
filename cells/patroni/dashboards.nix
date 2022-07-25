@@ -5,7 +5,6 @@
   # Since dashboards will exist as either JSON already, or will
   # be converted to JSON from Nix (ex: Grafonnix), dashboard attrs
   # are expected to have values of JSON strings.
-
   importAsJson = file: builtins.readFile file;
   # importGrafonnixToJson = ...;
 in {

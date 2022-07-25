@@ -50,64 +50,96 @@ in rec {
     allTrue = lib.all lib.id;
 
     lintAlerts = n: v: let
-      check = checkFn: msg: nvp: if checkFn then v else throw msg;
+      check = checkFn: msg: nvp:
+        if checkFn
+        then v
+        else throw msg;
       nvp = lib.nameValuePair n v;
-    in lib.pipe nvp [
-      (check (nvp.value ? "groups") ''Declarative alert file does not contain "groups" attribute: ${nvp.name}'')
+    in
+      lib.pipe nvp [
+        (check (nvp.value ? "groups") ''Declarative alert file does not contain "groups" attribute: ${nvp.name}'')
 
-      (check (builtins.isList nvp.value.groups) ''Declarative alert file contains a "groups" attribute that is not a list: ${nvp.name}'')
+        (check (builtins.isList nvp.value.groups) ''Declarative alert file contains a "groups" attribute that is not a list: ${nvp.name}'')
 
-      (check (if (builtins.length nvp.value.groups) == 0 then (builtins.trace ''WARN: Declarative alert file has no group list items: ${nvp.name}'' true) else true)  "Undefined error")
+        (check (
+          if (builtins.length nvp.value.groups) == 0
+          then (builtins.trace ''WARN: Declarative alert file has no group list items: ${nvp.name}'' true)
+          else true
+        ) "Undefined error")
 
-      (check (allTrue (map (group: if group ? "name" then true else false) nvp.value.groups))
-        ''Declarative alert file has a missing "name" attribute in one of the group list items: ${nvp.name}'')
+        (check (allTrue (map (group:
+            if group ? "name"
+            then true
+            else false)
+          nvp.value.groups))
+          ''Declarative alert file has a missing "name" attribute in one of the group list items: ${nvp.name}'')
 
-      (check (allTrue (map (group: if group ? "rules" then true else false) nvp.value.groups))
-        ''Declarative alert file has a missing "rules" attribute in one of the group list items: ${nvp.name}'')
+        (check (allTrue (map (group:
+            if group ? "rules"
+            then true
+            else false)
+          nvp.value.groups))
+          ''Declarative alert file has a missing "rules" attribute in one of the group list items: ${nvp.name}'')
 
-      (check (allTrue (map (group: builtins.isList group.rules) nvp.value.groups))
-        ''Declarative alert file contains a group list item with a "rules" attribute that is not a list: ${nvp.name}'')
+        (check (allTrue (map (group: builtins.isList group.rules) nvp.value.groups))
+          ''Declarative alert file contains a group list item with a "rules" attribute that is not a list: ${nvp.name}'')
 
-      (check (allTrue (map (group:
-        if (builtins.length group.rules) == 0
-        then (builtins.trace ''WARN: Declarative alert file has a group list item with no rules: ${nvp.name}'' true)
-        else true
-      ) nvp.value.groups)) "Undefined error")
-    ];
+        (check (allTrue (map (
+            group:
+              if (builtins.length group.rules) == 0
+              then (builtins.trace ''WARN: Declarative alert file has a group list item with no rules: ${nvp.name}'' true)
+              else true
+          )
+          nvp.value.groups)) "Undefined error")
+      ];
 
-    mkAlertType = ds: alertSet: lib.pipe alertSet [
-      (lib.filterAttrs (n: v: v.datasource == ds))
-      (lib.mapAttrs' sanitizeAlertAttrs)
-      (toAlertFilePrep ds)
-      (lib.mapAttrs lintAlerts)
-      (lib.mapAttrs (n: v: builtins.toJSON v))
-      (lib.mapAttrs (n: v: builtins.toFile n v))
-      (lib.mapAttrs' (toKvAlertAttrs ds))
-      (let resources = kvAlertAttrs: { vault_generic_secret =  kvAlertAttrs; }; in resources)
-      # (let pp = a: builtins.trace (builtins.toJSON a) a; in pp)
-    ];
+    mkAlertType = ds: alertSet:
+      lib.pipe alertSet [
+        (lib.filterAttrs (n: v: v.datasource == ds))
+        (lib.mapAttrs' sanitizeAlertAttrs)
+        (toAlertFilePrep ds)
+        (lib.mapAttrs lintAlerts)
+        (lib.mapAttrs (n: v: builtins.toJSON v))
+        (lib.mapAttrs (n: v: builtins.toFile n v))
+        (lib.mapAttrs' (toKvAlertAttrs ds))
+        (let resources = kvAlertAttrs: {vault_generic_secret = kvAlertAttrs;}; in resources)
+        # (let pp = a: builtins.trace (builtins.toJSON a) a; in pp)
+      ];
 
-    mkAlertResources = alertSet: lib.foldl (acc: ds: lib.recursiveUpdate acc (mkAlertType ds alertSet)) {} [ "vm" "loki" ];
+    mkAlertResources = alertSet: lib.foldl (acc: ds: lib.recursiveUpdate acc (mkAlertType ds alertSet)) {} ["vm" "loki"];
 
-    sanitizeAlertAttrs = n: v: lib.nameValuePair (normalizeTfName n) ((builtins.removeAttrs v [ "datasource" ]) // { name = normalizeTfName n; });
+    sanitizeAlertAttrs = n: v: lib.nameValuePair (normalizeTfName n) ((builtins.removeAttrs v ["datasource"]) // {name = normalizeTfName n;});
 
-    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair n { groups = lib.singleton v; }) rules;
+    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair n {groups = lib.singleton v;}) rules;
 
-    toKvAlertAttrs = ds: n: v: lib.nameValuePair "vmalert_${ds}_${n}" ({ path = "kv/system/alerts/${ds}/${n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
-  in mkAlertResources;
+    toKvAlertAttrs = ds: n: v:
+      lib.nameValuePair "vmalert_${ds}_${n}" {
+        path = "kv/system/alerts/${ds}/${n}";
+        data_json = terralibVar ''file("${v}")'';
+        delete_all_versions = true;
+      };
+  in
+    mkAlertResources;
 
   mkDashboards = let
-    mkDashboardType = dashboardSet: lib.pipe dashboardSet [
-      (lib.mapAttrs (n: v: builtins.toFile n v))
-      (lib.mapAttrs' toKvDashboardAttrs)
-      (let resources = kvDashboardAttrs: { vault_generic_secret =  kvDashboardAttrs; }; in resources)
-      # (let pp = a: builtins.trace (builtins.toJSON a) a; in pp)
-    ];
+    mkDashboardType = dashboardSet:
+      lib.pipe dashboardSet [
+        (lib.mapAttrs (n: v: builtins.toFile n v))
+        (lib.mapAttrs' toKvDashboardAttrs)
+        (let resources = kvDashboardAttrs: {vault_generic_secret = kvDashboardAttrs;}; in resources)
+        # (let pp = a: builtins.trace (builtins.toJSON a) a; in pp)
+      ];
 
     mkDashboardResources = dashboardSet: mkDashboardType dashboardSet;
 
-    toKvDashboardAttrs = n: v: lib.nameValuePair "grafana_dashboard_${normalizeTfName n}" ({ path = "kv/system/dashboards/${normalizeTfName n}"; data_json = terralibVar ''file("${v}")''; delete_all_versions = true; });
-  in mkDashboardResources;
+    toKvDashboardAttrs = n: v:
+      lib.nameValuePair "grafana_dashboard_${normalizeTfName n}" {
+        path = "kv/system/dashboards/${normalizeTfName n}";
+        data_json = terralibVar ''file("${v}")'';
+        delete_all_versions = true;
+      };
+  in
+    mkDashboardResources;
 
   mkMonitoring = alertSet: dashboardSet: lib.recursiveUpdate (mkAlerts alertSet) (mkDashboards dashboardSet);
 

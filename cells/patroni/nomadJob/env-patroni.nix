@@ -103,7 +103,7 @@ in {
                 #  https://patroni.readthedocs.io/en/latest/dynamic_configuration.html
                 #
                 hot_standby: on
-                max_connections: 100
+                max_connections: 1024
                 max_locks_per_transaction: 64
                 max_prepared_transactions: 0
                 max_replication_slots: 10

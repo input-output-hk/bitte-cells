@@ -67,7 +67,7 @@ in
         update.health_check = "task_states";
         update.healthy_deadline = "5m0s";
         update.max_parallel = 1;
-        update.min_healthy_time = "60s";
+        update.min_healthy_time = "2m";
         update.progress_deadline = "10m0s";
         update.stagger = "30s";
         # ----------
@@ -91,26 +91,30 @@ in
           merge
           (cells.vector.nomadTask.default {
             inherit namespace;
-            # Patroni requires the rest interface to be publicly
-            # bound, accessible over the network by other cluster
-            # members and the metrics endpoint is served from the
-            # same binding.  Therefore, we need to scrape the host
-            # IP:PORT for metrics.
-            endpoints = ["https://$NOMAD_ADDR_patroni/metrics"];
+            # TODO: Once network bridge mode hairpinning is fixed
+            # switch to using the host IP to improve endpoint metrics
+            # reporting which now will report only 127.0.0.1 for each
+            # patroni member, with the distinguishing metric being
+            # nomad_alloc_id.
+            #
+            # Refs:
+            #   https://github.com/hashicorp/nomad/issues/13352
+            #   https://github.com/hashicorp/nomad/pull/13834
+            #
+            # Switch to:
+            # endpoints = ["https://$NOMAD_ADDR_patroni/metrics"];
+            endpoints = ["https://127.0.0.1:8008/metrics"];
 
             extra = {
               # Until we implement app based mTLS, or alternatively
               # generate vault pki certs for vector consumption
               # with rotation and SIGHUP consul template restarts.
-              #
-              # Undocumented option:
-              # https://github.com/vectordotdev/vector/issues/12129
               sources.prom.tls.verify_certificate = false;
 
               # Avoid repeating duplicate fingerprint logs for
               # stdout between patroni and backup-walg logs.
               sources.source_stdout.fingerprint.strategy = "checksum";
-              sources.source_stdout.fingerprint.lines = 2;
+              sources.source_stdout.fingerprint.lines = 4;
               sources.source_stdout.fingerprint.ignored_header_bytes = 0;
             };
           })

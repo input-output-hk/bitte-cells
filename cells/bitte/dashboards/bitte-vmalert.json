@@ -2180,7 +2180,7 @@
           "value": "vmalert"
         },
         "datasource": "$ds",
-        "definition": "label_values(vm_app_version{alias=~\"vmalert.*\"}, job)",
+        "definition": "label_values(vm_app_version{job=~\"vmalert.*\"}, job)",
         "description": null,
         "error": null,
         "hide": 0,
@@ -2190,7 +2190,7 @@
         "name": "job",
         "options": [],
         "query": {
-          "query": "label_values(vm_app_version{alias=~\"vmalert.*\"}, job)",
+          "query": "label_values(vm_app_version{job=~\"vmalert.*\"}, job)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,

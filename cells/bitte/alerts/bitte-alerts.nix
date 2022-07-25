@@ -354,13 +354,14 @@
       {
         alert = "RequestErrorsToAPI";
         expr = "increase(vm_http_request_errors_total[5m]) > 0";
-        for = "15m";
+        for = "30m";
         labels.severity = "warning";
         annotations = {
           dashboard =
             "{{ $externalURL }}/d/wNf0q_kZk?viewPanel=35&var-instance={{ $labels.instance }}";
-          description =
-            "Requests to path {{ $labels.path }} are receiving errors. Please verify if clients are sending correct requests.";
+          description = ''
+            Requests to path {{ $labels.path }} are receiving errors for more than 30m.
+             Please verify if clients are sending correct requests.'';
           summary =
             "Too many errors served for path {{ $labels.path }} (instance {{ $labels.instance }})";
         };
@@ -383,13 +384,13 @@
       {
         alert = "TooManyLogs";
         expr = ''sum(increase(vm_log_messages_total{level!="info"}[5m])) by (job, instance) > 0'';
-        for = "15m";
+        for = "30m";
         labels.severity = "warning";
         annotations = {
           dashboard =
             "{{ $externalURL }}/d/wNf0q_kZk?viewPanel=67&var-instance={{ $labels.instance }}";
           description = ''
-            Logging rate for job "{{ $labels.job }}" ({{ $labels.instance }}) is {{ $value }} for last 15m.
+            Logging rate for job "{{ $labels.job }}" ({{ $labels.instance }}) is {{ $value }} for last 30m.
              Worth to check logs for specific error messages.'';
           summary = ''
             Too many logs printed for job "{{ $labels.job }}" ({{ $labels.instance }})'';

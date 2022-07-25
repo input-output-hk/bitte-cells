@@ -102,15 +102,12 @@ in
               # Until we implement app based mTLS, or alternatively
               # generate vault pki certs for vector consumption
               # with rotation and SIGHUP consul template restarts.
-              #
-              # Undocumented option:
-              # https://github.com/vectordotdev/vector/issues/12129
               sources.prom.tls.verify_certificate = false;
 
               # Avoid repeating duplicate fingerprint logs for
               # stdout between patroni and backup-walg logs.
               sources.source_stdout.fingerprint.strategy = "checksum";
-              sources.source_stdout.fingerprint.lines = 2;
+              sources.source_stdout.fingerprint.lines = 4;
               sources.source_stdout.fingerprint.ignored_header_bytes = 0;
             };
           })

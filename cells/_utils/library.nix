@@ -95,11 +95,11 @@ in rec {
 
     mkAlertType = ds: alertSet:
       lib.pipe alertSet [
-        (lib.filterAttrs (n: v: v.datasource == ds))
+        (lib.filterAttrs (_: v: v.datasource == ds))
         (lib.mapAttrs' sanitizeAlertAttrs)
-        (toAlertFilePrep ds)
+        (lib.mapAttrs toAlertFilePrep)
         (lib.mapAttrs lintAlerts)
-        (lib.mapAttrs (n: v: builtins.toJSON v))
+        (lib.mapAttrs (_: v: builtins.toJSON v))
         (lib.mapAttrs (n: v: builtins.toFile n v))
         (lib.mapAttrs' (toKvAlertAttrs ds))
         (let resources = kvAlertAttrs: {vault_generic_secret = kvAlertAttrs;}; in resources)
@@ -110,7 +110,7 @@ in rec {
 
     sanitizeAlertAttrs = n: v: lib.nameValuePair (normalizeTfName n) ((builtins.removeAttrs v ["datasource"]) // {name = normalizeTfName n;});
 
-    toAlertFilePrep = ds: rules: lib.mapAttrs' (n: v: lib.nameValuePair n {groups = lib.singleton v;}) rules;
+    toAlertFilePrep = _: v: {groups = lib.singleton v;};
 
     toKvAlertAttrs = ds: n: v:
       lib.nameValuePair "vmalert_${ds}_${n}" {

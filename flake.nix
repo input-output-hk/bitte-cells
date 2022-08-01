@@ -42,6 +42,7 @@
         (std.data "alerts")
         (std.data "dashboards")
         (std.functions "nomadJob")
+        (std.functions "nomadCharts")
         (std.functions "nomadTask")
         (std.functions "nomadFragments")
         (std.functions "devshellProfiles")

@@ -114,6 +114,10 @@ in {
                   endpoint = "http://172.16.0.20:8428/api/v1/write";
                   inputs = ["transform_prom"];
                   type = "prometheus_remote_write";
+
+                  # Until VM remote write healthcheck is prom compatible or a vector healthcheck uri is an option
+                  # Ref: https://github.com/vectordotdev/vector/issues/13890
+                  healthcheck.enabled = false;
                 };
                 sinks.loki = {
                   endpoint = "http://172.16.0.20:3100";

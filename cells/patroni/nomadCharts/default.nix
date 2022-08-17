@@ -16,6 +16,7 @@ in
       namespace,
       datacenters,
       domain,
+      extraVector ? {},
       nodeClass,
       scaling,
       ...
@@ -116,7 +117,7 @@ in
               sources.source_stdout.fingerprint.strategy = "checksum";
               sources.source_stdout.fingerprint.lines = 4;
               sources.source_stdout.fingerprint.ignored_header_bytes = 0;
-            };
+            } // extraVector;
           })
           {
             count = scaling;

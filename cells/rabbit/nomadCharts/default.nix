@@ -14,6 +14,7 @@ in
       namespace,
       datacenters ? ["eu-central-1" "eu-west-1" "us-east-2"],
       domain,
+      extraVector ? {},
       nodeClass,
       scaling,
       ...
@@ -86,6 +87,7 @@ in
           (cells.vector.nomadTask.default {
             inherit namespace;
             endpoints = ["http://127.0.0.1:15692/metrics"];
+            extra = extraVector;
           })
           {
             count = scaling;

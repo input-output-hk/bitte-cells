@@ -3,6 +3,18 @@
 # Credit for the majority of code in this script goes to the spilo project:
 # Ref: https://github.com/zalando/spilo/blob/master/postgres-appliance/scripts/postgres_backup.sh
 #
+# For special use-cases, such as prem or minio, extra wal-g parameters can be injected into
+# the environment by the nomad job and these will be automatically utilized as su-exec
+# does not spawn a child process with a different environment like su does.
+#
+# Example of extra params required for minio usage:
+#
+# AWS_ACCESS_KEY_ID
+# AWS_ENDPOINT
+# AWS_S3_FORCE_PATH
+# AWS_SECRET_ACCESS_KEY
+#
+# Ref: https://github.com/wal-g/wal-g/blob/master/docs/STORAGES.md
 
 trap 'echo "$(date -u +"%b %d, %y %H:%M:%S +0000"): Caught SIGINT -- exiting" && exit 0' INT
 
@@ -68,6 +80,8 @@ while true; do
 
   echo
   echo "Starting walg postgres backup job with:"
+  echo "  AWS_ENDPOINT:                    ${AWS_ENDPOINT:-"undefined"}"
+  echo "  AWS_S3_FORCE_PATH_STYLE:         ${AWS_S3_FORCE_PATH_STYLE:-"undefined"}"
   echo "  INIT_CONN_DB:                    $INIT_CONN_DB"
   echo "  INIT_USER:                       $INIT_USER"
   echo "  PGHOST:                          $PGHOST"

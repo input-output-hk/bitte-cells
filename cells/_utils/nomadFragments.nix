@@ -46,7 +46,9 @@
       data = ''
         {{ with $hostIp := (env "attr.unique.network.ip-address") }}
         {{ with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.issuing_ca }}
+        {{ range $cert := .Data.ca_chain }}
+        {{ $cert }}
+        {{ end }}
         {{ end }}
         {{ end }}
       '';

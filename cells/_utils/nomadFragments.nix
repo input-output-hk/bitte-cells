@@ -18,8 +18,15 @@
   ];
   workload-identity-vault = {vaultPkiPath}: let
     withCertSecret = template: ''
+      {{- define "ipToHex" }}
+        {{- range $part := split "." . }}
+          {{- $part | parseInt | printf "%02x" }}
+        {{- end }}
+      {{- end }}
       {{- with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{- with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
+        {{- $consulDC := (env "attr.consul.datacenter") }}
+        {{- $consulDNS := (printf "%s.addr.%s.consul" (executeTemplate "ipToHex" $hostIp) $consulDC) }}
+        {{- with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) (printf "alt_names=%s" $consulDNS) "ttl=720h" }}
       ${template}
         {{- end }}
       {{- end }}

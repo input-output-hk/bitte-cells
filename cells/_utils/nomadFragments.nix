@@ -16,41 +16,37 @@
       env = true;
     }
   ];
-  workload-identity-vault = {vaultPkiPath}: [
+  workload-identity-vault = {vaultPkiPath}: let
+    withCertSecret = template: ''
+      {{- with $hostIp := (env "attr.unique.network.ip-address") }}
+        {{- with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
+      ${template}
+        {{- end }}
+      {{- end }}
+    '';
+  in [
     {
       change_mode = "restart";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.certificate }}
-        {{ end }}
-        {{ end }}
+      data = withCertSecret ''
+        {{- .Data.certificate }}
       '';
       destination = "secrets/tls/cert.pem";
       splay = "5s";
     }
     {
       change_mode = "restart";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ .Data.private_key }}
-        {{ end }}
-        {{ end }}
+      data = withCertSecret ''
+        {{- .Data.private_key }}
       '';
       destination = "secrets/tls/key.pem";
       splay = "5s";
     }
     {
       change_mode = "restart";
-      data = ''
-        {{ with $hostIp := (env "attr.unique.network.ip-address") }}
-        {{ with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) "ttl=720h" }}
-        {{ range $cert := .Data.ca_chain }}
+      data = withCertSecret ''
+        {{- range $cert := .Data.ca_chain }}
         {{ $cert }}
-        {{ end }}
-        {{ end }}
-        {{ end }}
+        {{- end }}
       '';
       destination = "secrets/tls/ca.pem";
       splay = "5s";

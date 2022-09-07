@@ -13,9 +13,6 @@ in {
   bitte-loki = importAsJson ./dashboards/bitte-loki.json;
   bitte-nomad = importAsJson ./dashboards/bitte-nomad.json;
   bitte-system = importAsJson ./dashboards/bitte-system.json;
-  bitte-tempo-operational = importAsJson ./dashboards/bitte-tempo-operational.json;
-  bitte-tempo-reads = importAsJson ./dashboards/bitte-tempo-reads.json;
-  bitte-tempo-writes = importAsJson ./dashboards/bitte-tempo-writes.json;
   bitte-traefik = importAsJson ./dashboards/bitte-traefik.json;
   bitte-vault = importAsJson ./dashboards/bitte-vault.json;
   bitte-vmagent = importAsJson ./dashboards/bitte-vmagent.json;

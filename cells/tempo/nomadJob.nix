@@ -4,9 +4,9 @@
 }: let
   l = inputs.nixpkgs.lib // builtins;
   msg = target: ''
-    WARNING: the 'rabbit.nomadJob' target is deprecated and has been renamed to 'rabbit.nomadCharts'.
+    WARNING: the 'tempo.nomadJob' target is deprecated and has been renamed to 'tempo.nomadCharts'.
 
-    Please use 'rabbit.nomadCharts.${target}' instead of 'rabbit.nomadJob.${target}'.
+    Please use 'tempo.nomadCharts.${target}' instead of 'tempo.nomadJob.${target}'.
 
     Reason: there has been a semantic inconsistency in that nomadJobs actually were only templates.
     In analogy to helm charts, we now call them nomad charts to clarify their semantics and free up

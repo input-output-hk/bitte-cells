@@ -11,6 +11,7 @@ in {
     debugInputs = [
       nixpkgs.less
       nixpkgs.awscli2
+      nixpkgs.strace
     ];
     runtimeInputs = [
       nixpkgs.coreutils

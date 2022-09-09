@@ -32,7 +32,7 @@ in {
 
     memcachedEnable = mkOption {
       type = types.bool;
-      default = true;
+      default = false;
       description = mdDoc ''
         Use memcached to improve performance of Tempo trace lookups.
         Redis support as a Tempo cache is still marked experimental.
@@ -194,7 +194,7 @@ in {
 
     metricsGeneratorStoragePath = mkOption {
       type = types.str;
-      default = "/var/lib/tempo/storage/wal-metrics";
+      default = "/local/tempo/storage/wal-metrics";
       description = mdDoc ''
         Path to store the WAL. Each tenant will be stored in its own subdirectory.
       '';
@@ -202,10 +202,12 @@ in {
 
     metricsGeneratorStorageRemoteWrite = mkOption {
       type = types.nullOr (types.listOf types.attrs);
-      default = null;
+      default = [{url = "http://victoriametrics.service.consul:8428/api/v1/write";}];
       description = mdDoc ''
         A list of remote write endpoints in Prometheus remote_write format:
         https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
+
+        NOTE: Does not support SRV records.
       '';
     };
 
@@ -217,7 +219,7 @@ in {
 
     storageTraceBackend = mkOption {
       type = types.enum ["local" "s3"];
-      default = "local";
+      default = "s3";
       description = mdDoc ''
         The storage backend to use.
       '';
@@ -225,7 +227,7 @@ in {
 
     storageLocalPath = mkOption {
       type = types.str;
-      default = "/var/lib/tempo/storage/local";
+      default = "/local/tempo/storage/local";
       description = mdDoc ''
         Where to store state if the backend selected is "local".
       '';
@@ -301,7 +303,7 @@ in {
 
     storageTraceWalPath = mkOption {
       type = types.str;
-      default = "/var/lib/tempo/storage/wal";
+      default = "/local/tempo/storage/wal";
       description = mdDoc ''
         Where to store the head blocks while they are being appended to.
       '';

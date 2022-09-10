@@ -127,18 +127,19 @@ in
             network = {
               dns = {servers = ["172.17.0.1"];};
               mode = "bridge";
-              # port = {
-              #   http = {
-              #     static = 3200;
-              #     to = 9096;
-              #   };
-              #   grpc = {
-              #     static = 8008;
-              #     to = 8008;
-              #   };
-              # };
+              port = {
+                tempo = {
+                  to = 3200;
+                };
+                tempo-otlp-grpc = {
+                  to = 4317;
+                };
+                tempo-jaeger-thrift-http = {
+                  to = 14268;
+                };
+              };
             };
-            # service = [(import ./srv-rest.nix {inherit namespace subdomain;})];
+            service = import ./srv-rest.nix {inherit namespace;};
             task = {
               # ----------
               # Tempo

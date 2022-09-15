@@ -8,7 +8,9 @@
   importAsJson = file: builtins.readFile file;
   # importGrafonnixToJson = ...;
 in {
-  bitte-cells-patroni = importAsJson ./dashboards/patroni.json;
+  bitte-cells-tempo-operational = importAsJson ./dashboards/tempo-operational.json;
+  bitte-cells-tempo-reads = importAsJson ./dashboards/tempo-reads.json;
+  bitte-cells-tempo-writes = importAsJson ./dashboards/tempo-writes.json;
 
   # Upstream dashboards can be imported here, instead of directly
   # imported in the hydrationProfile.  This will allow easier

@@ -51,7 +51,7 @@
       },
       "id": 102,
       "panels": [],
-      "title": "Tempo Systemd Service",
+      "title": "Tempo Job",
       "type": "row"
     },
     {
@@ -104,7 +104,8 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "rate(process_cpu_seconds_total{job=\"tempo\"}[$__interval])",
+          "expr": "rate(process_cpu_seconds_total{nomad_alloc_name=~\"tempo.*\"}[$__interval])",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -191,7 +192,8 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "process_resident_memory_bytes{job=\"tempo\"}",
+          "expr": "process_resident_memory_bytes{nomad_alloc_name=~\"tempo.*\"}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -272,7 +274,8 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "go_memstats_heap_inuse_bytes{job=\"tempo\"}",
+          "expr": "go_memstats_heap_inuse_bytes{nomad_alloc_name=~\"tempo.*\"}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -396,9 +399,9 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "rate(go_gc_duration_seconds_count{job=\"tempo\"}[$__rate_interval])",
+          "expr": "rate(go_gc_duration_seconds_count{nomad_alloc_name=~\"tempo.*\"}[$__rate_interval])",
           "interval": "",
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -480,9 +483,9 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "go_memstats_heap_inuse_bytes{job=\"tempo\"}",
+          "expr": "go_memstats_heap_inuse_bytes{nomad_alloc_name=~\"tempo.*\"}",
           "interval": "",
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -564,8 +567,8 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "go_goroutines{job=\"tempo\"}",
-          "legendFormat": "{{pod}}",
+          "expr": "go_goroutines{nomad_alloc_name=~\"tempo.*\"}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -643,10 +646,10 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "rate(process_cpu_seconds_total{job=\"tempo\"}[$__rate_interval])",
+          "expr": "rate(process_cpu_seconds_total{nomad_alloc_name=~\"tempo.*\"}[$__rate_interval])",
           "interval": "",
           "intervalFactor": 5,
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -728,9 +731,9 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "process_resident_memory_bytes{job=\"tempo\"}",
+          "expr": "process_resident_memory_bytes{nomad_alloc_name=~\"tempo.*\"}",
           "interval": "",
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -812,18 +815,18 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "rate(tempo_ingester_bytes_received_total{job=\"tempo\"}[$__rate_interval])",
+          "expr": "rate(tempo_ingester_bytes_received_total[$__rate_interval])",
           "hide": false,
           "interval": "",
-          "legendFormat": "rx-{{pod}}",
+          "legendFormat": "rx-{{nomad_alloc_name}}",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "rate(container_network_transmit_bytes_total{cluster=\"$cluster\", namespace=\"$namespace\", pod=~\"$component.*\"}[$__rate_interval])",
+          "expr": "rate(container_network_transmit_bytes_total{cluster=\"$cluster\", namespace=\"$namespace\", nomad_alloc_name=~\"tempo.*\"}[$__rate_interval])",
           "hide": false,
           "interval": "",
-          "legendFormat": "tx-{{pod}}",
+          "legendFormat": "tx-{{nomad_alloc_name}}",
           "refId": "B"
         }
       ],
@@ -919,7 +922,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "tempodb_work_queue_length{job=\"tempo\"} / tempodb_work_queue_max{job=\"tempo\"}",
+          "expr": "tempodb_work_queue_length / tempodb_work_queue_max",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -1002,19 +1005,19 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "increase(tempodb_compaction_errors_total{job=\"tempo\"}[$__rate_interval])",
+          "expr": "increase(tempodb_compaction_errors_total[$__rate_interval])",
           "legendFormat": "compaction_err",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "increase(tempodb_retention_errors_total{job=\"tempo\"}[$__rate_interval])",
+          "expr": "increase(tempodb_retention_errors_total[$__rate_interval])",
           "legendFormat": "retention_err",
           "refId": "C"
         },
         {
           "datasource": "$ds",
-          "expr": "increase(tempodb_blocklist_poll_errors_total{job=\"tempo\"}[$__rate_interval])",
+          "expr": "increase(tempodb_blocklist_poll_errors_total[$__rate_interval])",
           "legendFormat": "blocklist_err",
           "refId": "D"
         }
@@ -1097,20 +1100,20 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempodb_blocklist_poll_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempodb_blocklist_poll_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempodb_blocklist_poll_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempodb_blocklist_poll_duration_seconds_bucket[$__rate_interval])) by (le))",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempodb_blocklist_poll_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempodb_blocklist_poll_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -1195,7 +1198,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "tempodb_blocklist_length{ job=\"tempo\"}",
+          "expr": "tempodb_blocklist_length",
           "instant": false,
           "interval": "",
           "legendFormat": "{{tenant}}",
@@ -1280,21 +1283,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempodb_retention_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempodb_retention_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempodb_retention_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempodb_retention_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempodb_retention_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempodb_retention_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -1378,14 +1381,14 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(increase(tempodb_retention_deleted_total{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum(increase(tempodb_retention_deleted_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "deleted",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "sum(increase(tempodb_retention_marked_for_deletion_total{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum(increase(tempodb_retention_marked_for_deletion_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "marked_for_deletion",
           "refId": "B"
@@ -1483,7 +1486,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\".*api_traces_traceid\", job=\"tempo\"}[$__rate_interval])) by (status_code)",
+          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\".*api_traces_traceid\",}[$__rate_interval])) by (status_code)",
           "hide": false,
           "interval": "",
           "legendFormat": "{{status_code}}",
@@ -1568,21 +1571,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\".*api_traces_traceid\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\".*api_traces_traceid\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\".*api_traces_traceid\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=~\".*api_traces_traceid\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\".*api_traces_traceid\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=~\".*api_traces_traceid\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -1667,7 +1670,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\".*api_search.*\", job=\"tempo\"}[$__rate_interval])) by (status_code)",
+          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\".*api_search.*\"}[$__rate_interval])) by (status_code)",
           "hide": false,
           "interval": "",
           "legendFormat": "{{status_code}}",
@@ -1754,7 +1757,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\".*api_search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\".*api_search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A",
@@ -1763,7 +1766,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\".*api_search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=~\".*api_search.*\"}[$__rate_interval])) by (le))",
           "hide": false,
           "interval": "",
           "legendFormat": ".9",
@@ -1773,7 +1776,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\".*api_search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=~\".*api_search.*\"}[$__rate_interval])) by (le))",
           "hide": false,
           "interval": "",
           "legendFormat": ".5",
@@ -1859,7 +1862,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\"querier_.*api_traces_traceid\",job=\"tempo\"}[$__rate_interval])) by (status_code)",
+          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (status_code)",
           "hide": false,
           "interval": "",
           "legendFormat": "{{status_code}}",
@@ -1944,21 +1947,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=~\"querier_.*api_traces_traceid\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -2130,7 +2133,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"querier_.*api_search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\"querier_.*api_search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A",
@@ -2139,7 +2142,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"querier_.*api_search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=~\"querier_.*api_search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B",
@@ -2148,7 +2151,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"querier_.*api_search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=~\"querier_.*api_search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C",
@@ -2233,7 +2236,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_request_duration_seconds_count{route=\"/tempopb.Querier/FindTraceByID\", job=\"tempo\"}[$__rate_interval])) by (status_code)",
+          "expr": "sum(rate(tempo_request_duration_seconds_count{route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (status_code)",
           "hide": false,
           "interval": "",
           "legendFormat": "{{status_code}}",
@@ -2318,21 +2321,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=\"/tempopb.Querier/FindTraceByID\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -2417,7 +2420,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\"/tempopb.Querier/Search.*\", job=\"tempo\"}[$__rate_interval])) by (status_code)",
+          "expr": "sum(rate(tempo_request_duration_seconds_count{route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (status_code)",
           "hide": false,
           "interval": "",
           "legendFormat": "{{status_code}}",
@@ -2504,7 +2507,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A",
@@ -2513,7 +2516,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B",
@@ -2522,7 +2525,7 @@
         {
           "datasource": "$ds",
           "exemplar": true,
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Querier/Search.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C",
@@ -2621,7 +2624,8 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "rate(tempo_distributor_spans_received_total{job=\"tempo\"}[$__rate_interval])",
+          "expr": "rate(tempo_distributor_spans_received_total[$__rate_interval])",
+          "legendFormat": "",
           "refId": "A"
         }
       ],
@@ -2704,7 +2708,7 @@
         {
           "datasource": "$ds",
           "editorMode": "code",
-          "expr": "sum by(cluster) (rate(tempo_ingester_traces_created_total{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum by(cluster) (rate(tempo_ingester_traces_created_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "",
           "range": true,
@@ -2789,9 +2793,9 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(increase(tempo_ingester_blocks_flushed_total{job=\"tempo\"}[1h]))",
+          "expr": "sum(increase(tempo_ingester_blocks_flushed_total[1h]))",
           "interval": "",
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -2873,9 +2877,9 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "increase(tempo_ingester_failed_flushes_total{job=\"tempo\"}[5m]) > 0",
+          "expr": "increase(tempo_ingester_failed_flushes_total[5m]) > 0",
           "interval": "",
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{nomad_alloc_name}}",
           "refId": "A"
         }
       ],
@@ -2957,7 +2961,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(increase(tempo_ingester_blocks_cleared_total{job=\"tempo\"}[1h]))",
+          "expr": "sum(increase(tempo_ingester_blocks_cleared_total[1h]))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -3041,21 +3045,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempo_ingester_flush_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_ingester_flush_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempo_ingester_flush_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_ingester_flush_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempo_ingester_flush_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_ingester_flush_duration_seconds_bucket[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -3139,7 +3143,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_request_duration_seconds_count{job=\"tempo\", route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (status_code)",
+          "expr": "sum(rate(tempo_request_duration_seconds_count{route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (status_code)",
           "interval": "",
           "legendFormat": "{{status_code}}",
           "refId": "A"
@@ -3223,14 +3227,14 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_receiver_accepted_spans{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum(rate(tempo_receiver_accepted_spans[$__rate_interval]))",
           "interval": "",
           "legendFormat": "accepted",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_receiver_refused_spans{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum(rate(tempo_receiver_refused_spans[$__rate_interval]))",
           "interval": "",
           "legendFormat": "refused",
           "refId": "B"
@@ -3314,21 +3318,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -3412,21 +3416,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".99",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".9",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval])) by (le))",
           "interval": "",
           "legendFormat": ".5",
           "refId": "C"
@@ -3525,7 +3529,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(cortex_memcache_request_duration_seconds_count{job=~\"tempo\"}[$__rate_interval])) by (status_code, method)",
+          "expr": "sum(rate(cortex_memcache_request_duration_seconds_count{nomad_alloc_name=~\"tempo.*\"}[$__rate_interval])) by (status_code, method)",
           "interval": "",
           "legendFormat": "{{status_code}}-{{method}}",
           "refId": "A"
@@ -3610,21 +3614,21 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (method, le))",
+          "expr": "histogram_quantile(.99, sum(rate(cortex_memcache_request_duration_seconds_bucket[$__rate_interval])) by (method, le))",
           "interval": "",
           "legendFormat": ".99-{{method}}",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (method, le))",
+          "expr": "histogram_quantile(.9, sum(rate(cortex_memcache_request_duration_seconds_bucket[$__rate_interval])) by (method, le))",
           "interval": "",
           "legendFormat": ".9-{{method}}",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (method, le))",
+          "expr": "histogram_quantile(.5, sum(rate(cortex_memcache_request_duration_seconds_bucket[$__rate_interval])) by (method, le))",
           "interval": "",
           "legendFormat": ".5-{{method}}",
           "refId": "C"
@@ -3723,7 +3727,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempodb_backend_request_duration_seconds_count{job=\"tempo\"}[$__rate_interval])) by (status_code, operation)",
+          "expr": "sum(rate(tempodb_backend_request_duration_seconds_count[$__rate_interval])) by (status_code, operation)",
           "interval": "",
           "legendFormat": "{{status_code}}-{{operation}}",
           "refId": "A"
@@ -3808,19 +3812,19 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.99, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (operation, le))",
+          "expr": "histogram_quantile(.99, sum(rate(tempodb_backend_request_duration_seconds_bucket[$__rate_interval])) by (operation, le))",
           "legendFormat": ".99-{{operation}}",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.9, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (operation, le))",
+          "expr": "histogram_quantile(.9, sum(rate(tempodb_backend_request_duration_seconds_bucket[$__rate_interval])) by (operation, le))",
           "legendFormat": ".9-{{operation}}",
           "refId": "B"
         },
         {
           "datasource": "$ds",
-          "expr": "histogram_quantile(.5, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\"}[$__rate_interval])) by (operation, le))",
+          "expr": "histogram_quantile(.5, sum(rate(tempodb_backend_request_duration_seconds_bucket[$__rate_interval])) by (operation, le))",
           "legendFormat": ".5-{{operation}}",
           "refId": "C"
         }
@@ -3918,7 +3922,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "gauge_memberlist_health_score{job=\"tempo\"}",
+          "expr": "gauge_memberlist_health_score",
           "interval": "",
           "legendFormat": "{{instance}}",
           "refId": "A"
@@ -4003,7 +4007,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "tempo_memberlist_client_cluster_node_health_score{job=\"tempo\"}",
+          "expr": "tempo_memberlist_client_cluster_node_health_score",
           "interval": "",
           "legendFormat": "{{instance}}",
           "refId": "A"
@@ -4088,14 +4092,14 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "min(tempo_memberlist_client_cluster_members_count{job=\"tempo\"})",
+          "expr": "min(tempo_memberlist_client_cluster_members_count)",
           "interval": "",
           "legendFormat": "min",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "max(tempo_memberlist_client_cluster_members_count{job=\"tempo\"})",
+          "expr": "max(tempo_memberlist_client_cluster_members_count)",
           "interval": "",
           "legendFormat": "max",
           "refId": "B"
@@ -4180,14 +4184,14 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "min(tempo_memberlist_client_kv_store_count{job=\"tempo\"})",
+          "expr": "min(tempo_memberlist_client_kv_store_count)",
           "interval": "",
           "legendFormat": "min",
           "refId": "A"
         },
         {
           "datasource": "$ds",
-          "expr": "max(tempo_memberlist_client_kv_store_count{job=\"tempo\"})",
+          "expr": "max(tempo_memberlist_client_kv_store_count)",
           "interval": "",
           "legendFormat": "max",
           "refId": "B"
@@ -4277,7 +4281,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_vulture_trace_error_total{job=\"tempo\"}[$__rate_interval])) by (error) / ignoring (error) group_left sum(rate(tempo_vulture_trace_total{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum(rate(tempo_vulture_trace_error_total[$__rate_interval])) by (error) / ignoring (error) group_left sum(rate(tempo_vulture_trace_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "{{error}}",
           "refId": "A"
@@ -4335,7 +4339,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempo_vulture_trace_error_total{job=\"tempo\"}[$__rate_interval])) by (error) / ignoring (error) group_left sum(rate(tempo_vulture_trace_total{job=\"tempo\"}[$__rate_interval]))",
+          "expr": "sum(rate(tempo_vulture_trace_error_total[$__rate_interval])) by (error) / ignoring (error) group_left sum(rate(tempo_vulture_trace_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "{{secondsago}}",
           "refId": "A"
@@ -4433,7 +4437,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempodb_compaction_objects_combined_total{job=\"tempo\"}[$__rate_interval])) by (level)",
+          "expr": "sum(rate(tempodb_compaction_objects_combined_total[$__rate_interval])) by (level)",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -4518,7 +4522,7 @@
       "targets": [
         {
           "datasource": "$ds",
-          "expr": "sum(rate(tempodb_compaction_objects_written_total{job=\"tempo\"}[$__rate_interval])) by (level)",
+          "expr": "sum(rate(tempodb_compaction_objects_written_total[$__rate_interval])) by (level)",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -4599,7 +4603,7 @@
         {
           "datasource": "$ds",
           "editorMode": "code",
-          "expr": "sum(rate(tempodb_compaction_bytes_written_total{job=\"tempo\"}[$__rate_interval])) by (level)",
+          "expr": "sum(rate(tempodb_compaction_bytes_written_total[$__rate_interval])) by (level)",
           "interval": "",
           "legendFormat": "__auto",
           "range": true,
@@ -4681,7 +4685,7 @@
         {
           "datasource": "$ds",
           "editorMode": "code",
-          "expr": "sum(increase(tempodb_compaction_blocks_total{job=\"tempo\"}[5m])) by (level)",
+          "expr": "sum(increase(tempodb_compaction_blocks_total[5m])) by (level)",
           "interval": "",
           "legendFormat": "__auto",
           "range": true,

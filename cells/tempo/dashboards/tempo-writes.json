@@ -116,7 +116,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(tempo_receiver_accepted_spans{job=\"tempo\"}[$__interval]))",
+          "expr": "sum(rate(tempo_receiver_accepted_spans[$__interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -217,7 +217,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(tempo_distributor_push_duration_seconds_bucket{job=\"tempo\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(tempo_distributor_push_duration_seconds_bucket[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -229,7 +229,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(tempo_distributor_push_duration_seconds_bucket{job=\"tempo\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.50, sum(rate(tempo_distributor_push_duration_seconds_bucket[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -241,7 +241,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(tempo_distributor_push_duration_seconds_sum{job=~\"tempo\"}[$__interval])) by () * 1e3 / sum(rate(tempo_distributor_push_duration_seconds_count{job=\"tempo\"}[$__interval])) by ()",
+          "expr": "sum(rate(tempo_distributor_push_duration_seconds_sum[$__interval])) by () * 1e3 / sum(rate(tempo_distributor_push_duration_seconds_count[$__interval])) by ()",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -364,7 +364,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempo_request_duration_seconds_count{job=\"tempo\", route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
+          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempo_request_duration_seconds_count{route=~\"/tempopb.Pusher/Push.*\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -453,7 +453,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\",route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -465,7 +465,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\",route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.50, sum(rate(tempo_request_duration_seconds_bucket{route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -477,7 +477,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(tempo_request_duration_seconds_sum{job=\"tempo\",route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by () * 1e3 / sum(rate(tempo_request_duration_seconds_count{job=\"tempo\",route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by ()",
+          "expr": "sum(rate(tempo_request_duration_seconds_sum{route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by () * 1e3 / sum(rate(tempo_request_duration_seconds_count{route=~\"/tempopb.Pusher/Push.*\"}[$__interval])) by ()",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -600,7 +600,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (status) (\n  label_replace(label_replace(rate(cortex_memcache_request_duration_seconds_count{job=~\"tempo\",method=\"Memcache.Put\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
+          "expr": "sum by (status) (\n  label_replace(label_replace(rate(cortex_memcache_request_duration_seconds_count{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -689,7 +689,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -701,7 +701,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=~\"tempo\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.50, sum(rate(cortex_memcache_request_duration_seconds_bucket{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -713,7 +713,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(cortex_memcache_request_duration_seconds_sum{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by () * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by ()",
+          "expr": "sum(rate(cortex_memcache_request_duration_seconds_sum{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by () * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by ()",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -836,7 +836,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempodb_backend_request_duration_seconds_count{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
+          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempodb_backend_request_duration_seconds_count{operation=~\"(PUT|POST)\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -925,7 +925,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(tempodb_backend_request_duration_seconds_bucket{operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -937,7 +937,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.50, sum(rate(tempodb_backend_request_duration_seconds_bucket{operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -949,7 +949,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(tempodb_backend_request_duration_seconds_sum{job=~\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by () * 1e3 / sum(rate(tempodb_backend_request_duration_seconds_count{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by ()",
+          "expr": "sum(rate(tempodb_backend_request_duration_seconds_sum{operation=~\"(PUT|POST)\"}[$__interval])) by () * 1e3 / sum(rate(tempodb_backend_request_duration_seconds_count{operation=~\"(PUT|POST)\"}[$__interval])) by ()",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1072,7 +1072,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (status) (\n  label_replace(label_replace(rate(cortex_memcache_request_duration_seconds_count{job=\"tempo\",method=\"Memcache.Put\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
+          "expr": "sum by (status) (\n  label_replace(label_replace(rate(cortex_memcache_request_duration_seconds_count{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1161,7 +1161,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(cortex_memcache_request_duration_seconds_bucket{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1173,7 +1173,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(cortex_memcache_request_duration_seconds_bucket{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.50, sum(rate(cortex_memcache_request_duration_seconds_bucket{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1185,7 +1185,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(cortex_memcache_request_duration_seconds_sum{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by () * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{job=\"tempo\",method=\"Memcache.Put\"}[$__interval])) by ()",
+          "expr": "sum(rate(cortex_memcache_request_duration_seconds_sum{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by () * 1e3 / sum(rate(cortex_memcache_request_duration_seconds_count{nomad_alloc_name=~\"tempo.*\",method=\"Memcache.Put\"}[$__interval])) by ()",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1308,7 +1308,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempodb_backend_request_duration_seconds_count{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
+          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempodb_backend_request_duration_seconds_count{operation=~\"(PUT|POST)\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1397,7 +1397,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(tempodb_backend_request_duration_seconds_bucket{operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1409,7 +1409,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(tempodb_backend_request_duration_seconds_bucket{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.50, sum(rate(tempodb_backend_request_duration_seconds_bucket{operation=~\"(PUT|POST)\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1421,7 +1421,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(rate(tempodb_backend_request_duration_seconds_sum{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by () * 1e3 / sum(rate(tempodb_backend_request_duration_seconds_count{job=\"tempo\",operation=~\"(PUT|POST)\"}[$__interval])) by ()",
+          "expr": "sum(rate(tempodb_backend_request_duration_seconds_sum{operation=~\"(PUT|POST)\"}[$__interval])) by () * 1e3 / sum(rate(tempodb_backend_request_duration_seconds_count{operation=~\"(PUT|POST)\"}[$__interval])) by ()",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1544,7 +1544,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempo_request_duration_seconds_count{job=\"tempo\", route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
+          "expr": "sum by (status) (\n  label_replace(label_replace(rate(tempo_request_duration_seconds_count{route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__rate_interval]),\n  \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"),\n  \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1633,7 +1633,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(tempo_request_duration_seconds_bucket{job=\"tempo\", route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__interval])) by (le,)) * 1e3",
+          "expr": "histogram_quantile(0.99, sum(rate(tempo_request_duration_seconds_bucket{route=\"opentelemetry_proto_collector_trace_v1_traceservice_export\"}[$__interval])) by (le,)) * 1e3",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,
@@ -1772,7 +1772,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum by (grpc_status) (\n    rate(\n        label_replace(\n            {job=\"tempo\", __name__=~\"envoy_cluster_grpc_proto_collector_trace_v1_TraceService_[0-9]+\"},\n            \"grpc_status\", \"$1\", \"__name__\", \"envoy_cluster_grpc_proto_collector_trace_v1_TraceService_(.+)\"\n        )\n        [$__interval:$__interval]\n    )\n)\n",
+          "expr": "sum by (grpc_status) (\n    rate(\n        label_replace(\n            {__name__=~\"envoy_cluster_grpc_proto_collector_trace_v1_TraceService_[0-9]+\"},\n            \"grpc_status\", \"$1\", \"__name__\", \"envoy_cluster_grpc_proto_collector_trace_v1_TraceService_(.+)\"\n        )\n        [$__interval:$__interval]\n    )\n)\n",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 2,

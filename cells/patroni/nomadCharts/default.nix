@@ -19,6 +19,7 @@ in
       extraVector ? {},
       nodeClass,
       scaling,
+      jobName ? "database",
       ...
     }: let
       id = "database";
@@ -41,7 +42,7 @@ in
       patroniYaml = "secrets/patroni.yaml";
       volumeMount = "/persist-db";
     in {
-      job.database = {
+      job.${jobName} = {
         inherit namespace datacenters id type priority;
         # ----------
         # Scheduling

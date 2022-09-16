@@ -1,53 +1,24 @@
 {
+  l,
   namespace,
+  computedServiceConfig,
 }:
-[
-  {
-    check = [
-      {
-        interval = "10s";
-        port = "tempo";
-        timeout = "2s";
-        type = "tcp";
-      }
-    ];
-    name = "tempo";
-    port = "tempo";
-    tags = [
-      "\${NOMAD_ALLOC_ID}"
-      "${namespace}"
-    ];
-  }
-  {
-    check = [
-      {
-        interval = "10s";
-        port = "tempo-otlp-grpc";
-        timeout = "2s";
-        type = "tcp";
-      }
-    ];
-    name = "tempo-otlp-grpc";
-    port = "tempo-otlp-grpc";
-    tags = [
-      "\${NOMAD_ALLOC_ID}"
-      "${namespace}"
-    ];
-  }
-  {
-    check = [
-      {
-        interval = "10s";
-        port = "tempo-jaeger-thrift-http";
-        timeout = "2s";
-        type = "tcp";
-      }
-    ];
-    name = "tempo-jaeger-thrift-http";
-    port = "tempo-jaeger-thrift-http";
-    tags = [
-      "\${NOMAD_ALLOC_ID}"
-      "${namespace}"
-    ];
-  }
-]
+
+map (service: {
+  check = [
+    ({
+      port = service;
+      type = computedServiceConfig.${service}.type;
+      interval = computedServiceConfig.${service}.interval;
+      timeout = computedServiceConfig.${service}.timeout;
+    }
+    // l.optionalAttrs (computedServiceConfig.${service} ? "path")
+    { path = computedServiceConfig.${service}.path; })
+  ];
+  name = service;
+  port = service;
+  tags = [
+    "\${NOMAD_ALLOC_ID}"
+    "${namespace}"
+  ];
+}) (l.attrNames computedServiceConfig)

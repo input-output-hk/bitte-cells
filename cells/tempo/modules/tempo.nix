@@ -61,7 +61,7 @@ in {
 
     grpcListenPort = mkOption {
       type = types.port;
-      default = 9096;
+      default = 9095;
       description = mdDoc "gRPC server listen port.";
     };
 
@@ -350,7 +350,7 @@ in {
         # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/zipkinreceiver
         allowedTCPPorts = [
           cfg.httpListenPort # default: 3200
-          cfg.grpcListenPort # default: 9096
+          cfg.grpcListenPort # default: 9095
         ]
         ++ optionals cfg.receiverOtlpGrpc [4317]
         ++ optionals cfg.receiverOtlpHttp [4318]
@@ -366,6 +366,36 @@ in {
           ++ optionals cfg.receiverJaegerThriftBinary [6832]
           ;
       };
+    };
+
+    computedServiceConfig = mkOption {
+      type = types.attrs;
+      internal = true;
+      default = {
+        # Tempo receiver port references -- same as for computedFirewallConfig
+        tempo = { port = cfg.httpListenPort; type = "http"; interval = "10s"; timeout = "2s"; path = "/ready"; };
+        tempo-grpc = { port = cfg.grpcListenPort; type = "grpc"; interval = "10s"; timeout = "2s"; };
+      }
+      // optionalAttrs cfg.receiverOtlpGrpc
+        { tempo-otlp-grpc = { port = 4317; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverOtlpHttp
+        { tempo-otlp-http = { port = 4318; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverZipkin
+        { tempo-zipkin = { port = 9411; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverJaegerGrpc
+        { tempo-jaeger-grpc = { port = 14250; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverJaegerThriftHttp
+        { tempo-jaeger-thrift-http = { port = 14268; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverOpencensus
+        { tempo-opencensus = { port = 55678; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
+
+      # Nomad does not support UDP checks yet
+      # Ref: https://github.com/hashicorp/nomad/issues/14094
+      # // optionalAttrs cfg.receiverJaegerThriftCompact
+      #   { tempo-jaeger-thrift-compact = { port = 6831; type = "udp"; interval = "10s"; timeout = "2s"; }; }
+      # // optionalAttrs cfg.receiverJaegerThriftBinary
+      #   { tempo-jaeger-thrift-binary = { port = 6832; type = "udp"; interval = "10s"; timeout = "2s"; }; }
+      ;
     };
 
     computedTempoConfig = mkOption {

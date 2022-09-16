@@ -1,27 +1,8 @@
 {
-  inputs,
-  namespace,
-  packages,
-  extraTempo ? {},
+  tempoConfigFile,
 }:
 
-let
-  inherit (evaluated.config.services.tempo) computedTempoConfig computedFirewallConfig;
-
-  # nixpkgs master 2022-09-08 for nixosSystem convenience function
-  pkgsSystem = builtins.getFlake "github:NixOS/nixpkgs?rev=a013583ca0713ed50be62ca6cb3906c6f03021e7";
-
-  evaluated = pkgsSystem.lib.nixosSystem {
-    system = "x86_64-linux";
-    modules = [
-      ../modules/tempo.nix
-      extraTempo
-    ];
-  };
-
-  tempoConfigFile = (inputs.nixpkgs.formats.yaml {}).generate "config.yaml" computedTempoConfig;
-
-in {
+{
   env = {
     PATH = "/bin";
 

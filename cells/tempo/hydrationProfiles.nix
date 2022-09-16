@@ -18,29 +18,11 @@ in {
     perNamespaceList = f: builtins.map (n: f n) namespaces;
     perNamespace = f: acc (perNamespaceList f);
   in {
-    # ------------------------
-    # CAVE: this is a genuine aws config for routing and requires reapply of `tf.core`
-    # CAVE: modules are nixosProfiles and require a redeploy of routing
-    # ------------------------
-    # cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
-    #   modules = [nixosProfiles.routing];
-    #   securityGroupRules = {
-    #     psql = {
-    #       port = 5432;
-    #       protocols = ["tcp"];
-    #       cidrs = ["0.0.0.0/0"];
-    #     };
-    #   };
-    # };
-    # cluster.premNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "prem") {
-    #   modules = [nixosProfiles.routing];
-    # };
     # ------------------------------------------------------------------------------------------
     # CAVE: these are genuine aws client instance roles and currently require a `tf.clients` apply
     # ------------------------------------------------------------------------------------------
 
     # For now, a single tempo bucket per cluster is being utilized
-    # TODO: could split this into it's own IAM role
     cluster.iam.roles.client.policies = allowS3ForTempoBucket "cluster";
 
     # FIXME: consolidate policy reconciliation loop with TF

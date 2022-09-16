@@ -25,22 +25,24 @@ in
       id = "tempo";
       type = "service";
       priority = 50;
-      # subdomain = "patroni.${domain}";
-      # consulPath = "consul/creds/patroni";
-      # patroniSecrets = {
-      #   __toString = _: "kv/patroni/${namespace}";
-      #   patroniApi = ".Data.data.patroniApi";
-      #   patroniApiPass = ".Data.data.patroniApiPass";
-      #   patroniRepl = ".Data.data.patroniRepl";
-      #   patroniReplPass = ".Data.data.patroniReplPass";
-      #   patroniRewind = ".Data.data.patroniRewind";
-      #   patroniRewindPass = ".Data.data.patroniRewindPass";
-      #   patroniSuper = ".Data.data.patroniSuper";
-      #   patroniSuperPass = ".Data.data.patroniSuperPass";
-      # };
-      # vaultPkiPath = "pki/issue/patroni";
-      # patroniYaml = "secrets/patroni.yaml";
-      # volumeMount = "/persist-db";
+
+      inherit (evaluated.config.services.tempo)
+        computedServiceConfig
+        computedTempoConfig
+        ;
+
+      # nixpkgs master 2022-09-08 for nixosSystem config generation function
+      pkgsSystem = builtins.getFlake "github:NixOS/nixpkgs?rev=a013583ca0713ed50be62ca6cb3906c6f03021e7";
+
+      evaluated = pkgsSystem.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ../modules/tempo.nix
+          extraTempo
+        ];
+      };
+
+      tempoConfigFile = (inputs.nixpkgs.formats.yaml {}).generate "config.yaml" computedTempoConfig;
     in {
       job.tempo = {
         inherit namespace datacenters id type priority;
@@ -115,25 +117,17 @@ in
             network = {
               dns = {servers = ["172.17.0.1"];};
               mode = "bridge";
-              port = {
-                tempo = {
-                  to = 3200;
-                };
-                tempo-otlp-grpc = {
-                  to = 4317;
-                };
-                tempo-jaeger-thrift-http = {
-                  to = 14268;
-                };
-              };
+              port =  l.foldl' (acc: pname: acc // {
+                ${pname} = { to = computedServiceConfig.${pname}.port; };
+              }) {} (l.attrNames computedServiceConfig);
             };
-            service = import ./srv-rest.nix {inherit namespace;};
+            service = import ./srv-rest.nix {inherit l namespace computedServiceConfig;};
             task = {
               # ----------
               # Tempo
               # ----------
               tempo =
-                import ./env-tempo.nix { inherit inputs namespace packages extraTempo; }
+                import ./env-tempo.nix {inherit tempoConfigFile;}
                 // {
                   resources = {
                     cpu = 2000;

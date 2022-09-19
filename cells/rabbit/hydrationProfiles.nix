@@ -22,8 +22,8 @@ in {
     perNamespace = f: acc (perNamespaceList f);
   in {
     # ------------------------
-    # CAVE: securityGroupRules is a genuine aws config for routing and requires reapply of `tf.core`
-    # CAVE: modules are nixosProfiles and require a redeploy of routing
+    # NOTE: securityGroupRules is a genuine aws config for routing and requires reapply of `tf.core`
+    # NOTE: modules are nixosProfiles and require a redeploy of routing
     # ------------------------
     cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
       modules = [nixosProfiles.routing];

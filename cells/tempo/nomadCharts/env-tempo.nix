@@ -6,10 +6,10 @@
   env = {
     PATH = "/bin";
 
-    # Specified in flake; defaults to "info"
-    # Valid values are strings of:
+    # Log level defaults to "info" if empty.
+    # Overridable with valid values of:
     # "debug" "info" "warn" "error"
-    LOG_LEVEL = "";
+    LOG_LEVEL = "info";
 
     # The Nomad template writes the configuration
     # file to this default path

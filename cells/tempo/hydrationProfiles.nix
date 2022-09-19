@@ -18,8 +18,20 @@ in {
     perNamespaceList = f: builtins.map (n: f n) namespaces;
     perNamespace = f: acc (perNamespaceList f);
   in {
+    # ------------------------
+    # NOTE: Modules are nixosProfiles and require a redeploy of routing
+    # NOTE: We are not modifying aws security groups for world exposure as tempo services
+    #       are consumed by cluster internal clients
+    # ------------------------
+    cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
+      modules = [nixosProfiles.routing];
+    };
+    cluster.premNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "prem") {
+      modules = [nixosProfiles.routing];
+    };
+
     # ------------------------------------------------------------------------------------------
-    # CAVE: these are genuine aws client instance roles and currently require a `tf.clients` apply
+    # NOTE: these are genuine aws client instance roles and currently require a `tf.clients` apply
     # ------------------------------------------------------------------------------------------
 
     # For now, a single tempo bucket per cluster is being utilized
@@ -27,11 +39,13 @@ in {
 
     # FIXME: consolidate policy reconciliation loop with TF
     # PROBLEM: requires bootstrapper reconciliation loop
-    # clients need the capability to impersonate the `tempo` role
+
+    # Clients need the capability to impersonate the `tempo` role
     services.vault.policies.client = {
       path."auth/token/create/tempo".capabilities = ["update"];
       path."auth/token/roles/tempo".capabilities = ["read"];
     };
+
     # ------------------------
     # hydrate-cluster
     # ------------------------

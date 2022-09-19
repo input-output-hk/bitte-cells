@@ -94,7 +94,7 @@ in
             # TODO: Once network bridge mode hairpinning is fixed
             # switch to using the host IP to improve endpoint metrics
             # reporting which now will report only 127.0.0.1 for each
-            # patroni member, with the distinguishing metric being
+            # tempo member, with the distinguishing metric being
             # nomad_alloc_name.
             #
             # Refs:

@@ -11,7 +11,7 @@ in {
     ...
   }: let
     inherit (terralib) allowS3ForTempo;
-    bucketTempoArn = "arn:aws:s3:::${config.cluster.s3BucketTempo}";
+    bucketTempoArn = "arn:aws:s3:::${config.cluster.s3Tempo}";
     allowS3ForTempoBucket = allowS3ForTempo bucketTempoArn;
     inherit (terralib) var id;
     acc = nixpkgs.lib.foldl nixpkgs.lib.recursiveUpdate {};

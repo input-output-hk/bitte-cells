@@ -25,7 +25,7 @@ map (service: {
     # tags so that namespace trace granularity is not lost.  Thus, the namespace
     # parameter is not included in the traefik tags below.  This will also aid
     # with grafana tempo integration while grafana is still a metal service.
-    "${namespace}"
+    namespace
     "ingress"
     "traefik.enable=true"
     # Initially treat all tempo services generically, creating simple,

@@ -12,12 +12,13 @@ in {
       nixpkgs.less
       nixpkgs.awscli2
       nixpkgs.strace
+      packages.otel-cli
     ];
     runtimeInputs = [
       nixpkgs.coreutils
       nixpkgs.su-exec
       nixpkgs.shadow
-      packages.default
+      packages.tempo
     ];
     text = ''
       HOME=/run/tempo

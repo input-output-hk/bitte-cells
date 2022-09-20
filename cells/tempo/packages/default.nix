@@ -4,5 +4,6 @@
 }: let
   inherit (inputs) nixpkgs;
 in {
-  default = nixpkgs.callPackage ./tempo.nix {buildGoModule = nixpkgs.buildGo118Module;};
+  otel-cli = nixpkgs.callPackage ./otel.nix {};
+  tempo = nixpkgs.callPackage ./tempo.nix {buildGoModule = nixpkgs.buildGo118Module;};
 }

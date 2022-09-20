@@ -146,4 +146,9 @@ in rec {
   normalizeTfName = lib.replaceStrings ["/" "-" "."] ["_" "_" "_"];
 
   terralibVar = v: "\${${v}}";
+
+  # nixpkgs master 2022-09-08 for nixosSystem config generation function
+  nixosSystem = let
+    pkgsSystem = builtins.getFlake "github:NixOS/nixpkgs?rev=a013583ca0713ed50be62ca6cb3906c6f03021e7";
+  in pkgsSystem.lib.nixosSystem;
 }

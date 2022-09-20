@@ -5,6 +5,7 @@
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) system;
   inherit (inputs.cells._utils) nomadFragments;
+  inherit (inputs.cells._utils.library) nixosSystem;
   inherit (cell) entrypoints oci-images packages;
 
   # OCI-Image Namer
@@ -31,10 +32,7 @@ in
         computedTempoConfig
         ;
 
-      # nixpkgs master 2022-09-08 for nixosSystem config generation function
-      pkgsSystem = builtins.getFlake "github:NixOS/nixpkgs?rev=a013583ca0713ed50be62ca6cb3906c6f03021e7";
-
-      evaluated = pkgsSystem.lib.nixosSystem {
+      evaluated = nixosSystem {
         system = "x86_64-linux";
         modules = [
           ../modules/tempo.nix

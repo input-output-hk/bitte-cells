@@ -91,14 +91,24 @@ in {
 
     receiverJaegerThriftBinary = mkOption {
       type = types.bool;
-      default = true;
-      description = mdDoc "Enable Jaeger thrift receiver for binary, port 6832.";
+      default = false;
+      description = mdDoc ''
+        Enable Jaeger thrift receiver for binary, port 6832.
+
+        NOTE: Default is false as Nomad does not support UDP checks yet
+        Ref: https://github.com/hashicorp/nomad/issues/14094
+      '';
     };
 
     receiverJaegerThriftCompact = mkOption {
       type = types.bool;
-      default = true;
-      description = mdDoc "Enable Jaeger thrift receiver on compact, port 6831.";
+      default = false;
+      description = mdDoc ''
+        Enable Jaeger thrift receiver on compact, port 6831.
+
+        NOTE: Default is false as Nomad does not support UDP checks yet
+        Ref: https://github.com/hashicorp/nomad/issues/14094
+      '';
     };
 
     receiverZipkin = mkOption {
@@ -388,21 +398,36 @@ in {
         { tempo-jaeger-thrift-http = { port = 14268; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
       // optionalAttrs cfg.receiverOpencensus
         { tempo-opencensus = { port = 55678; type = "tcp"; interval = "10s"; timeout = "2s"; }; }
-
-      # Nomad does not support UDP checks yet
-      # Ref: https://github.com/hashicorp/nomad/issues/14094
-      # // optionalAttrs cfg.receiverJaegerThriftCompact
-      #   { tempo-jaeger-thrift-compact = { port = 6831; type = "udp"; interval = "10s"; timeout = "2s"; }; }
-      # // optionalAttrs cfg.receiverJaegerThriftBinary
-      #   { tempo-jaeger-thrift-binary = { port = 6832; type = "udp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverJaegerThriftCompact
+        { tempo-jaeger-thrift-compact = { port = 6831; type = "udp"; interval = "10s"; timeout = "2s"; }; }
+      // optionalAttrs cfg.receiverJaegerThriftBinary
+        { tempo-jaeger-thrift-binary = { port = 6832; type = "udp"; interval = "10s"; timeout = "2s"; }; }
       ;
     };
 
     computedTempoConfig = mkOption {
       type = types.attrs;
       internal = true;
-      default = let
-        in recursiveUpdate {
+      default =
+        assert asserts.assertMsg
+          (cfg.metricsGeneratorEnableServiceGraphs || cfg.metricsGeneratorEnableSpanMetrics -> cfg.metricsGeneratorStorageRemoteWrite != null)
+          ''
+            Please specify a Prometheus metrics remote write endpoint when using Tempo metrics
+            generator services with 'services.tempo.metricsGeneratorStorageRemoteWrite'.
+          '';
+        assert asserts.assertMsg
+          (cfg.storageTraceBackend == "s3" -> cfg.storageS3Bucket != null)
+          ''
+            Please specify an S3 storage bucket when using the s3 storage backend with
+            with 'services.tempo.storageS3Bucket'.
+          '';
+        assert asserts.assertMsg
+          (cfg.storageTraceBackend == "s3" -> cfg.storageS3Endpoint != null)
+          ''
+            Please specify an S3 storage endpoint when using the s3 storage backend with
+            with 'services.tempo.storageS3Endpoint'.
+          '';
+        recursiveUpdate {
           server = {
             http_listen_address = cfg.httpListenAddress;
             http_listen_port = cfg.httpListenPort;
@@ -484,90 +509,5 @@ in {
         }
         cfg.extraConfig;
    };
-  };
-
-  config = mkIf cfg.enable {
-    assertions = mkIf (cfg.configFile == null) [
-      {
-        assertion = cfg.metricsGeneratorEnableServiceGraphs || cfg.metricsGeneratorEnableSpanMetrics -> cfg.metricsGeneratorStorageRemoteWrite != null;
-        message = ''
-          Please specify a Prometheus metrics remote write endpoint when using Tempo metrics
-          generator services with 'services.tempo.metricsGeneratorStorageRemoteWrite'.
-        '';
-      }
-      {
-        assertion = cfg.storageTraceBackend == "s3" -> cfg.storageS3Bucket != null;
-        message = ''
-          Please specify an S3 storage bucket when using the s3 storage backend with
-          with 'services.tempo.storageS3Bucket'.
-        '';
-      }
-      {
-        assertion = cfg.storageTraceBackend == "s3" -> cfg.storageS3Endpoint != null;
-        message = ''
-          Please specify an S3 storage endpoint when using the s3 storage backend with
-          with 'services.tempo.storageS3Endpoint'.
-        '';
-      }
-    ];
-
-    networking.firewall.allowedTCPPorts = mkIf (cfg.configFile == null && cfg.openFirewall)
-      cfg.computedFirewallConfig.allowedTCPPorts;
-
-    networking.firewall.allowedUDPPorts = mkIf (cfg.configFile == null && cfg.openFirewall)
-      cfg.computedFirewallConfig.allowedUDPPorts;
-
-    services.memcached = mkIf (cfg.memcachedEnable && cfg.configFile == null) {
-      enable = true;
-      maxMemory = cfg.memcachedMaxMB;
-    };
-
-    # for tempo-cli and friends
-    environment.systemPackages = [pkgs.tempo];
-
-    systemd.services.tempo = {
-      description = "Grafana Tempo Service Daemon";
-      wantedBy = ["multi-user.target"];
-
-      serviceConfig = let
-        conf =
-          if cfg.configFile == null
-          then settingsFormat.generate "config.yaml" settings
-          else cfg.configFile;
-
-        settings = cfg.computedConfig;
-
-        script = pkgs.writeShellApplication {
-          name = "tempo.sh";
-          text = ''
-            ${
-              if cfg.storageS3AccessCredsEnable && (cfg.configFile == null)
-              then ''
-                while ! [ -s ${cfg.storageS3AccessCredsPath} ]; do
-                  echo "Waiting for ${cfg.storageS3AccessCredsPath}..."
-                  sleep 3
-                done
-
-                set -a
-                # shellcheck disable=SC1091
-                source ${cfg.storageS3AccessCredsPath}
-                set +a''
-              else ""
-            }
-
-            exec ${pkgs.tempo}/bin/tempo -log.level ${cfg.logLevel} -config.expand-env -config.file=${conf}
-          '';
-        };
-      in {
-        ExecStart = "${script}/bin/tempo.sh";
-        DynamicUser = true;
-        Restart = "always";
-        ProtectSystem = "full";
-        DevicePolicy = "closed";
-        NoNewPrivileges = true;
-        WorkingDirectory = "/var/lib/tempo";
-        StateDirectory = "tempo";
-      };
-    };
   };
 }

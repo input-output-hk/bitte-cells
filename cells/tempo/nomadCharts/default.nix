@@ -3,10 +3,7 @@
   cell,
 }: let
   inherit (inputs) data-merge cells;
-  inherit (inputs.nixpkgs) system;
-  inherit (inputs.cells._utils) nomadFragments;
-  inherit (inputs.cells._utils.library) nixosSystem;
-  inherit (cell) entrypoints oci-images packages;
+  inherit (cell) oci-images;
 
   # OCI-Image Namer
   ociNamer = oci: l.unsafeDiscardStringContext "${oci.imageName}:${oci.imageTag}";
@@ -32,8 +29,7 @@ in
         computedTempoConfig
         ;
 
-      evaluated = nixosSystem {
-        system = "x86_64-linux";
+      evaluated = l.evalModules {
         modules = [
           ../modules/tempo.nix
           extraTempo

@@ -19,7 +19,7 @@
   port = "mgmt";
   tags = [
     "\${NOMAD_ALLOC_ID}"
-    "${namespace}"
+    namespace
     "ingress"
     "traefik.enable=true"
     "traefik.http.routers.${namespace}-rabbit-ui.rule=Host(`${subdomain}`)"

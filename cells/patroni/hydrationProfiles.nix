@@ -19,8 +19,8 @@ in {
     perNamespace = f: acc (perNamespaceList f);
   in {
     # ------------------------
-    # CAVE: this is a genuine aws config for routing and requires reapply of `tf.core`
-    # CAVE: modules are nixosProfiles and require a redeploy of routing
+    # NOTE: this is a genuine aws config for routing and requires reapply of `tf.core`
+    # NOTE: modules are nixosProfiles and require a redeploy of routing
     # ------------------------
     cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
       modules = [nixosProfiles.routing];
@@ -36,7 +36,7 @@ in {
       modules = [nixosProfiles.routing];
     };
     # ------------------------------------------------------------------------------------------
-    # CAVE: these are genuine aws client instance roles and currently require a `tf.clients` apply
+    # NOTE: these are genuine aws client instance roles and currently require a `tf.clients` apply
     # ------------------------------------------------------------------------------------------
     cluster.iam.roles.client.policies = perNamespace (
       namespace: allowS3ForBucket "postgres-backups-${namespace}" "backups/${namespace}" ["walg"]

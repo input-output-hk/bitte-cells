@@ -19,7 +19,7 @@
   port = "patroni";
   tags = [
     "\${NOMAD_ALLOC_ID}"
-    "${namespace}"
+    namespace
     "ingress"
     "traefik.enable=true"
     "traefik.http.services.${namespace}-patroni-rest-api.loadbalancer.serverstransport=patroni-rest-api@file"

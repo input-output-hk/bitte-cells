@@ -1,7 +1,7 @@
 # Bitte Cells
 
 A Bitte **Cell** is a domain unit made for [`bitte`][bitte]
-deployments that combines the following **Organelles**:
+deployments that combines the following **cellBlocks**:
 
 - **Installables**:
   - Packages (`packages`)
@@ -35,7 +35,7 @@ You'll find further information about this nomenclature in the
         host = "x86_64-unknown-linux-gnu";  # GNU/Linux 64 bits
     }];
     cellsFrom = ./cells;
-    organelles = [ "<...>" ];
+    cellBlocks = [ "<...>" ];
   }
 
   # soil

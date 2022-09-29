@@ -188,7 +188,7 @@ in {
             - basebackup
           connect_address: "{{ env "NOMAD_IP_psql" }}:{{ env "NOMAD_PORT_psql" }}"
           data_dir: '${volumeMount}/postgres/patroni'
-          listen: "0.0.0.0:${psqlPort}"
+          listen: "0.0.0.0:${toString psqlPort}"
           parameters:
             archive_mode: on
             archive_timeout: 60

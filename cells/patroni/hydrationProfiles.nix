@@ -18,20 +18,6 @@ in {
     perNamespaceList = f: builtins.map (n: f n) namespaces;
     perNamespace = f: acc (perNamespaceList f);
   in {
-    # ------------------------
-    # NOTE: this is a genuine aws config for routing and requires reapply of `tf.core`
-    # NOTE: modules are nixosProfiles and require a redeploy of routing
-    # ------------------------
-    cluster.coreNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "aws") {
-      modules = [nixosProfiles.routing];
-      securityGroupRules = {
-        psql = {
-          port = 5432;
-          protocols = ["tcp"];
-          cidrs = ["0.0.0.0/0"];
-        };
-      };
-    };
     cluster.premNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "prem") {
       modules = [nixosProfiles.routing];
     };

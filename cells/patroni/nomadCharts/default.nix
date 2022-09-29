@@ -136,11 +136,11 @@ in
               port = {
                 psql = {
                   static = psqlPort;
-                  to = 5432;
+                  to = psqlPort;
                 };
                 patroni = {
                   static = patroniPort;
-                  to = 8008;
+                  to = patroniPort;
                 };
               };
             };

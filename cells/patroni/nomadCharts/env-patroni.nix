@@ -112,8 +112,8 @@ in {
                 wal_level: logical
                 wal_log_hints: on
                 track_commit_timestamp: off
-                shared_preload_libraries: "pg_stat_statements"
-                "pg_stat_statements.track": "all"
+                shared_preload_libraries: 'pg_stat_statements'
+                pg_stat_statements.track: all
 
                 # Additional desired dcs config params
                 #

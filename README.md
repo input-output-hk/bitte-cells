@@ -35,7 +35,7 @@ You'll find further information about this nomenclature in the
         host = "x86_64-unknown-linux-gnu";  # GNU/Linux 64 bits
     }];
     cellsFrom = ./cells;
-    organelles = [ "<...>" ];
+    cellBlocks = [ "<...>" ];
   }
 
   # soil

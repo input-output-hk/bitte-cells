@@ -29,7 +29,7 @@
       ];
       cellsFrom = ./cells;
       # debug = ["cells" "cardano" "healthChecks"];
-      organelles = [
+      cellBlocks = [
         (std.runnables "healthChecks")
         (std.runnables "entrypoints")
         # just repo automation; std - just integration pending

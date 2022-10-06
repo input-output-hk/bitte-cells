@@ -20,6 +20,5 @@
   tags = [
     "\${NOMAD_ALLOC_ID}"
     namespace
-    "ingress"
   ];
 }

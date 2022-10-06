@@ -3,7 +3,6 @@
   cell,
 }: let
   inherit (inputs) nixpkgs;
-  inherit (cell) nixosProfiles;
 in {
   hydrate-cluster = namespaces: {
     terralib,
@@ -18,9 +17,6 @@ in {
     perNamespaceList = f: builtins.map (n: f n) namespaces;
     perNamespace = f: acc (perNamespaceList f);
   in {
-    cluster.premNodes.routing = nixpkgs.lib.mkIf (config.cluster.infraType == "prem") {
-      modules = [nixosProfiles.routing];
-    };
     # ------------------------------------------------------------------------------------------
     # NOTE: these are genuine aws client instance roles and currently require a `tf.clients` apply
     # ------------------------------------------------------------------------------------------

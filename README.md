@@ -1,7 +1,7 @@
 # Bitte Cells
 
 A Bitte **Cell** is a domain unit made for [`bitte`][bitte]
-deployments that combines the following **Organelles**:
+deployments that combines the following **cellBlocks**:
 
 - **Installables**:
   - Packages (`packages`)

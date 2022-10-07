@@ -2,23 +2,6 @@
   inputs,
   cell,
 }: {
-  routing = {pkiFiles, ...}: {
-    networking.firewall.allowedTCPPorts = [ 5432 ];
-    services.traefik.staticConfigOptions = {entryPoints = {psql.address = ":5432";};};
-    services.traefik.dynamicConfigOptions = {
-      http = {
-        serversTransports = {
-          # patroni-rest-api is just a constant identifier that is defined here
-          # grep for `patroni-rest-api@file` for usage
-          patroni-rest-api.certificates = {
-            certFile = pkiFiles.certFile;
-            keyFile = pkiFiles.keyFile;
-            rootCAs = pkiFiles.caCertFile;
-          };
-        };
-      };
-    };
-  };
   client = namespace: {bittelib, ...}: {
     imports = [
       (

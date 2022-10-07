@@ -20,6 +20,8 @@ in
       nodeClass,
       scaling,
       jobName ? "database",
+      psqlPort ? 5432,
+      patroniPort ? 8008,
       ...
     }: let
       id = "database";
@@ -58,8 +60,9 @@ in
             operator = "is_set";
           }
           {
-            operator = "distinct_hosts";
-            value = "true";
+            operator = "distinct_property";
+            attribute = "\${attr.unique.hostname}";
+            value = 1;
           }
         ];
         spread = [{attribute = "\${attr.platform.aws.placement.availability-zone}";}];
@@ -132,12 +135,12 @@ in
               mode = "bridge";
               port = {
                 psql = {
-                  static = 5432;
-                  to = 5432;
+                  static = psqlPort;
+                  to = psqlPort;
                 };
                 patroni = {
-                  static = 8008;
-                  to = 8008;
+                  static = patroniPort;
+                  to = patroniPort;
                 };
               };
             };
@@ -186,7 +189,7 @@ in
               patroni =
                 (
                   merge
-                  (import ./env-patroni.nix {inherit patroniSecrets consulPath volumeMount patroniYaml namespace packages;})
+                  (import ./env-patroni.nix {inherit psqlPort patroniSecrets consulPath volumeMount patroniYaml namespace packages;})
                   {
                     template = append (
                       nomadFragments.workload-identity-vault {inherit vaultPkiPath;}

@@ -26,7 +26,6 @@
     bitte-consul
     bitte-loki
     bitte-system
-    bitte-tempo
     bitte-vault
     bitte-vm-health
     bitte-vm-standalone

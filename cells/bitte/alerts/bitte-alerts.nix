@@ -215,6 +215,54 @@
           summary = "Detected a vault leadership loss on {{ $labels.host }}";
         };
       }
+      {
+        alert = "VaultLeaseExpirationRate";
+        expr = ''rate(vault_expire_num_leases_value[1m]) * 60 > 25'';
+        for = "5m";
+        labels.severity = "critical";
+        annotations = {
+          description = ''
+            More than 25 expired vault leases per minute have occured on {{ $labels.host }} for the past 5 minutes.
+              This should be investigated to ensure vault is not stuck in a lease loop.'';
+          summary = "High lease expiration rate on {{ $labels.host }} -- investigation needed";
+        };
+      }
+      {
+        alert = "VaultLeaseExpirationIncrease";
+        expr = ''increase(vault_expire_num_leases_value[10m]) > 100'';
+        for = "2m";
+        labels.severity = "critical";
+        annotations = {
+          description = ''
+            More than 100 expired vault leases have occurred on {{ $labels.host }} in the past 10 minutes.
+              This should be investigated to ensure vault is not stuck in a lease loop.'';
+          summary = "High lease expiration increase on {{ $labels.host }} -- investigation needed";
+        };
+      }
+      {
+        alert = "VaultTokenCountRate";
+        expr = ''rate(vault_token_count_value[1m]) * 60 > 25'';
+        for = "5m";
+        labels.severity = "critical";
+        annotations = {
+          description = ''
+            More than 25 new vault tokens per minute have been created on {{ $labels.host }} for the past 5 minutes.
+              This should be investigated to ensure vault is not stuck in a token loop.'';
+          summary = "High token creation rate on {{ $labels.host }} -- investigation needed";
+        };
+      }
+      {
+        alert = "VaultTokenCountIncrease";
+        expr = ''increase(vault_token_count_value[10m]) > 100'';
+        for = "2m";
+        labels.severity = "critical";
+        annotations = {
+          description = ''
+            More than 100 new vault tokens have been created on {{ $labels.host }} in the past 10 minutes.
+             This should be investigated to ensure vault is not stuck in a token loop.'';
+          summary = "High token increase on {{ $labels.host }} -- investigation needed";
+        };
+      }
     ];
   };
 

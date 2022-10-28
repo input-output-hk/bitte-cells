@@ -223,7 +223,8 @@
         annotations = {
           description = ''
             More than 25 expired vault leases per minute have occured on {{ $labels.host }} for the past 5 minutes.
-              This should be investigated to ensure vault is not stuck in a lease loop.'';
+              This should be investigated to ensure vault is not stuck in a lease loop.
+              Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
           summary = "High lease expiration rate on {{ $labels.host }} -- investigation needed";
         };
       }
@@ -235,7 +236,8 @@
         annotations = {
           description = ''
             More than 100 expired vault leases have occurred on {{ $labels.host }} in the past 10 minutes.
-              This should be investigated to ensure vault is not stuck in a lease loop.'';
+              This should be investigated to ensure vault is not stuck in a lease loop.
+              Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
           summary = "High lease expiration increase on {{ $labels.host }} -- investigation needed";
         };
       }
@@ -247,7 +249,8 @@
         annotations = {
           description = ''
             More than 25 new vault tokens per minute have been created on {{ $labels.host }} for the past 5 minutes.
-              This should be investigated to ensure vault is not stuck in a token loop.'';
+              This should be investigated to ensure vault is not stuck in a token loop.
+              Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
           summary = "High token creation rate on {{ $labels.host }} -- investigation needed";
         };
       }
@@ -259,7 +262,8 @@
         annotations = {
           description = ''
             More than 100 new vault tokens have been created on {{ $labels.host }} in the past 10 minutes.
-             This should be investigated to ensure vault is not stuck in a token loop.'';
+              This should be investigated to ensure vault is not stuck in a token loop.
+              Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
           summary = "High token increase on {{ $labels.host }} -- investigation needed";
         };
       }

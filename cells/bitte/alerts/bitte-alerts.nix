@@ -216,55 +216,55 @@
         };
       }
       {
-        alert = "VaultLeaseExpirationRate";
-        expr = ''rate(vault_expire_num_leases_value[1m]) * 60 > 25'';
-        for = "5m";
+        alert = "VaultHighLeaseEventsDelta";
+        expr = ''abs(delta(vault_expire_num_leases_value[1m])) > 25'';
+        for = "10m";
         labels.severity = "critical";
         annotations = {
           description = ''
-            More than 25 expired vault leases per minute have occured on {{ $labels.host }} for the past 5 minutes.
+            A delta of more than 25 expirable vault lease events per minute have occurred on {{ $labels.host }} for the past 10 minutes.
               This should be investigated to ensure vault is not stuck in a lease loop.
               Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
-          summary = "High lease expiration rate on {{ $labels.host }} -- investigation needed";
+          summary = "High vault expirable lease events delta on {{ $labels.host }} -- investigation needed";
         };
       }
       {
-        alert = "VaultLeaseExpirationIncrease";
-        expr = ''increase(vault_expire_num_leases_value[10m]) > 100'';
+        alert = "VaultHighLeaseEventsWindow";
+        expr = ''abs(delta(vault_expire_num_leases_value[10m])) > 250'';
         for = "2m";
         labels.severity = "critical";
         annotations = {
           description = ''
-            More than 100 expired vault leases have occurred on {{ $labels.host }} in the past 10 minutes.
+            More than 250 expirable vault lease events have occurred on {{ $labels.host }} in the past 10 minutes.
               This should be investigated to ensure vault is not stuck in a lease loop.
               Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
-          summary = "High lease expiration increase on {{ $labels.host }} -- investigation needed";
+          summary = "High vault expirable lease events window on {{ $labels.host }} -- investigation needed";
         };
       }
       {
-        alert = "VaultTokenCountRate";
-        expr = ''rate(vault_token_count_value[1m]) * 60 > 25'';
-        for = "5m";
+        alert = "VaultHighTokenCountDelta";
+        expr = ''abs(delta(vault_token_count_value[1m])) > 25'';
+        for = "10m";
         labels.severity = "critical";
         annotations = {
           description = ''
-            More than 25 new vault tokens per minute have been created on {{ $labels.host }} for the past 5 minutes.
+            More than 25 vault token lifecycle events per minute have occurred on {{ $labels.host }} for the past 10 minutes.
               This should be investigated to ensure vault is not stuck in a token loop.
               Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
-          summary = "High token creation rate on {{ $labels.host }} -- investigation needed";
+          summary = "High vault token lifecycle events delta on {{ $labels.host }} -- investigation needed";
         };
       }
       {
-        alert = "VaultTokenCountIncrease";
-        expr = ''increase(vault_token_count_value[10m]) > 100'';
+        alert = "VaultHighTokenCountWindow";
+        expr = ''abs(delta(vault_token_count_value[10m])) > 250'';
         for = "2m";
         labels.severity = "critical";
         annotations = {
           description = ''
-            More than 100 new vault tokens have been created on {{ $labels.host }} in the past 10 minutes.
+            More than 250 vault token lifecycle events have occurred on {{ $labels.host }} in the past 10 minutes.
               This should be investigated to ensure vault is not stuck in a token loop.
               Topic discussion at: https://outline.zw3rk.com/doc/vault-leasetoken-debugging-CsN5Guh0rt'';
-          summary = "High token increase on {{ $labels.host }} -- investigation needed";
+          summary = "High vault token lifecycle events window on {{ $labels.host }} -- investigation needed";
         };
       }
     ];

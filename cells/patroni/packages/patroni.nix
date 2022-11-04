@@ -13,6 +13,9 @@ python38Packages.buildPythonApplication rec {
     rev = "v${version}";
     sha256 = "sha256-cBkiBrty/6A3rIv9A1oh8GvPjwxhHwYEKuDIsNzHw1g=";
   };
+  patches = [
+    ./test.patch
+  ];
   # cdiff renamed to ydiff; remove when patroni source reflects this.
   # Raft tests removed due to https://github.com/zalando/patroni/issues/1862
   postPatch = ''

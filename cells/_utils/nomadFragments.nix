@@ -16,7 +16,7 @@
       env = true;
     }
   ];
-  workload-identity-vault = {vaultPkiPath}: let
+  workload-identity-vault = {vaultPkiPath, ttl ? "720h", change_mode ? "restart", change_signal ? "SIGHUP", splay ? "5s"}: let
     withCertSecret = template: ''
       {{- define "ipToHex" }}
         {{- range $part := split "." . }}
@@ -26,37 +26,34 @@
       {{- with $hostIp := (env "attr.unique.network.ip-address") }}
         {{- $consulDC := (env "attr.consul.datacenter") }}
         {{- $consulDNS := (printf "%s.addr.%s.consul" (executeTemplate "ipToHex" $hostIp) $consulDC) }}
-        {{- with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) (printf "alt_names=%s" $consulDNS) "ttl=720h" }}
+        {{- with secret "${vaultPkiPath}" (printf "common_name=%s" $hostIp) (printf "ip_sans=%s" $hostIp) (printf "alt_names=%s" $consulDNS) "ttl=${ttl}" }}
       ${template}
         {{- end }}
       {{- end }}
     '';
   in [
     {
-      change_mode = "restart";
+      inherit change_mode change_signal splay;
       data = withCertSecret ''
         {{- .Data.certificate }}
       '';
       destination = "secrets/tls/cert.pem";
-      splay = "5s";
     }
     {
-      change_mode = "restart";
+      inherit change_mode change_signal splay;
       data = withCertSecret ''
         {{- .Data.private_key }}
       '';
       destination = "secrets/tls/key.pem";
-      splay = "5s";
     }
     {
-      change_mode = "restart";
+      inherit change_mode change_signal splay;
       data = withCertSecret ''
         {{- range $cert := .Data.ca_chain }}
         {{ $cert }}
         {{- end }}
       '';
       destination = "secrets/tls/ca.pem";
-      splay = "5s";
     }
   ];
 }

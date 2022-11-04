@@ -212,7 +212,7 @@ in
                   })
                   {
                     template = append (
-                      nomadFragments.workload-identity-vault {inherit vaultPkiPath;}
+                      nomadFragments.workload-identity-vault {inherit vaultPkiPath; ttl = "1h"; change_mode = "signal"; change_signal = "SIGHUP";}
                     );
                   }
                 )

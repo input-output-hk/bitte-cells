@@ -18,15 +18,11 @@
   };
   template = [
     {
-      change_mode = "restart";
+      change_mode = "noop";
       data = ''
-        {{ with secret "${consulPath}" }}
-        CONSUL_HTTP_TOKEN="{{ .Data.token }}"
-        PATRONI_CONSUL_TOKEN="{{ .Data.token }}"
         PATRONICTL_CONFIG_FILE="${patroniYaml}"
-        {{ end }}
-
         CONSUL_HTTP_ADDR="172.17.0.1:8500"
+        VAULT_ADDR="172.17.0.1:8200"
         TERM="xterm-256color"
         # Add wal-g debugging if required
         #
@@ -40,8 +36,7 @@
       splay = "5s";
     }
     {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
+      change_mode = "noop";
       data = ''
         {{with secret "${patroniSecrets}"}}
         ---
@@ -68,6 +63,7 @@
         consul:
           url: http://172.17.0.1:8500
           register_service: true
+          token: placeholder
           service_tags:
           - {{ env "NOMAD_ALLOC_ID" }}
 

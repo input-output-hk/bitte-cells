@@ -16,7 +16,13 @@
       env = true;
     }
   ];
-  workload-identity-vault = {vaultPkiPath, ttl ? "720h", change_mode ? "restart", change_signal ? "SIGHUP", splay ? "5s"}: let
+  workload-identity-vault = {
+    vaultPkiPath,
+    ttl ? "720h",
+    change_mode ? "restart",
+    change_signal ? "SIGHUP",
+    splay ? "5s",
+  }: let
     withCertSecret = template: ''
       {{- define "ipToHex" }}
         {{- range $part := split "." . }}

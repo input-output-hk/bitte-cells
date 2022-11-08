@@ -30,7 +30,9 @@ in {
       packages.walg-restore
     ];
     text = ''
-      # Rotation calculation vars
+      # Rotation related vars
+      TEMPLATE_CHECK="0"
+      TEMPLATE_HASH="0"
       TIME_LEASE_DURATION="0"
       TIME_ROTATION_OFFSET="0"
       TIME_SPLAY_OFFSET="0"
@@ -51,8 +53,8 @@ in {
 
         useradd -m -d $HOME -U -u 1500 -c "Postgres Container User" postgres
 
-        # This will copy and chmod both postgres and patroni rest API sets of certs
-
+        # This will copy and chmod both postgres and patroni rest API sets of certs.
+        # Further PKI cert rotation during runtime will be triggered by consul template change_mode signal via SIGHUP.
         cp /secrets/tls/*.pem "$HOME/"
         chmod 0600 "$HOME/key.pem"
         chown -R postgres:postgres "$HOME"
@@ -70,12 +72,12 @@ in {
       }
 
       SET_ROTATE_PARAMS () {
-        # To override, set these variables names in the job environment to the desired values
+        # To override, set these variables names in the job environment to the desired values.
+        echo "TEMPLATE_FILE         = ''${TEMPLATE_FILE:=/secrets/patroni.yaml-template}, the full path to the patroni config template to substitute with rotated consul tokens"
         echo "TOKEN_CHECK_INTERVAL  = ''${TOKEN_CHECK_INTERVAL:=10} seconds, the interval duration the token health will be checked at"
         echo "TOKEN_REFRESH_PERCENT = ''${TOKEN_REFRESH_PERCENT:=80} percent, the percent of lease time elapsed which will trigger a rotation"
         echo "TOKEN_SPLAY_PERCENT   = ''${TOKEN_SPLAY_PERCENT:=5} percent, a randomized time from 0 to total lease time to splay the refresh interval by"
         echo "TOKEN_TTL_WARNING     = ''${TOKEN_TTL_WARNING:=300} seconds, a threshold to log a warning at as token TTL approaches expiration"
-        echo
       }
 
       ROTATE_CONSUL_TOKEN () {
@@ -92,6 +94,7 @@ in {
 
           # Purposely use a different consul token name to avoid env vs. config file utilization priority conflict.
           CONSUL_TOKEN=$(jq -r '.data.token' <<< "$CONSUL_JSON")
+          CONSUL_ACCESSOR=$(jq -r '.data.accessor' <<< "$CONSUL_JSON")
 
           # By default, lease_duration is the same as max_lease_duration.
           # In the case that it is different, we will still use lease_duration as the token ttl to calculate rotation from.
@@ -105,18 +108,6 @@ in {
           TS_EXPIRES=$((TS_CREATED + TIME_LEASE_DURATION))
           TIME_TO_SPARE=$((TS_EXPIRES - TS_ROTATION))
 
-          # Print debug info
-          echo "TS_CREATED = $TS_CREATED timestamp @ $(date --utc --rfc-3339=seconds --date @"$TS_CREATED")"
-          echo "TS_ROTATION = $TS_ROTATION timestamp @ $(date --utc --rfc-3339=seconds --date @"$TS_ROTATION")"
-          echo "TS_EXPIRES = $TS_EXPIRES timestamp @ $(date --utc --rfc-3339=seconds --date @"$TS_EXPIRES")"
-          echo "TIME_LEASE_DURATION = $TIME_LEASE_DURATION seconds"
-          echo "TIME_ROTATION_OFFSET = $TIME_ROTATION_OFFSET seconds"
-          echo "TIME_SPLAY_OFFSET_MAX = $TIME_SPLAY_OFFSET_MAX seconds"
-          echo "TIME_SPLAY_OFFSET = $TIME_SPLAY_OFFSET seconds"
-          echo "TIME_TO_SPARE = $TIME_TO_SPARE seconds between rotation and expiry"
-
-          echo "CONSUL_TOKEN: $CONSUL_TOKEN"
-
           # The patroni env variable of PATRONI_CONSUL_TOKEN would take precedence over the consul token in the patroni configuration file,
           # but because patroni is running as a background task, we can't pass an updated consul env var to it.
           # Instead, we'll substitute the fresh patroni consul token into the patroni configuration file and reload patroni config.
@@ -126,10 +117,30 @@ in {
           # b) When the consul token max_lease_ttl was less than the vault system max_lease_ttl, a full job restart was still required for rotation,
           #    causing the timeline to increment and member instability due to small restart time splay.
           #
+          # Here we cannot token substitute directly into the original consul template without problems because within seconds to minutes after
+          # substitution the template file will be replaced by consul with the original template and our rotated token substitution lost, even if the
+          # template change_mode is `noop`.
+          #
+          # Rather we will leave the original template untouched as a template named file and substitute a copied template file.
           export CONSUL_TOKEN
-          yq eval -i '.consul.token = strenv(CONSUL_TOKEN)' /secrets/patroni.yaml
+          yq eval '.consul.token = strenv(CONSUL_TOKEN)' $TEMPLATE_FILE > /secrets/patroni.yaml
 
-          # Reload patroni configuration files if a pid argument was passed to this function
+          # The original template file will be watched for checksum changes so the substituted file stays current.
+          TEMPLATE_HASH=$(sha256sum $TEMPLATE_FILE)
+
+          # Print helpful rotation info
+          echo "INFO: TS_CREATED = $TS_CREATED timestamp @ $(date --utc --rfc-3339=seconds --date @"$TS_CREATED")"
+          echo "INFO: TS_ROTATION = $TS_ROTATION timestamp @ $(date --utc --rfc-3339=seconds --date @"$TS_ROTATION")"
+          echo "INFO: TS_EXPIRES = $TS_EXPIRES timestamp @ $(date --utc --rfc-3339=seconds --date @"$TS_EXPIRES")"
+          echo "INFO: TIME_LEASE_DURATION = $TIME_LEASE_DURATION seconds"
+          echo "INFO: TIME_ROTATION_OFFSET = $TIME_ROTATION_OFFSET seconds"
+          echo "INFO: TIME_SPLAY_OFFSET_MAX = $TIME_SPLAY_OFFSET_MAX seconds"
+          echo "INFO: TIME_SPLAY_OFFSET = $TIME_SPLAY_OFFSET seconds"
+          echo "INFO: TIME_TO_SPARE = $TIME_TO_SPARE seconds between rotation and expiry"
+          echo "INFO: TEMPLATE_HASH = ''${TEMPLATE_HASH%% *}"
+          echo "INFO: CONSUL_ACCESSOR: $CONSUL_ACCESSOR"
+
+          # Reload patroni configuration files if a pid argument was passed to this function so that patroni starts using the newly rotated token.
           if [ "$#" = "1" ]; then
             kill -SIGHUP "$1"
           fi
@@ -141,6 +152,20 @@ in {
           else
             echo "WARNING: unable to obtain a new consul token for rotation at $(date --utc --rfc-3339=seconds) with 0 seconds of life remaining."
           fi
+        fi
+      }
+
+      TEMPLATE_CHECK_FOR_CHANGE () {
+        TEMPLATE_CHECK=$(sha256sum $TEMPLATE_FILE)
+        if [ "$TEMPLATE_CHECK" != "$TEMPLATE_HASH" ]; then
+          echo
+          echo "INFO: Patroni template file $TEMPLATE_FILE has changed; re-substituting the current consul token and reloading patroni and postgres"
+          echo "INFO: Previous patroni template hash: ''${TEMPLATE_HASH%% *}"
+          echo "INFO: Current patroni template hash:  ''${TEMPLATE_CHECK%% *}"
+          echo "INFO: Current consul token accessor:  $CONSUL_ACCESSOR"
+          yq eval '.consul.token = strenv(CONSUL_TOKEN)' $TEMPLATE_FILE > /secrets/patroni.yaml
+          TEMPLATE_HASH="$TEMPLATE_CHECK"
+          kill -SIGHUP "$PATRONI_PID"
         fi
       }
 
@@ -158,6 +183,21 @@ in {
 
         if [ "$TS_NOW" -gt "$TS_ROTATION" ]; then
           ROTATE_CONSUL_TOKEN "$PATRONI_PID"
+        else
+          TEMPLATE_CHECK_FOR_CHANGE
+        fi
+      }
+
+      ROTATE_PKI () {
+        # Consul template will issue a SIGHUP to the patroni job when PKI is rotated
+        cp /secrets/tls/*.pem "$HOME/"
+        chmod 0600 "$HOME/key.pem"
+        chown -R postgres:postgres "$HOME"
+
+        # Reload patroni configuration files if a pid argument was passed to this function.
+        # This will also cause a postgres hot reload via SIGHUP from patroni to postgres via the callback script.
+        if [ "$#" = "1" ]; then
+          kill -SIGHUP "$1"
         fi
       }
 
@@ -165,12 +205,15 @@ in {
       SET_ROTATE_PARAMS
       ROTATE_CONSUL_TOKEN
 
-      echo Running patroni in background
+      echo "INFO: Running patroni in background"
       set -m
+
       trap 'kill $PATRONI_PID' INT
+      trap 'ROTATE_PKI $PATRONI_PID' HUP
+
       su-exec postgres:postgres patroni "$@" &
       PATRONI_PID="$!"
-      echo "Patroni background PID: $PATRONI_PID"
+      echo "INFO: Patroni background PID: $PATRONI_PID"
       echo
 
       while true; do

@@ -20,12 +20,14 @@
     {
       change_mode = "noop";
       data = ''
+        # For a valid consul token, see the `token:` line in the PATRONICTL_CONFIG_FILE
         PATRONICTL_CONFIG_FILE="${patroniYaml}"
+
         CONSUL_HTTP_ADDR="172.17.0.1:8500"
         VAULT_ADDR="172.17.0.1:8200"
         TERM="xterm-256color"
+
         # Add wal-g debugging if required
-        #
         # WALG_LOG_LEVEL="DEVEL"
       '';
       destination = "secrets/env.txt";
@@ -219,7 +221,7 @@
           safety_margin: -1
         {{end}}
       '';
-      destination = patroniYaml;
+      destination = "${patroniYaml}-template";
       left_delimiter = "{{";
       perms = "0644";
       right_delimiter = "}}";

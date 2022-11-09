@@ -40,12 +40,17 @@ in {
       TIME_TO_ROTATION="0"
       TIME_TO_SPARE="0"
       TIME_TTL_EXPIRES="0"
+      TS_CONSUL="0"
       TS_CREATED="0"
+      TS_DELTA="0"
       TS_EXPIRES="0"
       TS_NOW="0"
       TS_ROTATION="0"
+      TS_VAULT="0"
 
       PREPARE_FS () {
+        [ -z "''${VAULT_ADDR:-}" ] && echo "VAULT_ADDR env var must be set -- aborting" && exit 1
+        [ -z "''${CONSUL_HTTP_ADDR:-}" ] && echo "CONSUL_HTTP_ADDR env var must be set -- aborting" && exit 1
         [ -z "''${PERSISTENCE_MOUNTPOINT:-}" ] && echo "PERSISTENCE_MOUNTPOINT env var must be set -- aborting" && exit 1
 
         HOME=/run/postgresql
@@ -75,6 +80,7 @@ in {
         # To override, set these variables names in the job environment to the desired values.
         echo "TEMPLATE_FILE         = ''${TEMPLATE_FILE:=/secrets/patroni.yaml-template}, the full path to the patroni config template to substitute with rotated consul tokens"
         echo "TOKEN_CHECK_INTERVAL  = ''${TOKEN_CHECK_INTERVAL:=10} seconds, the interval duration the token health will be checked at"
+        echo "TOKEN_DELTA_WARNING   = ''${TOKEN_DELTA_WARNING:=10} seconds, a threshold to log a warning if the consul token timestamp and vault lease API timestamp differ by a significant amount"
         echo "TOKEN_REFRESH_PERCENT = ''${TOKEN_REFRESH_PERCENT:=80} percent, the percent of lease time elapsed which will trigger a rotation"
         echo "TOKEN_SPLAY_PERCENT   = ''${TOKEN_SPLAY_PERCENT:=5} percent, a randomized time from 0 to total lease time to splay the refresh interval by"
         echo "TOKEN_TTL_WARNING     = ''${TOKEN_TTL_WARNING:=300} seconds, a threshold to log a warning at as token TTL approaches expiration"
@@ -89,16 +95,37 @@ in {
           echo "WARNING: unable to clear the vault-agent cache of consul patroni tokens at $(date --utc --rfc-3339=seconds)."
         fi
 
-        if CONSUL_JSON=$(curl --silent --fail-with-body --header "X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/consul/creds/patroni"); then
-          TS_CREATED=$(date +%s)
+        if VAULT_JSON=$(curl --silent --fail-with-body --header "X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/consul/creds/patroni"); then
+          TS_VAULT=$(date +%s)
 
           # Purposely use a different consul token name to avoid env vs. config file utilization priority conflict.
-          CONSUL_TOKEN=$(jq -r '.data.token' <<< "$CONSUL_JSON")
-          CONSUL_ACCESSOR=$(jq -r '.data.accessor' <<< "$CONSUL_JSON")
+          CONSUL_TOKEN=$(jq -r '.data.token' <<< "$VAULT_JSON")
+          CONSUL_ACCESSOR=$(jq -r '.data.accessor' <<< "$VAULT_JSON")
 
           # By default, lease_duration is the same as max_lease_duration.
           # In the case that it is different, we will still use lease_duration as the token ttl to calculate rotation from.
-          TIME_LEASE_DURATION=$(jq -r '.lease_duration' <<< "$CONSUL_JSON")
+          TIME_LEASE_DURATION=$(jq -r '.lease_duration' <<< "$VAULT_JSON")
+
+          # The consul token request response obtained from vault contains a lease length, but not a creation timestamp.
+          # We check the actual consul token creation timestamp to ensure we somehow haven't gotten an aged token due to vault-agent caching or some other mechanism.
+          # To be conservative, we utilize the oldest timestamp between consul reported token creation and vault API call timestamp to avoid edge cases,
+          # for example system times between machines being out of sync, and produce a warning if the vault vs consul timestamp delta is unexpectedly large.
+          if CONSUL_JSON=$(curl --silent --fail-with-body --header "X-CONSUL-TOKEN: $CONSUL_TOKEN" "$CONSUL_HTTP_ADDR/v1/acl/token/self"); then
+            TS_CONSUL=$(date --date "$(jq -r '.CreateTime' <<< "$CONSUL_JSON")" +%s)
+            TS_DELTA=$((TS_CONSUL - TS_VAULT))
+            if [ "''${TS_DELTA#-}" -gt "$TOKEN_DELTA_WARNING" ]; then
+              echo "WARNING: the time delta between consul token creation @ $(date --utc --rfc-3339=seconds --date @"$TS_CONSUL") and vault consul token lease request is unexpectedly large at $TS_DELTA seconds."
+            fi
+
+            if [ "$TS_CONSUL" -le "$TS_VAULT" ]; then
+              TS_CREATED="$TS_CONSUL"
+            else
+              TS_CREATED="$TS_VAULT"
+            fi
+          else
+            echo "WARNING: unable to obtain a creation time for the vault returned consul token."
+            TS_CREATED="$TS_VAULT"
+          fi
 
           # Calculate rotation times
           TIME_ROTATION_OFFSET=$((TIME_LEASE_DURATION * TOKEN_REFRESH_PERCENT / 100))

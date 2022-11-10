@@ -22,6 +22,10 @@ in
       jobName ? "database",
       psqlPort ? 5432,
       patroniPort ? 8008,
+      patroniBootstrapMethod ? "initdb",
+      patroniBootstrapMethodWalgPitrTimeline ? "latest",
+      patroniBootstrapMethodWalgPitrTimestamp ? "'2022-01-01 00:00:00 UTC'",
+      patroniBootstrapMethodWalgTimeline ? "latest",
       ...
     }: let
       id = "database";
@@ -189,7 +193,21 @@ in
               patroni =
                 (
                   merge
-                  (import ./env-patroni.nix {inherit psqlPort patroniSecrets consulPath volumeMount patroniYaml namespace packages;})
+                  (import ./env-patroni.nix {
+                    inherit
+                      psqlPort
+                      patroniSecrets
+                      consulPath
+                      volumeMount
+                      patroniYaml
+                      namespace
+                      packages
+                      patroniBootstrapMethod
+                      patroniBootstrapMethodWalgPitrTimeline
+                      patroniBootstrapMethodWalgPitrTimestamp
+                      patroniBootstrapMethodWalgTimeline
+                      ;
+                  })
                   {
                     template = append (
                       nomadFragments.workload-identity-vault {inherit vaultPkiPath;}

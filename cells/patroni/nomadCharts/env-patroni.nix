@@ -10,8 +10,7 @@
   patroniBootstrapMethodWalgPitrTimeline,
   patroniBootstrapMethodWalgPitrTimestamp,
   patroniBootstrapMethodWalgTimeline,
-}:
-{
+}: {
   env = {
     PATH = "/bin";
     PERSISTENCE_MOUNTPOINT = volumeMount;

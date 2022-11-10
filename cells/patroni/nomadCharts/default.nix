@@ -114,18 +114,20 @@ in
             # endpoints = ["https://$NOMAD_ADDR_patroni/metrics"];
             endpoints = ["https://127.0.0.1:8008/metrics"];
 
-            extra = {
-              # Until we implement app based mTLS, or alternatively
-              # generate vault pki certs for vector consumption
-              # with rotation and SIGHUP consul template restarts.
-              sources.prom.tls.verify_certificate = false;
+            extra =
+              {
+                # Until we implement app based mTLS, or alternatively
+                # generate vault pki certs for vector consumption
+                # with rotation and SIGHUP consul template restarts.
+                sources.prom.tls.verify_certificate = false;
 
-              # Avoid repeating duplicate fingerprint logs for
-              # stdout between patroni and backup-walg logs.
-              sources.source_stdout.fingerprint.strategy = "checksum";
-              sources.source_stdout.fingerprint.lines = 4;
-              sources.source_stdout.fingerprint.ignored_header_bytes = 0;
-            } // extraVector;
+                # Avoid repeating duplicate fingerprint logs for
+                # stdout between patroni and backup-walg logs.
+                sources.source_stdout.fingerprint.strategy = "checksum";
+                sources.source_stdout.fingerprint.lines = 4;
+                sources.source_stdout.fingerprint.ignored_header_bytes = 0;
+              }
+              // extraVector;
           })
           {
             count = scaling;

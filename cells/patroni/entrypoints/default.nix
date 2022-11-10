@@ -12,13 +12,13 @@ in {
     debugInputs = [
       nixpkgs.less
       nixpkgs.awscli2
+      nixpkgs.strace
     ];
     runtimeInputs = [
       nixpkgs.coreutils
       nixpkgs.curl
       nixpkgs.jq
       nixpkgs.postgresql_12
-      nixpkgs.ripgrep
       nixpkgs.shadow
       nixpkgs.su-exec
       nixpkgs.wal-g

@@ -22,6 +22,10 @@ in
       jobName ? "database",
       psqlPort ? 5432,
       patroniPort ? 8008,
+      patroniBootstrapMethod ? "initdb",
+      patroniBootstrapMethodWalgPitrTimeline ? "latest",
+      patroniBootstrapMethodWalgPitrTimestamp ? "'2022-01-01 00:00:00 UTC'",
+      patroniBootstrapMethodWalgTimeline ? "latest",
       ...
     }: let
       id = "database";
@@ -110,18 +114,20 @@ in
             # endpoints = ["https://$NOMAD_ADDR_patroni/metrics"];
             endpoints = ["https://127.0.0.1:8008/metrics"];
 
-            extra = {
-              # Until we implement app based mTLS, or alternatively
-              # generate vault pki certs for vector consumption
-              # with rotation and SIGHUP consul template restarts.
-              sources.prom.tls.verify_certificate = false;
+            extra =
+              {
+                # Until we implement app based mTLS, or alternatively
+                # generate vault pki certs for vector consumption
+                # with rotation and SIGHUP consul template restarts.
+                sources.prom.tls.verify_certificate = false;
 
-              # Avoid repeating duplicate fingerprint logs for
-              # stdout between patroni and backup-walg logs.
-              sources.source_stdout.fingerprint.strategy = "checksum";
-              sources.source_stdout.fingerprint.lines = 4;
-              sources.source_stdout.fingerprint.ignored_header_bytes = 0;
-            } // extraVector;
+                # Avoid repeating duplicate fingerprint logs for
+                # stdout between patroni and backup-walg logs.
+                sources.source_stdout.fingerprint.strategy = "checksum";
+                sources.source_stdout.fingerprint.lines = 4;
+                sources.source_stdout.fingerprint.ignored_header_bytes = 0;
+              }
+              // extraVector;
           })
           {
             count = scaling;
@@ -189,7 +195,21 @@ in
               patroni =
                 (
                   merge
-                  (import ./env-patroni.nix {inherit psqlPort patroniSecrets consulPath volumeMount patroniYaml namespace packages;})
+                  (import ./env-patroni.nix {
+                    inherit
+                      psqlPort
+                      patroniSecrets
+                      consulPath
+                      volumeMount
+                      patroniYaml
+                      namespace
+                      packages
+                      patroniBootstrapMethod
+                      patroniBootstrapMethodWalgPitrTimeline
+                      patroniBootstrapMethodWalgPitrTimestamp
+                      patroniBootstrapMethodWalgTimeline
+                      ;
+                  })
                   {
                     template = append (
                       nomadFragments.workload-identity-vault {inherit vaultPkiPath;}

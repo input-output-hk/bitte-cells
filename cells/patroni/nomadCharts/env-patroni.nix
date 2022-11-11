@@ -6,12 +6,11 @@
   namespace,
   packages,
   psqlPort,
-}: let
-  patroniBootstrapMethod = "initdb";
-  patroniBootstrapMethodWalgPitrTimeline = "latest";
-  patroniBootstrapMethodWalgPitrTimestamp = "'2022-01-01 00:00:00 UTC'";
-  patroniBootstrapMethodWalgTimeline = "latest";
-in {
+  patroniBootstrapMethod,
+  patroniBootstrapMethodWalgPitrTimeline,
+  patroniBootstrapMethodWalgPitrTimestamp,
+  patroniBootstrapMethodWalgTimeline,
+}: {
   env = {
     PATH = "/bin";
     PERSISTENCE_MOUNTPOINT = volumeMount;

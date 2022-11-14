@@ -61,6 +61,18 @@
         };
       }
       {
+        alert = "PatroniTimelineMismatch";
+        expr = "stddev by (scope) (patroni_postgres_timeline) > 0";
+        for = "1h";
+        labels.severity = "critical";
+        annotations = {
+          description = ''
+            One or more patroni postgres {{ $labels.scope }} members have not joined the latest timeline for more than 1 hour in namespace {{ $labels.namespace }}.
+             This likely indicates some member(s) need manual intervention to catch up with the leader.'';
+          summary = "[Bitte-cells] Patroni member(s) have not joined the latest timeline in namespace {{ $labels.namespace }} for more than 1 hour";
+        };
+      }
+      {
         alert = "PatroniTimelineIncreasing";
         expr = "sum_over_time(rate(patroni_postgres_timeline)[1h]) > 2";
         for = "5m";

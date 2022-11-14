@@ -26,7 +26,7 @@ in
       patroniBootstrapMethodWalgPitrTimeline ? "latest",
       patroniBootstrapMethodWalgPitrTimestamp ? "'2022-01-01 00:00:00 UTC'",
       patroniBootstrapMethodWalgTimeline ? "latest",
-      pkiTtl ? "168h",
+      pkiTtl ? "288h",
       ...
     }: let
       id = "database";

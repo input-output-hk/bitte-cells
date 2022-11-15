@@ -9,7 +9,7 @@ in {
   default = n2c.buildImage {
     name = "registry.ci.iog.io/vector";
     maxLayers = 15;
-    contents = [nixpkgs.bashInteractive nixpkgs.cacert];
+    copyToRoot = [nixpkgs.bashInteractive nixpkgs.cacert];
     config.Entrypoint = ["${packages.default}/bin/vector"];
   };
 }

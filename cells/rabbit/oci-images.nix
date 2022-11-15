@@ -12,7 +12,7 @@ in {
     layers = [
       (n2c.buildLayer {deps = entrypoints.rabbit.runtimeInputs;})
     ];
-    contents = [nixpkgs.bashInteractive];
+    copyToRoot = [nixpkgs.bashInteractive];
     config.Cmd = [
       "${entrypoints.rabbit}/bin/rabbit-entrypoint"
     ];

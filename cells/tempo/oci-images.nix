@@ -15,7 +15,7 @@ in {
     layers = [
       (n2c.buildLayer {deps = entrypoints.tempo.runtimeInputs;})
     ];
-    contents = with nixpkgs; [bashInteractive cacert];
+    copyToRoot = with nixpkgs; [bashInteractive cacert];
     config.Entrypoint = ["${entrypoints.tempo}/bin/entrypoint"];
   };
 }

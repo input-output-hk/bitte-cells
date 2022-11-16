@@ -15,7 +15,7 @@ in {
     layers = [
       (n2c.buildLayer {deps = entrypoints.patroni.runtimeInputs;})
     ];
-    contents = with nixpkgs; [bashInteractive cacert];
+    copyToRoot = with nixpkgs; [bashInteractive cacert];
     config.Entrypoint = ["${entrypoints.patroni}/bin/entrypoint"];
   };
   patroni-backup-sidecar = buildDebugImage entrypoints.patroni-backup-sidecar {
@@ -24,7 +24,7 @@ in {
     layers = [
       (n2c.buildLayer {deps = entrypoints.patroni-backup-sidecar.runtimeInputs;})
     ];
-    contents = with nixpkgs; [bashInteractive cacert];
+    copyToRoot = with nixpkgs; [bashInteractive cacert];
     config.Entrypoint = [
       "${entrypoints.patroni-backup-sidecar}/bin/entrypoint"
     ];

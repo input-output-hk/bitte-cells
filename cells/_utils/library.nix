@@ -43,7 +43,7 @@ in rec {
     in
       oci
       // {
-        contents = (oci.contents or []) ++ [debug-bin];
+        copyToRoot = (oci.copyToRoot or []) ++ [debug-bin];
       };
 
   mkAlerts = let

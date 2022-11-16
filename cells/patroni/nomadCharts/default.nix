@@ -26,6 +26,7 @@ in
       patroniBootstrapMethodWalgPitrTimeline ? "latest",
       patroniBootstrapMethodWalgPitrTimestamp ? "'2022-01-01 00:00:00 UTC'",
       patroniBootstrapMethodWalgTimeline ? "latest",
+      pkiTtl ? "288h",
       ...
     }: let
       id = "database";
@@ -45,7 +46,7 @@ in
         patroniSuperPass = ".Data.data.patroniSuperPass";
       };
       vaultPkiPath = "pki/issue/patroni";
-      patroniYaml = "secrets/patroni.yaml";
+      patroniYaml = "/secrets/patroni.yaml";
       volumeMount = "/persist-db";
     in {
       job.${jobName} = {
@@ -212,7 +213,12 @@ in
                   })
                   {
                     template = append (
-                      nomadFragments.workload-identity-vault {inherit vaultPkiPath;}
+                      nomadFragments.workload-identity-vault {
+                        inherit vaultPkiPath;
+                        ttl = pkiTtl;
+                        change_mode = "signal";
+                        change_signal = "SIGHUP";
+                      }
                     );
                   }
                 )

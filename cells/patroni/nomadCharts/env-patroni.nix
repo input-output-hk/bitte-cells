@@ -18,18 +18,16 @@
   };
   template = [
     {
-      change_mode = "restart";
+      change_mode = "noop";
       data = ''
-        {{ with secret "${consulPath}" }}
-        CONSUL_HTTP_TOKEN="{{ .Data.token }}"
-        PATRONI_CONSUL_TOKEN="{{ .Data.token }}"
+        # For a valid consul token, see the `token:` line in the PATRONICTL_CONFIG_FILE
         PATRONICTL_CONFIG_FILE="${patroniYaml}"
-        {{ end }}
 
         CONSUL_HTTP_ADDR="172.17.0.1:8500"
+        VAULT_ADDR="172.17.0.1:8200"
         TERM="xterm-256color"
+
         # Add wal-g debugging if required
-        #
         # WALG_LOG_LEVEL="DEVEL"
       '';
       destination = "secrets/env.txt";
@@ -40,8 +38,7 @@
       splay = "5s";
     }
     {
-      change_mode = "signal";
-      change_signal = "SIGHUP";
+      change_mode = "noop";
       data = ''
         {{with secret "${patroniSecrets}"}}
         ---
@@ -68,6 +65,7 @@
         consul:
           url: http://172.17.0.1:8500
           register_service: true
+          token: placeholder
           service_tags:
           - {{ env "NOMAD_ALLOC_ID" }}
 
@@ -223,7 +221,7 @@
           safety_margin: -1
         {{end}}
       '';
-      destination = patroniYaml;
+      destination = "${patroniYaml}-template";
       left_delimiter = "{{";
       perms = "0644";
       right_delimiter = "}}";

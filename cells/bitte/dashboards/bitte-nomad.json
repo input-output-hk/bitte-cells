@@ -115,7 +115,7 @@
             "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "nomad_nomad_job_status_running_value",
+          "expr": "sum(nomad_nomad_job_status_running_value)",
           "hide": false,
           "interval": "",
           "legendFormat": "running",
@@ -128,7 +128,7 @@
             "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "nomad_nomad_job_status_pending_value",
+          "expr": "sum(nomad_nomad_job_status_pending_value)",
           "hide": false,
           "legendFormat": "pending",
           "range": true,
@@ -140,7 +140,7 @@
             "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "nomad_nomad_job_status_dead_value",
+          "expr": "sum(nomad_nomad_job_status_dead_value)",
           "hide": false,
           "legendFormat": "dead",
           "range": true,

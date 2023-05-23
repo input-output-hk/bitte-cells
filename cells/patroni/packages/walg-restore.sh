@@ -34,6 +34,21 @@ while getopts ":-:" optchar; do
   esac
 done
 
+if [[ -n ${WALG_RESTORE_RETRIES-} ]]; then
+  echo "Setting walg retries override from env var: $WALG_RESTORE_RETRIES"
+  RETRIES="$WALG_RESTORE_RETRIES"
+fi
+
+if [[ -n ${WALG_RESTORE_THRESHOLD_MEGABYTES-} ]]; then
+  echo "Setting walg threshold megabytes override from env var: $WALG_RESTORE_THRESHOLD_MEGABYTES"
+  THRESHOLD_MEGABYTES="$WALG_RESTORE_THRESHOLD_MEGABYTES"
+fi
+
+if [[ -n ${WALG_RESTORE_THRESHOLD_PERCENTAGE-} ]]; then
+  echo "Setting walg threshold percentage override from env var: $WALG_RESTORE_THRESHOLD_PERCENTAGE"
+  THRESHOLD_PERCENTAGE="$WALG_RESTORE_THRESHOLD_PERCENTAGE"
+fi
+
 [[ -z ${DATA_DIR-} ]] && echo "Aborting walg-restore -- No data dir option was provided" && exit 1
 [[ -z ${NO_MASTER-} && -z ${CONNSTR-} ]] && echo "Aborting walg-restore -- No connection string was provided" && exit 1
 

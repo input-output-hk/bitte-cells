@@ -4,7 +4,7 @@
 }: let
   inherit (inputs) nixpkgs;
   inherit (inputs.cells) _utils;
-  inherit (cell) entrypoints;
+  inherit (cell) entrypoints healthChecks;
   n2c = inputs.n2c.packages.nix2container;
 
   buildDebugImage = ep: o: n2c.buildImage (_utils.library.mkDebugOCI ep o);
@@ -15,7 +15,7 @@ in {
     layers = [
       (n2c.buildLayer {deps = entrypoints.patroni.runtimeInputs;})
     ];
-    copyToRoot = with nixpkgs; [bashInteractive cacert];
+    copyToRoot = with nixpkgs; [bashInteractive cacert healthChecks.patroni-state-running];
     config.Entrypoint = ["${entrypoints.patroni}/bin/entrypoint"];
   };
   patroni-backup-sidecar = buildDebugImage entrypoints.patroni-backup-sidecar {

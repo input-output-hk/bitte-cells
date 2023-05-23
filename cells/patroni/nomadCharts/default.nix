@@ -5,7 +5,7 @@
   inherit (inputs) data-merge cells;
   inherit (inputs.nixpkgs) system;
   inherit (inputs.cells._utils) nomadFragments;
-  inherit (cell) entrypoints oci-images packages;
+  inherit (cell) entrypoints healthChecks oci-images packages;
 
   # OCI-Image Namer
   ociNamer = oci: l.unsafeDiscardStringContext "${oci.imageName}:${oci.imageTag}";
@@ -74,7 +74,7 @@ in
         # ----------
         # Update
         # ----------
-        update.health_check = "task_states";
+        update.health_check = "checks";
         update.healthy_deadline = "5m0s";
         update.max_parallel = 1;
         update.min_healthy_time = "2m";
@@ -151,7 +151,7 @@ in
                 };
               };
             };
-            service = [(import ./srv-rest.nix {inherit namespace subdomain;})];
+            service = [(import ./srv-rest.nix {inherit namespace;})];
             volume = {
               persistDb = {
                 source = "${namespace}-database";
